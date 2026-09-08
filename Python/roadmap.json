@@ -1,0 +1,608 @@
+{
+  "Python Revision Roadmap": {
+    "01. Python Fundamentals": [
+      "Variables and naming",
+      "Data types: int, float, str, bool, None",
+      "Type conversion",
+      "type()",
+      "isinstance()",
+      "Operators",
+      "Arithmetic operators",
+      "Comparison operators",
+      "Logical operators",
+      "Assignment operators",
+      "Membership operators",
+      "Identity operators"
+    ],
+
+    "02. Strings": [
+      "String creation",
+      "Indexing",
+      "Slicing", 
+      "String immutability",
+      "String methods",
+      "upper() / lower()",
+      "strip()",
+      "replace()",
+      "split()",
+      "join()",
+      "startswith() / endswith()",
+      "String formatting",
+      "f-strings",
+      "Escape characters",
+      "Multiline strings"
+    ],
+
+    "03. Data Structures": {
+      "Lists": [
+        "Indexing",
+        "Slicing",
+        "append()",
+        "extend()",
+        "insert()",
+        "remove()",
+        "pop()",
+        "sort()",
+        "reverse()",
+        "copy()",
+        "List unpacking"
+      ],
+      "Tuples": [
+        "Creating tuples",
+        "Indexing and slicing",
+        "Tuple unpacking",
+        "Immutability",
+        "Tuple vs list"
+      ],
+      "Sets": [
+        "Creating sets",
+        "Adding and removing elements",
+        "Membership",
+        "Union",
+        "Intersection",
+        "Difference",
+        "Symmetric difference"
+      ],
+      "Dictionaries": [
+        "Key-value pairs",
+        "Accessing values",
+        "get()",
+        "keys()",
+        "values()",
+        "items()",
+        "update()",
+        "pop()",
+        "Nested dictionaries",
+        "Dictionary unpacking"
+      ]
+    },
+
+    "04. Control Flow": [
+      "if",
+      "elif",
+      "else",
+      "Nested conditions",
+      "Truthy and falsy values",
+      "Ternary expressions",
+      "for loops",
+      "while loops",
+      "range()",
+      "break",
+      "continue",
+      "pass",
+      "enumerate()",
+      "zip()"
+    ],
+
+    "05. Comprehensions": [
+      "List comprehensions",
+      "Conditional list comprehensions",
+      "Nested list comprehensions",
+      "Dictionary comprehensions",
+      "Set comprehensions",
+      "Generator expressions"
+    ],
+
+    "06. Functions": [
+      "Defining functions",
+      "Parameters",
+      "Return values",
+      "Positional arguments",
+      "Keyword arguments",
+      "Default arguments",
+      "*args",
+      "**kwargs",
+      "Argument unpacking",
+      "Variable scope",
+      "local scope",
+      "global scope",
+      "nonlocal",
+      "Lambda functions",
+      "Higher-order functions",
+      "map()",
+      "filter()",
+      "reduce()"
+    ],
+
+    "07. Exception Handling": [
+      "try",
+      "except",
+      "else",
+      "finally",
+      "raise",
+      "Built-in exceptions",
+      "Exception hierarchy",
+      "Multiple exceptions",
+      "Custom exceptions",
+      "When to catch vs propagate exceptions"
+    ],
+
+    "08. File Handling": [
+      "open()",
+      "Reading files",
+      "Writing files",
+      "Appending files",
+      "File modes",
+      "Text files",
+      "Binary files",
+      "with statement",
+      "Reading line by line",
+      "pathlib"
+    ],
+
+    "09. JSON and CSV": {
+      "JSON": [
+        "json.loads()",
+        "json.dumps()",
+        "json.load()",
+        "json.dump()",
+        "Python dict/list ↔ JSON",
+        "Nested JSON"
+      ],
+      "CSV": [
+        "csv.reader",
+        "csv.writer",
+        "csv.DictReader",
+        "csv.DictWriter",
+        "Reading CSV",
+        "Writing CSV"
+      ]
+    },
+
+    "10. Modules and Packages": [
+      "import",
+      "from ... import",
+      "Modules",
+      "Packages",
+      "__init__.py",
+      "__name__",
+      "if __name__ == '__main__'",
+      "Creating your own modules",
+      "Package structure",
+      "Absolute imports",
+      "Relative imports"
+    ],
+
+    "11. Python Environment and Packages": [
+      "venv",
+      "Virtual environments",
+      "pip",
+      "pip install",
+      "pip uninstall",
+      "pip list",
+      "pip freeze",
+      "requirements.txt",
+      "Environment variables",
+      ".env files",
+      "python-dotenv",
+      "Poetry basics",
+      "uv basics"
+    ],
+
+    "12. Object-Oriented Programming": [
+      "Classes",
+      "Objects",
+      "__init__",
+      "self",
+      "Instance attributes",
+      "Class attributes",
+      "Instance methods",
+      "Class methods",
+      "Static methods",
+      "Properties",
+      "Encapsulation",
+      "Inheritance",
+      "Polymorphism",
+      "Abstraction",
+      "super()",
+      "Composition",
+      "Composition vs inheritance"
+    ],
+
+    "13. Iterators and Generators": [
+      "Iterable vs iterator",
+      "iter()",
+      "next()",
+      "Creating custom iterators",
+      "Generators",
+      "yield",
+      "Generator expressions",
+      "Lazy evaluation",
+      "Memory efficiency"
+    ],
+
+    "14. Decorators and Context Managers": {
+      "Decorators": [
+        "Functions as objects",
+        "Nested functions",
+        "Closures",
+        "Basic decorators",
+        "Decorators with arguments",
+        "*args and **kwargs in decorators",
+        "functools.wraps",
+        "Multiple decorators"
+      ],
+      "Context Managers": [
+        "with statement",
+        "__enter__",
+        "__exit__",
+        "Creating custom context managers",
+        "contextlib"
+      ]
+    },
+
+    "15. Python Standard Library": [
+      "os",
+      "os.environ",
+      "pathlib",
+      "shutil",
+      "glob",
+      "datetime",
+      "date",
+      "timedelta",
+      "timezone",
+      "re",
+      "collections",
+      "Counter",
+      "defaultdict",
+      "deque",
+      "itertools",
+      "functools",
+      "subprocess"
+    ],
+
+    "16. HTTP and REST APIs": [
+      "HTTP fundamentals",
+      "Request vs response",
+      "GET",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+      "HTTP headers",
+      "Query parameters",
+      "Path parameters",
+      "Request body",
+      "Cookies",
+      "Authentication headers",
+      "JSON APIs",
+      "HTTP status codes",
+      "200 / 201",
+      "400 / 401 / 403 / 404 / 409 / 422",
+      "500"
+    ],
+
+    "17. Requests and HTTP Clients": [
+      "requests.get()",
+      "requests.post()",
+      "requests.put()",
+      "requests.patch()",
+      "requests.delete()",
+      "Query parameters",
+      "Headers",
+      "JSON request body",
+      "Form data",
+      "Authentication",
+      "Timeouts",
+      "Response handling",
+      "response.status_code",
+      "response.json()",
+      "response.text",
+      "response.headers",
+      "HTTP error handling"
+    ],
+
+    "18. Flask": [
+      "Flask application",
+      "Routes",
+      "HTTP methods",
+      "Request object",
+      "Response object",
+      "JSON responses",
+      "Path parameters",
+      "Query parameters",
+      "Request body",
+      "Headers",
+      "Blueprints",
+      "Application factory",
+      "Configuration",
+      "Environment variables",
+      "Error handlers",
+      "Middleware/hooks",
+      "CORS",
+      "Authentication",
+      "Database integration",
+      "Building REST APIs with Flask"
+    ],
+
+    "19. FastAPI Fundamentals": [
+      "FastAPI application",
+      "Routes",
+      "GET / POST / PUT / PATCH / DELETE",
+      "Path parameters",
+      "Query parameters",
+      "Request bodies",
+      "Response models",
+      "Status codes",
+      "Headers",
+      "Cookies",
+      "File uploads",
+      "OpenAPI",
+      "Swagger UI",
+      "ReDoc"
+    ],
+
+    "20. Pydantic": [
+      "BaseModel",
+      "Type validation",
+      "Serialization",
+      "Deserialization",
+      "Nested models",
+      "Optional fields",
+      "Default values",
+      "Field validation",
+      "Custom validation",
+      "Enums",
+      "Model configuration"
+    ],
+
+    "21. FastAPI Intermediate": [
+      "APIRouter",
+      "Dependency injection",
+      "Depends()",
+      "Middleware",
+      "Exception handlers",
+      "Custom exceptions",
+      "CORS",
+      "Background tasks",
+      "Authentication",
+      "OAuth2",
+      "JWT",
+      "Access tokens",
+      "Refresh tokens",
+      "Response models",
+      "API versioning",
+      "Project structure"
+    ],
+
+    "22. SQL and Databases": [
+      "SQL fundamentals",
+      "SELECT",
+      "INSERT",
+      "UPDATE",
+      "DELETE",
+      "WHERE",
+      "ORDER BY",
+      "GROUP BY",
+      "JOIN",
+      "INNER JOIN",
+      "LEFT JOIN",
+      "Aggregations",
+      "Primary keys",
+      "Foreign keys",
+      "Constraints",
+      "Indexes",
+      "Transactions",
+      "SQLite",
+      "PostgreSQL"
+    ],
+
+    "23. SQLAlchemy and Alembic": [
+      "SQLAlchemy basics",
+      "Models",
+      "Columns",
+      "Relationships",
+      "Sessions",
+      "Queries",
+      "CRUD operations",
+      "One-to-one relationships",
+      "One-to-many relationships",
+      "Many-to-many relationships",
+      "Eager vs lazy loading",
+      "Transactions",
+      "Alembic",
+      "Database migrations"
+    ],
+
+    "24. Async Python": [
+      "Synchronous vs asynchronous code",
+      "async def",
+      "await",
+      "asyncio",
+      "Event loop",
+      "Coroutines",
+      "Tasks",
+      "Concurrency",
+      "Concurrent I/O",
+      "asyncio.gather()",
+      "Async HTTP",
+      "httpx",
+      "Async database operations"
+    ],
+
+    "25. Python Automation - Files": [
+      "pathlib automation",
+      "os automation",
+      "shutil",
+      "glob",
+      "File searching",
+      "File renaming",
+      "Moving files",
+      "Copying files",
+      "Deleting files",
+      "Directory creation",
+      "File organization",
+      "Batch processing"
+    ],
+
+    "26. Python Automation - Data": [
+      "pandas basics",
+      "DataFrames",
+      "Reading CSV",
+      "Writing CSV",
+      "Reading Excel",
+      "Writing Excel",
+      "Filtering data",
+      "Sorting data",
+      "Grouping data",
+      "Data transformation",
+      "openpyxl",
+      "Excel formatting",
+      "Generating reports"
+    ],
+
+    "27. PDF Automation": [
+      "PyMuPDF",
+      "pypdf",
+      "reportlab",
+      "Extracting PDF text",
+      "Reading PDF metadata",
+      "Merging PDFs",
+      "Splitting PDFs",
+      "Creating PDFs",
+      "Generating reports"
+    ],
+
+    "28. Web Scraping and Browser Automation": {
+      "Requests + BeautifulSoup": [
+        "HTTP requests",
+        "HTML parsing",
+        "CSS selectors",
+        "Finding elements",
+        "Extracting text",
+        "Extracting links",
+        "Extracting attributes",
+        "Handling pagination"
+      ],
+      "Playwright": [
+        "Browser automation",
+        "Launching browsers",
+        "Locators",
+        "Clicking elements",
+        "Typing into forms",
+        "Login flows",
+        "Waiting for elements",
+        "Screenshots",
+        "Page navigation",
+        "Extracting dynamic content"
+      ]
+    },
+
+    "29. CLI Automation": [
+      "argparse",
+      "Command-line arguments",
+      "Flags",
+      "Subcommands",
+      "Typer",
+      "Building reusable CLI tools",
+      "Input validation",
+      "CLI error handling"
+    ],
+
+    "30. Scheduling and Background Automation": [
+      "cron",
+      "Windows Task Scheduler",
+      "APScheduler",
+      "Scheduled scripts",
+      "Daily jobs",
+      "Hourly jobs",
+      "Recurring jobs",
+      "Background tasks",
+      "Job failure handling"
+    ],
+
+    "31. Testing": [
+      "pytest",
+      "Test functions",
+      "Assertions",
+      "Fixtures",
+      "Parametrization",
+      "Mocking",
+      "Unit testing",
+      "Integration testing",
+      "API testing",
+      "FastAPI TestClient",
+      "httpx testing",
+      "Test coverage"
+    ],
+
+    "32. Type Hints and Code Quality": [
+      "Function type hints",
+      "Variable type hints",
+      "list[str]",
+      "dict[str, int]",
+      "Optional",
+      "Union",
+      "Literal",
+      "TypedDict",
+      "mypy",
+      "Ruff",
+      "Black",
+      "PEP 8",
+      "Code formatting",
+      "Linting"
+    ],
+
+    "33. Logging and Configuration": [
+      "logging module",
+      "DEBUG",
+      "INFO",
+      "WARNING",
+      "ERROR",
+      "CRITICAL",
+      "Log formatting",
+      "File logging",
+      "Environment-based configuration",
+      "Secrets management",
+      "Configuration classes"
+    ],
+
+    "34. Git for Python Projects": [
+      "git init",
+      "git add",
+      "git commit",
+      "git branch",
+      "git merge",
+      "git pull",
+      "git push",
+      ".gitignore",
+      ".env handling",
+      "requirements.txt",
+      "README.md",
+      "Project structure"
+    ],
+
+    "35. Projects": [
+      "File organizer automation",
+      "API data fetching and reporting tool",
+      "Flask REST API",
+      "FastAPI task management API",
+      "FastAPI + PostgreSQL backend",
+      "JWT authentication API",
+      "Web scraping automation",
+      "Playwright browser automation",
+      "Excel report generator",
+      "Scheduled automation tool"
+    ]
+  }
+}
