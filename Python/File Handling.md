@@ -1,4 +1,4 @@
-## 1. `open()`, File Modes, & The `with` Statement
+##  `open()`, File Modes, & The `with` Statement
 
 ### Clear Explanation
 
@@ -96,7 +96,7 @@ The `with` statement is like a **security guard holding open a vault door**: You
 
 ---
 
-## 2. Text Files: Reading, Writing, & Iterating Line-by-Line
+##  Text Files: Reading, Writing, & Iterating Line-by-Line
 
 ### Clear Explanation
 
@@ -104,10 +104,10 @@ Text files store human-readable characters mapped to bytes using an encoding sch
 
 Python provides multiple methods to read data from text files:
 
-1. `.read()`: Reads the **entire file contents** into a single string.
-2. `.readline()`: Reads a **single line** up to the next newline (`\n`).
-3. `.readlines()`: Reads all lines into a **list of strings**.
-4. **File Object Iteration (`for line in file`):** Memory-efficient line-by-line streaming.
+ `.read()`: Reads the **entire file contents** into a single string.
+ `.readline()`: Reads a **single line** up to the next newline (`\n`).
+ `.readlines()`: Reads all lines into a **list of strings**.
+ **File Object Iteration (`for line in file`):** Memory-efficient line-by-line streaming.
 
 For large files, iterating directly over the file object is preferred because it streams lines one at a time into memory rather than loading the entire file into RAM.
 
@@ -181,7 +181,7 @@ with open("users.csv", "w", encoding="utf-8") as f:
 
 ---
 
-## 3. Binary Files
+##  Binary Files
 
 ### Clear Explanation
 
@@ -241,7 +241,7 @@ def copy_media_file(source_path, destination_path, chunk_size=4096):
 
 ---
 
-## 4. Modern Path Operations: `pathlib`
+##  Modern Path Operations: `pathlib`
 
 ### Clear Explanation
 
@@ -286,7 +286,7 @@ print(f"Parent Directory: {config_path.parent}")
 
 ### Common `pathlib` Utilities
 
-#### 1. Checking Existence & Path Types
+####  Checking Existence & Path Types
 
 ```python
 file_path = Path("data/users.json")
@@ -297,7 +297,7 @@ print(file_path.is_dir())       # Returns True if path is a directory
 
 ```
 
-#### 2. Creating Directories Safely
+####  Creating Directories Safely
 
 ```python
 log_dir = Path("logs/app/2026")
@@ -307,7 +307,7 @@ log_dir.mkdir(parents=True, exist_ok=True)
 
 ```
 
-#### 3. Searching Files with Glob Patterns
+####  Searching Files with Glob Patterns
 
 ```python
 project_dir = Path(".")
@@ -320,7 +320,7 @@ all_logs = list(project_dir.rglob("*.log"))
 
 ```
 
-#### 4. Shortcut Read/Write Operations (No `open()` required for small files!)
+####  Shortcut Read/Write Operations (No `open()` required for small files!)
 
 ```python
 data_file = Path("notes.txt")
@@ -352,17 +352,17 @@ print(content)
 
 ## Revision Cheat Sheet
 
-### 1. File Handling Best Practices
+###  File Handling Best Practices
 
 ```python
-# 1. ALWAYS use 'with' statement for file handling
-# 2. ALWAYS specify explicit encoding="utf-8" for text files
-# 3. Stream large text files line-by-line: for line in file:
-# 4. Stream large binary files in fixed byte chunks: f.read(4096)
+#  ALWAYS use 'with' statement for file handling
+#  ALWAYS specify explicit encoding="utf-8" for text files
+#  Stream large text files line-by-line: for line in file:
+#  Stream large binary files in fixed byte chunks: f.read(4096)
 
 ```
 
-### 2. File Mode Decision Flowchart
+###  File Mode Decision Flowchart
 
 * Need to read text? ➔ `"r"`
 * Need to overwrite/create file with text? ➔ `"w"`
@@ -370,7 +370,7 @@ print(content)
 * Reading binary media/PDF/zip? ➔ `"rb"`
 * Writing binary stream? ➔ `"wb"`
 
-### 3. Quick `pathlib` Reference
+###  Quick `pathlib` Reference
 
 ```python
 from pathlib import Path
@@ -389,7 +389,7 @@ print(p.read_text(encoding="utf-8"))
 
 ## Self-Assessment Practice Problems
 
-1. **The Dangerous Mode Bug:**
+ **The Dangerous Mode Bug:**
 What will happen to the contents of `credentials.json` when the following code block executes? How should it be changed if the developer's intention was to append a new API key without disturbing existing content?
 ```python
 with open("credentials.json", mode="w", encoding="utf-8") as f:
@@ -398,7 +398,7 @@ with open("credentials.json", mode="w", encoding="utf-8") as f:
 ```
 
 
-2. **Memory Efficiency Refactoring:**
+ **Memory Efficiency Refactoring:**
 Refactor this log parser script so that it can process a 15 GB access log without crashing a server with only 2 GB of RAM:
 ```python
 def count_error_logs(log_file_path):
@@ -410,7 +410,7 @@ def count_error_logs(log_file_path):
 ```
 
 
-3. **`pathlib` Conversion:**
+ **`pathlib` Conversion:**
 Rewrite the following legacy `os.path` script using modern Python `pathlib` syntax:
 ```python
 import os

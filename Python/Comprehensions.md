@@ -30,7 +30,7 @@ Generator expression    → (...)
 
 ---
 
-# 1. List Comprehensions
+#  List Comprehensions
 
 A list comprehension creates a new list from an iterable.
 
@@ -122,7 +122,7 @@ print(characters)
 
 ---
 
-# 2. Conditional List Comprehensions
+#  Conditional List Comprehensions
 
 You can add an `if` condition to filter elements.
 
@@ -281,7 +281,7 @@ value_if_true if condition else value_if_false
 
 ---
 
-# 3. Nested List Comprehensions
+#  Nested List Comprehensions
 
 A comprehension can contain another loop.
 
@@ -411,7 +411,7 @@ If a comprehension becomes difficult to understand, use a normal loop.
 
 ---
 
-# 4. Dictionary Comprehensions
+#  Dictionary Comprehensions
 
 Dictionary comprehensions create dictionaries.
 
@@ -541,7 +541,7 @@ Result:
 
 ---
 
-# 5. Set Comprehensions
+#  Set Comprehensions
 
 Set comprehensions work similarly to list comprehensions, but produce a **set**.
 
@@ -610,7 +610,7 @@ You get a set of unique even numbers.
 
 ---
 
-# 6. Generator Expressions
+#  Generator Expressions
 
 Generator expressions look similar to list comprehensions but use `()`.
 

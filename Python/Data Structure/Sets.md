@@ -18,7 +18,7 @@ Sets are especially useful for **membership checks** and **comparing collections
 
 ---
 
-# 1. Creating Sets
+#  Creating Sets
 
 ### Basic set
 
@@ -105,7 +105,7 @@ print(type(x))
 
 ---
 
-# 2. Adding and Removing Elements
+#  Adding and Removing Elements
 
 Sets are mutable, so you can modify them.
 
@@ -250,7 +250,7 @@ print(numbers)
 
 ---
 
-# 3. Membership
+#  Membership
 
 One of the biggest reasons to use a set is **fast membership checking**.
 
@@ -308,7 +308,7 @@ This is an important practical reason to choose a set.
 
 ---
 
-# 4. Union
+#  Union
 
 **Union** combines the elements of two sets.
 
@@ -356,7 +356,7 @@ A ∪ B = {1, 2, 3, 4, 5}
 
 ---
 
-# 5. Intersection
+#  Intersection
 
 **Intersection** gives you elements that exist in **both sets**.
 
@@ -401,7 +401,7 @@ These are users who **both purchased and logged in**.
 
 ---
 
-# 6. Difference
+#  Difference
 
 Difference gives you elements that are in the **first set but not in the second**.
 
@@ -458,7 +458,7 @@ They're not the same.
 
 ---
 
-# 7. Symmetric Difference
+#  Symmetric Difference
 
 Symmetric difference gives you elements that exist in **either set, but NOT in both**.
 

@@ -1,4 +1,4 @@
-## 1. The `try` / `except` Block
+##  The `try` / `except` Block
 
 ### Clear Explanation
 
@@ -89,7 +89,7 @@ Think of `try` / `except` as an **airbag system**: You drive normal code through
 
 ---
 
-## 2. Complementary Blocks: `else` and `finally`
+##  Complementary Blocks: `else` and `finally`
 
 ### Clear Explanation
 
@@ -144,10 +144,10 @@ process_file_data("non_existent_file.txt")
 
 ### Explain the Code
 
-1. `open()` fails because the file doesn't exist, raising `FileNotFoundError`.
-2. Execution jumps straight to `except FileNotFoundError:`.
-3. The `else:` block is **skipped** because an error occurred.
-4. The `finally:` block runs, safely validating and closing resource handles.
+ `open()` fails because the file doesn't exist, raising `FileNotFoundError`.
+ Execution jumps straight to `except FileNotFoundError:`.
+ The `else:` block is **skipped** because an error occurred.
+ The `finally:` block runs, safely validating and closing resource handles.
 
 ### Important Edge Cases / Gotchas
 
@@ -192,7 +192,7 @@ def execute_db_query(query, connection_pool):
 
 ---
 
-## 3. Raising Exceptions (`raise`)
+##  Raising Exceptions (`raise`)
 
 ### Clear Explanation
 
@@ -263,7 +263,7 @@ except ValueError as cause:
 
 ---
 
-## 4. Built-in Exceptions & The Exception Hierarchy
+##  Built-in Exceptions & The Exception Hierarchy
 
 ### Clear Explanation
 
@@ -319,7 +319,7 @@ except LookupError as e:  # LookupError is parent of IndexError!
 
 ---
 
-## 5. Multiple Exceptions
+##  Multiple Exceptions
 
 ### Clear Explanation
 
@@ -392,7 +392,7 @@ except Exception:
 
 ---
 
-## 6. Custom Exceptions
+##  Custom Exceptions
 
 ### Clear Explanation
 
@@ -456,14 +456,14 @@ except InsufficientFundsError as err:
 
 ---
 
-## 7. When to Catch vs. Propagate Exceptions
+##  When to Catch vs. Propagate Exceptions
 
 ### Clear Explanation
 
 Not every function should catch errors! Software architecture follows two fundamental paths when handling errors:
 
-1. **Catching:** Intercepting an exception to handle it locally, recover, log, or translate it into an expected return state.
-2. **Propagating:** Allowing an exception to pass through the current function context unhandled, delegating resolution to higher-level caller frames.
+ **Catching:** Intercepting an exception to handle it locally, recover, log, or translate it into an expected return state.
+ **Propagating:** Allowing an exception to pass through the current function context unhandled, delegating resolution to higher-level caller frames.
 
 ```text
   [Low-level Data Reader]  ──(Raises FileNotFoundError)──>  Propagates Up
@@ -506,25 +506,25 @@ except (KeyError, TypeError):
 
 ## Revision Cheat Sheet
 
-### 1. The Complete Exception Block Architecture
+###  The Complete Exception Block Architecture
 
 ```python
 try:
-    # 1. Action that might fail
+    #  Action that might fail
     res = 10 / divisor
 except ZeroDivisionError as e:
-    # 2. Handles specific exception
+    #  Handles specific exception
     res = 0
 else:
-    # 3. Runs ONLY if try succeeded (No exceptions)
+    #  Runs ONLY if try succeeded (No exceptions)
     log_success(res)
 finally:
-    # 4. ALWAYS executes (Cleanup)
+    #  ALWAYS executes (Cleanup)
     cleanup_resources()
 
 ```
 
-### 2. Core Best Practices
+###  Core Best Practices
 
 * **Don't use bare `except:**` -> Catch `except Exception:` at minimum.
 * **Order matters in `except` chains** -> Specific child exceptions first, parent/generic exceptions last.
@@ -535,7 +535,7 @@ finally:
 
 ## Self-Assessment Practice Problems
 
-1. **Trace Execution with `else` and `finally`:**
+ **Trace Execution with `else` and `finally`:**
 Trace the printed console output step-by-step when executing `run_test(0)` vs `run_test(2)`:
 ```python
 def run_test(val):
@@ -556,7 +556,7 @@ print(f"Result: {run_test(2)}")
 ```
 
 
-2. **Fixing the Exception Inheritance Trap:**
+ **Fixing the Exception Inheritance Trap:**
 Why will the `ValueError` custom handler never execute in this script? How would you reorganize the `except` blocks to fix it?
 ```python
 class DataProcessingError(Exception): pass
@@ -572,7 +572,7 @@ except InvalidValueError:
 ```
 
 
-3. **EAFP Conversion Challenge:**
+ **EAFP Conversion Challenge:**
 Refactor this defensive LBYL code into clean, idiomatic Pythonic EAFP style using `try`/`except`:
 ```python
 def get_file_size_kb(file_path):

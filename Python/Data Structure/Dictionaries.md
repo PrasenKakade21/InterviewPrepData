@@ -17,7 +17,7 @@ Dictionaries are one of the most important Python data structures, especially wh
 
 ---
 
-# 1. Key-Value Pairs
+#  Key-Value Pairs
 
 A dictionary looks like this:
 
@@ -93,7 +93,7 @@ The second `"name"` replaces the first one.
 
 ---
 
-# 2. Accessing Values
+#  Accessing Values
 
 Use the key inside square brackets:
 
@@ -134,7 +134,7 @@ This is where `get()` becomes useful.
 
 ---
 
-# 3. `get()`
+#  `get()`
 
 `get()` allows you to retrieve a value **without raising `KeyError`** if the key doesn't exist.
 
@@ -191,7 +191,7 @@ which would crash if `"email"` doesn't exist.
 
 ---
 
-# 4. `keys()`
+#  `keys()`
 
 `keys()` returns the dictionary's keys.
 
@@ -237,7 +237,7 @@ This is equivalent and more idiomatic.
 
 ---
 
-# 5. `values()`
+#  `values()`
 
 `values()` gives you the values.
 
@@ -281,7 +281,7 @@ if "Prasen" in user.values():
 
 ---
 
-# 6. `items()`
+#  `items()`
 
 `items()` gives you **key-value pairs**.
 
@@ -331,7 +331,7 @@ for key, value in dictionary.items():
 
 ---
 
-# 7. `update()`
+#  `update()`
 
 `update()` adds or modifies multiple key-value pairs.
 
@@ -411,7 +411,7 @@ The resulting value for `"theme"` is `"dark"` because the later update wins.
 
 ---
 
-# 8. `pop()`
+#  `pop()`
 
 `pop()` removes a key and **returns its value**.
 
@@ -462,7 +462,7 @@ This is similar to the difference between `[]` and `get()`.
 
 ---
 
-# 9. Nested Dictionaries
+#  Nested Dictionaries
 
 A dictionary can contain another dictionary as a value.
 
@@ -588,7 +588,7 @@ The `{}` acts as a fallback empty dictionary.
 
 ---
 
-# 10. Dictionary Unpacking
+#  Dictionary Unpacking
 
 Dictionary unpacking uses `**`.
 

@@ -11,7 +11,7 @@ Unlike strings, lists are **mutable**, meaning you can change their contents aft
 
 ---
 
-# 1. Indexing
+#  Indexing
 
 Lists use **zero-based indexing**.
 
@@ -46,7 +46,7 @@ This is possible because **lists are mutable**.
 
 ---
 
-# 2. Slicing
+#  Slicing
 
 Slicing extracts part of a list.
 
@@ -113,7 +113,7 @@ print(numbers[::-1])
 
 ---
 
-# 3. `append()`
+#  `append()`
 
 `append()` adds **one item to the end** of a list.
 
@@ -158,7 +158,7 @@ If you want to add `4` and `5` separately, use `extend()`.
 
 ---
 
-# 4. `extend()`
+#  `extend()`
 
 `extend()` adds **each element from another iterable** to the list.
 
@@ -222,7 +222,7 @@ Because a string is iterable.
 
 ---
 
-# 5. `insert()`
+#  `insert()`
 
 `insert()` adds an element at a specific index.
 
@@ -278,7 +278,7 @@ If the index is beyond the end, the item is added at the end.
 
 ---
 
-# 6. `remove()`
+#  `remove()`
 
 `remove()` removes the **first occurrence of a value**.
 
@@ -330,7 +330,7 @@ if 10 in numbers:
 
 ---
 
-# 7. `pop()`
+#  `pop()`
 
 `pop()` removes and **returns** an element.
 
@@ -366,8 +366,8 @@ print(numbers)
 
 This makes `pop()` useful when you need both:
 
-1. Remove the item
-2. Use the removed item
+ Remove the item
+ Use the removed item
 
 Example:
 
@@ -390,7 +390,7 @@ print(current_task)
 
 ---
 
-# 8. `sort()`
+#  `sort()`
 
 `sort()` sorts the list **in place**.
 
@@ -484,7 +484,7 @@ items.sort(key=...)
 
 ---
 
-# 9. `reverse()`
+#  `reverse()`
 
 `reverse()` reverses the list **in place**.
 
@@ -535,7 +535,7 @@ reverse()  → modifies original
 
 ---
 
-# 10. `copy()`
+#  `copy()`
 
 `copy()` creates a **shallow copy** of a list.
 
@@ -643,7 +643,7 @@ You'll encounter this when working with nested data structures.
 
 ---
 
-# 11. List Unpacking
+#  List Unpacking
 
 List unpacking allows you to assign list elements directly to variables.
 
@@ -683,7 +683,7 @@ ValueError
 
 ---
 
-# 12. Extended Unpacking with `*`
+#  Extended Unpacking with `*`
 
 Python allows one variable to collect multiple elements.
 
@@ -732,7 +732,7 @@ The starred variable always receives a **list**.
 
 ---
 
-# 13. Unpacking in Function Arguments
+#  Unpacking in Function Arguments
 
 The `*` operator can also unpack a list when calling a function.
 
@@ -768,7 +768,7 @@ print(*args)
 
 ---
 
-# 14. Nested Lists
+#  Nested Lists
 
 Lists can contain other lists.
 
@@ -813,7 +813,7 @@ Result:
 
 ---
 
-# 15. Methods vs Built-in Functions
+#  Methods vs Built-in Functions
 
 You'll frequently encounter both:
 
@@ -876,7 +876,7 @@ returns an iterator.
 
 ---
 
-# 16. A Realistic Example
+#  A Realistic Example
 
 Imagine you're processing API/user data:
 
@@ -936,7 +936,7 @@ This combination of list operations is much closer to how you'll actually use li
 
 ---
 
-# 17. Quick Revision Cheat Sheet
+#  Quick Revision Cheat Sheet
 
 ```text
 LIST CREATION

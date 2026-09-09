@@ -53,7 +53,7 @@ with open("data.json", "w", encoding="utf-8") as f:
 ```python
 import json
 
-# 1. json.loads() - String to Python Dictionary
+#  json.loads() - String to Python Dictionary
 json_payload = '{"user_id": 101, "is_active": true, "roles": ["admin", "editor"], "quota": null}'
 
 user_data = json.loads(json_payload)
@@ -63,7 +63,7 @@ print(f"User ID: {user_data['user_id']} | Active: {user_data['is_active']}")
 # <class 'dict'>
 # User ID: 101 | Active: True
 
-# 2. json.dumps() - Python Dictionary to JSON String
+#  json.dumps() - Python Dictionary to JSON String
 response_dict = {
     "status": 200,
     "message": "Resource updated",
@@ -228,7 +228,7 @@ json.loads('{"key": "value"}')
 
 ## Revision Cheat Sheet
 
-### 1. JSON Quick Function Matrix
+###  JSON Quick Function Matrix
 
 * **String Operations:**
 * `json.loads(str)` ➔ String ➔ Dict/List

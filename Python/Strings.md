@@ -1,5 +1,5 @@
 
-## 1. String Creation
+##  String Creation
 
 A string is a sequence of Unicode characters.
 
@@ -52,7 +52,7 @@ hindi = "नमस्ते"
 
 ---
 
-# 2. Indexing
+#  Indexing
 
 A string is an ordered sequence, so every character has an index.
 
@@ -101,7 +101,7 @@ print(filename[-1])
 
 ---
 
-# 3. Slicing
+#  Slicing
 
 Slicing extracts part of a string.
 
@@ -219,7 +219,7 @@ nohtyP
 
 ---
 
-# 4. String Immutability
+#  String Immutability
 
 This is **very important**.
 
@@ -283,7 +283,7 @@ name = name.upper()
 
 ---
 
-# 5. String Methods
+#  String Methods
 
 Python provides many methods for working with strings.
 
@@ -314,7 +314,7 @@ help(str.upper)
 
 ---
 
-# 6. `upper()` / `lower()`
+#  `upper()` / `lower()`
 
 Convert a string to uppercase/lowercase.
 
@@ -362,7 +362,7 @@ For normal English application logic, `.lower()` is often sufficient.
 
 ---
 
-# 7. `strip()`
+#  `strip()`
 
 `strip()` removes whitespace from the **beginning and end** of a string.
 
@@ -427,7 +427,7 @@ This doesn't mean "remove the string `abc` once from both sides"; it removes any
 
 ---
 
-# 8. `replace()`
+#  `replace()`
 
 Replaces occurrences of one substring with another.
 
@@ -480,7 +480,7 @@ Only the first occurrence was replaced.
 
 ---
 
-# 9. `split()`
+#  `split()`
 
 `split()` converts a string into a **list of strings**.
 
@@ -558,7 +558,7 @@ The second argument specifies the maximum number of splits.
 
 ---
 
-# 10. `join()`
+#  `join()`
 
 `join()` does essentially the opposite of `split()`.
 
@@ -633,7 +633,7 @@ print(result)
 
 ---
 
-# 11. `startswith()` / `endswith()`
+#  `startswith()` / `endswith()`
 
 These check whether a string starts or ends with a particular substring.
 
@@ -680,7 +680,7 @@ if url.startswith(("http://", "https://")):
 
 ---
 
-# 12. String Formatting
+#  String Formatting
 
 String formatting means inserting dynamic values into strings.
 
@@ -729,7 +729,7 @@ This is better than `%` formatting, but modern Python usually favors **f-strings
 
 ---
 
-# 13. f-Strings
+#  f-Strings
 
 f-strings are the preferred way to format strings in modern Python.
 
@@ -878,7 +878,7 @@ x + y=30
 
 ---
 
-# 14. Escape Characters
+#  Escape Characters
 
 Escape characters allow you to represent special characters inside strings.
 
@@ -949,7 +949,7 @@ Because `\\` represents a literal backslash.
 
 ---
 
-# 15. Common Escape Sequences
+#  Common Escape Sequences
 
 | Escape | Meaning         |
 | ------ | --------------- |
@@ -974,7 +974,7 @@ You'll most commonly use:
 
 ---
 
-# 16. Raw Strings
+#  Raw Strings
 
 Raw strings treat backslashes mostly as literal characters.
 
@@ -1005,7 +1005,7 @@ The backslashes don't need to be double-escaped.
 
 ---
 
-# 17. Multiline Strings
+#  Multiline Strings
 
 Triple quotes allow strings to span multiple lines.
 
@@ -1067,7 +1067,7 @@ This is useful for generating:
 
 ---
 
-# 18. Useful Combination: Cleaning User Input
+#  Useful Combination: Cleaning User Input
 
 A very common real-world pattern:
 
@@ -1103,7 +1103,7 @@ So these all become equivalent:
 
 ---
 
-# 19. Useful Combination: Processing CSV-like Data
+#  Useful Combination: Processing CSV-like Data
 
 Suppose you receive:
 
@@ -1133,7 +1133,7 @@ role → "Developer"
 
 ---
 
-# 20. Useful Combination: Building a String
+#  Useful Combination: Building a String
 
 Suppose you have:
 
@@ -1169,7 +1169,7 @@ I know: Python, JavaScript, TypeScript
 
 ---
 
-# 21. Important Intermediate Gotchas
+#  Important Intermediate Gotchas
 
 ### `strip()` doesn't remove all internal spaces
 
@@ -1252,7 +1252,7 @@ SEPARATOR.join(STRINGS)
 
 ---
 
-# 22. Quick Revision Cheat Sheet
+#  Quick Revision Cheat Sheet
 
 ```text
 STRING CREATION

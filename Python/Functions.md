@@ -1,4 +1,4 @@
-## 1. Defining Functions
+##  Defining Functions
 
 
 Functions in Python are reusable blocks of code designed to perform a specific task. They prevent code repetition (the DRY principle: Don't Repeat Yourself), make code modular, and break down complex logic into manageable, testable components.
@@ -88,7 +88,7 @@ A function is like a **factory machine**: You feed raw materials in (parameters)
 
 ---
 
-## 2. Parameters & Positional / Keyword Arguments
+##  Parameters & Positional / Keyword Arguments
 
 ### Clear Explanation
 
@@ -97,8 +97,8 @@ A function is like a **factory machine**: You feed raw materials in (parameters)
 
 Python allows arguments to be passed in two core ways:
 
-1. **Positional Arguments:** Matched based on their order/position in the function call.
-2. **Keyword Arguments:** Matched explicitly using `name=value` in the function call, ignoring order.
+ **Positional Arguments:** Matched based on their order/position in the function call.
+ **Keyword Arguments:** Matched explicitly using `name=value` in the function call, ignoring order.
 
 ### Basic Syntax
 
@@ -170,19 +170,19 @@ print(connection)
 
 ### Mental Model
 
-* **Positional Arguments:** Named seating in a cinema row based on tickets: seat 1, seat 2, seat 3.
+* **Positional Arguments:** Named seating in a cinema row based on tickets: seat 1, seat 2, seat 
 * **Keyword Arguments:** Name-tagged seats: your ticket specifically says "Alice's Seat", regardless of where it is in the row.
 
 ---
 
-## 3. Return Values
+##  Return Values
 
 ### Clear Explanation
 
 The `return` statement serves two purposes:
 
-1. It halts execution of the function immediately.
-2. It sends back data to the execution context that called the function.
+ It halts execution of the function immediately.
+ It sends back data to the execution context that called the function.
 
 Python functions can return any valid object, including collections, functions, modules, or multiple comma-separated values (which Python packs into a single **tuple**).
 
@@ -261,7 +261,7 @@ print(f"Allowed: {is_valid} | Payload: {response}")
 
 ---
 
-## 4. Default Arguments
+##  Default Arguments
 
 ### Clear Explanation
 
@@ -327,7 +327,7 @@ print(add_item_good("Banana"))
 
 ---
 
-## 5. `*args` and `**kwargs`
+##  `*args` and `**kwargs`
 
 ### Clear Explanation
 
@@ -380,10 +380,10 @@ print(log)
 ### Important Edge Cases / Gotchas
 
 * **Strict Parameter Ordering Rule:** When combining parameter types in a function signature, they MUST follow this order:
-1. Standard positional arguments
-2. Default positional arguments / `*args`
-3. Keyword-only parameters (or `*args`)
-4. `**kwargs`
+ Standard positional arguments
+ Default positional arguments / `*args`
+ Keyword-only parameters (or `*args`)
+ `**kwargs`
 
 
 
@@ -414,7 +414,7 @@ def audit_wrapper(func):
 
 ---
 
-## 6. Argument Unpacking
+##  Argument Unpacking
 
 ### Clear Explanation
 
@@ -495,16 +495,16 @@ print(request_obj["url"])
 
 ---
 
-## 7. Variable Scope & Resolution (LEGB Rule)
+##  Variable Scope & Resolution (LEGB Rule)
 
 ### Clear Explanation
 
 **Scope** refers to the visibility and lifecycle of variables in different parts of a program. Python resolves variable names using the **LEGB** lookup rule:
 
-1. **L (Local):** Names defined inside the currently executing function body.
-2. **E (Enclosing / Nonlocal):** Names defined inside outer functions (nested structures).
-3. **G (Global):** Names declared at the module level (top-level script file).
-4. **B (Built-in):** Reserved names built into Python (e.g., `len`, `print`, `range`).
+ **L (Local):** Names defined inside the currently executing function body.
+ **E (Enclosing / Nonlocal):** Names defined inside outer functions (nested structures).
+ **G (Global):** Names declared at the module level (top-level script file).
+ **B (Built-in):** Reserved names built into Python (e.g., `len`, `print`, `range`).
 
 Python searches this chain strictly in order: **L ➔ E ➔ G ➔ B**.
 
@@ -615,7 +615,7 @@ Think of standard **nested translucent boxes**:
 
 ---
 
-## 8. Lambda Functions
+##  Lambda Functions
 
 ### Clear Explanation
 
@@ -690,7 +690,7 @@ def add(x, y):
 
 ---
 
-## 9. Higher-Order Functions: `map()`, `filter()`, `reduce()`
+##  Higher-Order Functions: `map()`, `filter()`, `reduce()`
 
 ### Clear Explanation
 
@@ -800,9 +800,9 @@ print(total_bill)
 
 In `reduce`:
 
-1. `acc` (accumulator) holds the running aggregate result (initialized to `0`).
-2. `item` is the current element pulled from `cart_items`.
-3. In each iteration, `acc + item["price"]` calculates a new combined value that becomes the `acc` for the subsequent item.
+ `acc` (accumulator) holds the running aggregate result (initialized to `0`).
+ `item` is the current element pulled from `cart_items`.
+ In each iteration, `acc + item["price"]` calculates a new combined value that becomes the `acc` for the subsequent item.
 
 ### Modern Pythonic Alternative: List / Dict Comprehensions
 
@@ -842,7 +842,7 @@ print(errors_comp)
 
 ## Revision Cheat Sheet
 
-### 1. Function Arguments Summary
+###  Function Arguments Summary
 
 ```python
 def example(a, b=2, *args, **kwargs):
@@ -856,14 +856,14 @@ def example(a, b=2, *args, **kwargs):
 
 ```
 
-### 2. Scope Lookup Order (LEGB)
+###  Scope Lookup Order (LEGB)
 
-1. **L**ocal: Inside current function definition.
-2. **E**nclosing: In enclosing nested outer functions (`nonlocal`).
-3. **G**lobal: At script module top-level (`global`).
-4. **B**uilt-in: Reserved keywords/functions built into Python engine (`len`, `sum`).
+ **L**ocal: Inside current function definition.
+ **E**nclosing: In enclosing nested outer functions (`nonlocal`).
+ **G**lobal: At script module top-level (`global`).
+ **B**uilt-in: Reserved keywords/functions built into Python engine (`len`, `sum`).
 
-### 3. Core Syntax Quick Reference
+###  Core Syntax Quick Reference
 
 * **Positional/Keyword Unpacking:** `func(*[1, 2], **{"c": 3})`
 * **Safe Mutable Argument Pattern:** `def func(data=None): data = data or []`
@@ -876,7 +876,7 @@ def example(a, b=2, *args, **kwargs):
 
 ## Self-Assessment Practice Problems
 
-1. **The Default Argument Trap:**
+ **The Default Argument Trap:**
 Analyze the code snippet below. What will calling `append_to_cache("key1", "val1")` followed immediately by `append_to_cache("key2", "val2")` return? How would you modify it to prevent shared state?
 ```python
 def append_to_cache(key, value, cache={}):
@@ -886,7 +886,7 @@ def append_to_cache(key, value, cache={}):
 ```
 
 
-2. **Refactoring Functional Code to Comprehensions:**
+ **Refactoring Functional Code to Comprehensions:**
 Rewrite the following line using a single Pythonic list comprehension instead of `map()` and `filter()`:
 ```python
 raw_nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -895,7 +895,7 @@ processed = list(map(lambda x: x ** 2, filter(lambda x: x % 2 == 0, raw_nums)))
 ```
 
 
-3. **Scope Variable Resolution:**
+ **Scope Variable Resolution:**
 What will be printed to the terminal when executing `main()`? Trace variable bindings manually using LEGB rules:
 ```python
 x = 10

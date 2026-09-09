@@ -1,4 +1,4 @@
-# 1. Variables and Naming
+#  Variables and Naming
 
 A variable is a **name that refers to an object** in Python.
 
@@ -102,9 +102,9 @@ This becomes especially important when working with mutable objects.
 
 ---
 
-# 2. Data Types
+#  Data Types
 
-Python has several built-in data types. The ones you listed are:
+Python has several built-in data types.
 
 | Type    | Example   | Description        |
 | ------- | --------- | ------------------ |
@@ -182,7 +182,7 @@ print(price + tax)
 
 ---
 
-# 3. `str`
+## `str`
 
 Strings represent text.
 
@@ -248,7 +248,7 @@ print(name)  # Jython
 
 ---
 
-# 4. `bool`
+## `bool`
 
 Boolean values are:
 
@@ -294,7 +294,7 @@ Don't normally rely on this behavior in application code, but it's useful to kno
 
 ---
 
-# 5. `None`
+## `None`
 
 `None` represents **the absence of a value**.
 
@@ -342,7 +342,7 @@ is the idiomatic Python approach.
 
 ---
 
-# 6. Type Conversion
+#  Type Conversion
 
 Type conversion means converting one type into another.
 
@@ -436,7 +436,7 @@ int(float("10.5"))
 
 ---
 
-# 7. `type()`
+#  `type()`
 
 `type()` tells you the type/class of an object.
 
@@ -473,7 +473,7 @@ But for most type checking, `isinstance()` is preferable.
 
 ---
 
-# 8. `isinstance()`
+#  `isinstance()`
 
 `isinstance()` checks whether an object is an instance of a particular class/type.
 
@@ -569,7 +569,7 @@ when you specifically need the **exact type**.
 
 ---
 
-# 9. Operators
+#  Operators
 
 Operators are symbols/keywords used to perform operations.
 
@@ -586,7 +586,7 @@ Identity
 
 ---
 
-# 10. Arithmetic Operators
+#  Arithmetic Operators
 
 Used for mathematical operations.
 
@@ -687,7 +687,7 @@ Output:
 
 ---
 
-# 11. Comparison Operators
+#  Comparison Operators
 
 Comparison operators produce a Boolean.
 
@@ -751,7 +751,7 @@ This is a nice Python-specific feature worth remembering.
 
 ---
 
-# 12. Logical Operators
+#  Logical Operators
 
 Python has:
 
@@ -836,7 +836,7 @@ if not is_logged_in:
 
 ---
 
-# 13. Logical Operators Don't Always Return `True`/`False`
+#  Logical Operators Don't Always Return `True`/`False`
 
 This is a particularly important intermediate-level Python concept.
 
@@ -899,7 +899,7 @@ If `provided_username` is empty/falsy, `"Guest"` is used.
 
 ---
 
-# 14. Short-Circuit Evaluation
+#  Short-Circuit Evaluation
 
 Python doesn't necessarily evaluate every condition.
 
@@ -939,7 +939,7 @@ This is called **short-circuit evaluation**.
 
 ---
 
-# 15. Assignment Operators
+#  Assignment Operators
 
 Basic assignment:
 
@@ -993,7 +993,7 @@ You'll encounter this occasionally in modern Python code, but don't overuse it.
 
 ---
 
-# 16. Membership Operators
+#  Membership Operators
 
 Membership operators check whether something exists inside a collection.
 
@@ -1070,7 +1070,7 @@ print("name" in user.keys())
 
 ---
 
-# 17. Identity Operators
+#  Identity Operators
 
 Identity operators are:
 
@@ -1139,7 +1139,7 @@ Now both variables point to the same object.
 
 ---
 
-# 18. The Most Important `is` Use Case: `None`
+#  The Most Important `is` Use Case: `None`
 
 You'll frequently see:
 
@@ -1171,7 +1171,7 @@ value == None
 
 ---
 
-# 19. Don't Use `is` for Normal Value Comparison
+#  Don't Use `is` for Normal Value Comparison
 
 Avoid:
 
@@ -1201,7 +1201,7 @@ is  → "Are these literally the same object?"
 
 ---
 
-# 20. Truthy and Falsy Values
+#  Truthy and Falsy Values
 
 This ties several of these concepts together.
 
@@ -1254,7 +1254,7 @@ This is extremely common in real Python code.
 
 ---
 
-# 21. Putting Everything Together
+#  Putting Everything Together
 
 Here's a realistic example using most of these concepts:
 
@@ -1295,7 +1295,7 @@ print(f"{years_until_30} years until age 30")
 
 ---
 
-# 22. Quick Revision Cheat Sheet
+#  Quick Revision Cheat Sheet
 
 ```text
 VARIABLES

@@ -12,7 +12,7 @@ Tuples are commonly used when you have a collection of values that should remain
 
 ---
 
-## 1. Creating Tuples
+##  Creating Tuples
 
 ### Basic tuple
 
@@ -89,7 +89,7 @@ print(type(empty))
 
 ---
 
-## 2. Indexing and Slicing
+##  Indexing and Slicing
 
 Tuples support indexing and slicing just like lists and strings.
 
@@ -167,7 +167,7 @@ print(result)
 
 ---
 
-# 3. Tuple Unpacking
+#  Tuple Unpacking
 
 **Tuple unpacking** means assigning the elements of a tuple to multiple variables.
 
@@ -318,7 +318,7 @@ This is one of Python's most useful features.
 
 ---
 
-# 4. Immutability
+#  Immutability
 
 The biggest difference between tuples and lists is that **tuples cannot be modified after creation**.
 
@@ -401,7 +401,7 @@ This distinction becomes important when working with nested data structures.
 
 ---
 
-# 5. Tuple vs List
+#  Tuple vs List
 
 Both are ordered collections, but they serve different purposes.
 

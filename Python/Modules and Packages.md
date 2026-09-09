@@ -4,7 +4,7 @@ Modules and packages are how Python lets you **organize code into reusable files
 
 ---
 
-## 1. `import`
+##  `import`
 
 `import` is used to bring a **module** into your current Python file.
 
@@ -59,7 +59,7 @@ import os
 
 ---
 
-# 2. `from ... import`
+#  `from ... import`
 
 Instead of importing the entire module namespace, you can import specific things.
 
@@ -133,7 +133,7 @@ sqrt(25)
 
 ---
 
-# 3. Modules
+#  Modules
 
 A **module is simply a Python file (`.py`)** containing code that can be reused.
 
@@ -176,7 +176,7 @@ You created your own module.
 
 ---
 
-# 4. Packages
+#  Packages
 
 A **package is a directory containing related Python modules**.
 
@@ -215,7 +215,7 @@ Package → folder of modules
 
 ---
 
-# 5. `__init__.py`
+#  `__init__.py`
 
 Traditionally, `__init__.py` is used to mark a directory as a Python package.
 
@@ -269,7 +269,7 @@ It's also useful when you want to explicitly control package exports or initiali
 
 ---
 
-# 6. `__name__`
+#  `__name__`
 
 Every Python module has a special variable called:
 
@@ -327,7 +327,7 @@ This distinction is extremely important.
 
 ---
 
-# 7. `if __name__ == '__main__'`
+#  `if __name__ == '__main__'`
 
 This is one of the most important Python patterns.
 
@@ -425,7 +425,7 @@ You'll see this pattern everywhere in Python.
 
 ---
 
-# 8. Creating Your Own Modules
+#  Creating Your Own Modules
 
 Suppose you're building an application:
 
@@ -471,7 +471,7 @@ This is much cleaner than putting everything into `main.py`.
 
 ---
 
-# 9. Package Structure
+#  Package Structure
 
 As your application grows, you can organize modules into packages.
 
@@ -518,7 +518,7 @@ This is the same basic idea you'll encounter in **Flask, FastAPI, Django, CLI ap
 
 ---
 
-# 10. Absolute Imports
+#  Absolute Imports
 
 An **absolute import** starts from the project's/package's top-level location.
 
@@ -558,7 +558,7 @@ Absolute imports are generally easier to understand because you can immediately 
 
 ---
 
-# 11. Relative Imports
+#  Relative Imports
 
 Relative imports refer to modules **relative to the current package**.
 
@@ -658,7 +658,7 @@ Relative:
 
 ---
 
-# 12. A Realistic Example
+#  A Realistic Example
 
 Here's a small application:
 
@@ -747,7 +747,7 @@ Keyboard
 
 ---
 
-# 13. Module Search Path
+#  Module Search Path
 
 When you write:
 
@@ -785,7 +785,7 @@ can be imported.
 
 ---
 
-# 14. `__pycache__`
+#  `__pycache__`
 
 You may notice:
 
@@ -818,7 +818,7 @@ __pycache__/
 
 ---
 
-# 15. Common Mistakes
+#  Common Mistakes
 
 ### Mistake 1 — Naming your file after a standard library module
 

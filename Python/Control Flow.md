@@ -16,7 +16,7 @@ zip()                → iterate over multiple collections together
 
 ---
 
-# 1. `if`
+#  `if`
 
 `if` executes code when a condition evaluates to `True`.
 
@@ -75,7 +75,7 @@ print("This always runs")
 
 ---
 
-# 2. `elif`
+#  `elif`
 
 `elif` means **"else if"**.
 
@@ -122,7 +122,7 @@ is printed.
 
 ---
 
-# 3. `else`
+#  `else`
 
 `else` runs when **none of the previous conditions are true**.
 
@@ -154,7 +154,7 @@ else:
 
 ---
 
-# 4. Nested Conditions
+#  Nested Conditions
 
 A condition inside another condition is called a **nested condition**.
 
@@ -200,7 +200,7 @@ Or use early returns in functions.
 
 ---
 
-# 5. Truthy and Falsy Values
+#  Truthy and Falsy Values
 
 Python doesn't require conditions to literally be `True` or `False`.
 
@@ -315,7 +315,7 @@ This distinction becomes important when handling API data.
 
 ---
 
-# 6. Ternary Expressions
+#  Ternary Expressions
 
 A **ternary expression** is a compact way to write a simple `if/else`.
 
@@ -373,7 +373,7 @@ For multiple conditions, normal `if/elif/else` is usually better.
 
 ---
 
-# 7. `for` Loops
+#  `for` Loops
 
 A `for` loop iterates over an iterable.
 
@@ -474,7 +474,7 @@ for key, value in user.items():
 
 ---
 
-# 8. `while` Loops
+#  `while` Loops
 
 A `while` loop keeps running **while a condition is true**.
 
@@ -553,7 +553,7 @@ while not connected:
 
 ---
 
-# 9. `range()`
+#  `range()`
 
 `range()` generates a sequence of numbers, commonly used with `for`.
 
@@ -664,7 +664,7 @@ print(numbers)
 
 ---
 
-# 10. `break`
+#  `break`
 
 `break` immediately **terminates the loop**.
 
@@ -706,7 +706,7 @@ There's no reason to continue searching after finding the user.
 
 ---
 
-# 11. `continue`
+#  `continue`
 
 `continue` skips the **current iteration** and moves to the next one.
 
@@ -761,7 +761,7 @@ Output:
 
 ---
 
-# 12. `pass`
+#  `pass`
 
 `pass` means:
 
@@ -841,7 +841,7 @@ It prevents Python from complaining about an empty block.
 
 ---
 
-# 13. `enumerate()`
+#  `enumerate()`
 
 `enumerate()` lets you iterate over a collection while getting both the **index and value**.
 
@@ -902,7 +902,7 @@ This is useful when displaying numbered lists.
 
 ---
 
-# 14. `zip()`
+#  `zip()`
 
 `zip()` allows you to iterate over **multiple iterables simultaneously**.
 

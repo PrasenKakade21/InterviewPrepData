@@ -7,8 +7,8 @@
 
 Python’s built-in `csv` module provides two main styles for reading and writing CSV files:
 
-1. **Positional / Sequence-based (`csv.reader` & `csv.writer`):** Interacts with CSV rows as **Lists of strings**.
-2. **Key-value / Mapping-based (`csv.DictReader` & `csv.DictWriter`):** Interacts with CSV rows as **Dictionaries**, automatically using the header row as keys.
+ **Positional / Sequence-based (`csv.reader` & `csv.writer`):** Interacts with CSV rows as **Lists of strings**.
+ **Key-value / Mapping-based (`csv.DictReader` & `csv.DictWriter`):** Interacts with CSV rows as **Dictionaries**, automatically using the header row as keys.
 
 ---
 
@@ -36,7 +36,7 @@ dict_writer = csv.DictWriter(file_handle, fieldnames=["col1", "col2"])
 ```python
 import csv
 
-# 1. Writing rows using csv.writer
+#  Writing rows using csv.writer
 rows = [
     ["ID", "Name", "Role"],
     [101, "Alice", "Admin"],
@@ -48,7 +48,7 @@ with open("users_list.csv", "w", newline="", encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerows(rows)  # Writes all rows at once
 
-# 2. Reading rows using csv.reader
+#  Reading rows using csv.reader
 with open("users_list.csv", "r", encoding="utf-8") as f:
     reader = csv.reader(f)
     header = next(reader)  # Skip / extract header row
@@ -89,14 +89,14 @@ data = [
 
 fieldnames = ["user_id", "username", "status"]
 
-# 1. Writing with csv.DictWriter
+#  Writing with csv.DictWriter
 with open("users_dict.csv", "w", newline="", encoding="utf-8") as f:
     writer = csv.DictWriter(f, fieldnames=fieldnames)
     
     writer.writeheader()  # Explicitly write header row
     writer.writerows(data)
 
-# 2. Reading with csv.DictReader
+#  Reading with csv.DictReader
 with open("users_dict.csv", "r", encoding="utf-8") as f:
     reader = csv.DictReader(f)
     
@@ -232,7 +232,7 @@ print(json_result)
 
 ## Revision Cheat Sheet
 
-### 1. JSON Quick Function Matrix
+###  JSON Quick Function Matrix
 
 * **String Operations:**
 * `json.loads(str)` ➔ String ➔ Dict/List
@@ -245,7 +245,7 @@ print(json_result)
 
 
 
-### 2. CSV Quick Function Matrix
+###  CSV Quick Function Matrix
 
 * **Positional (Lists):** `csv.reader(f)` / `csv.writer(f)`
 * **Named (Dicts - Preferred):** `csv.DictReader(f)` / `csv.DictWriter(f, fieldnames=[...])`
@@ -255,7 +255,7 @@ print(json_result)
 
 ## Self-Assessment Revision Exercises
 
-1. **Debugging Unserializable Types:**
+ **Debugging Unserializable Types:**
 Why will execution crash on the second line of this snippet? How would you fix `custom_data` so that it serializes to valid JSON without error?
 ```python
 import json
@@ -265,7 +265,7 @@ json_output = json.dumps(custom_data)
 ```
 
 
-2. **Refactoring CSV Indices to Keys:**
+ **Refactoring CSV Indices to Keys:**
 Refactor this brittle `csv.reader` code to use `csv.DictReader` so that changing column positions in `metrics.csv` won't break calculation logic:
 ```python
 import csv
@@ -280,5 +280,5 @@ with open("metrics.csv", "r", encoding="utf-8") as f:
 ```
 
 
-3. **Missing `newline=""` Impact:**
+ **Missing `newline=""` Impact:**
 What bug occurs on Windows OS when exporting query dataset tables into `.csv` files if `newline=""` is omitted during file creation?
