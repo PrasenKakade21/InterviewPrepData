@@ -1,0 +1,57 @@
+{
+  "sequence": [
+ "Python Fundamentals.md",
+    "Strings.md",
+    "Data Structures.md",
+      "Lists.md",
+      "Tuples.md",
+      "Sets.md",
+      "Dictionaries.md",
+    "Control Flow.md",
+    "Comprehensions.md",
+    "Functions.md",
+    "Exception Handling.md",
+    "File Handling.md",
+    "JSON and CSV.md",
+      "JSON.md",
+      "CSV.md",
+    "Modules and Packages.md",
+    "Python Environment and Packages.md",
+    "Object-Oriented Programming.md",
+    "Iterators and Generators.md",
+    "Decorators and Context Managers.md",
+      "Decorators.md",
+      "Context Managers.md",
+    "Python Standard Library.md",
+    "HTTP and REST APIs.md",
+    "Requests and HTTP Clients.md",
+    "Flask.md",
+    "FastAPI Fundamentals.md",
+    "Pydantic.md",
+    "FastAPI Intermediate.md",
+    "SQL and Databases.md",
+    "SQLAlchemy and Alembic.md",
+    "Async Python.md",
+    "Python Automation - Files.md",
+    "Python Automation - Data.md",
+    "PDF Automation.md",
+    "Web Scraping and Browser Automation.md",
+      "Requests + BeautifulSoup.md",
+      "Playwright.md",
+    "CLI Automation.md",
+    "Scheduling and Background Automation.md",
+    "Testing.md",
+    "Type Hints and Code Quality.md",
+    "Logging and Configuration.md",
+    "Git for Python Project.mds",
+    "Projects.md"
+  ],
+  "ignore": [
+    "sequence.json",
+    "roadmap.json",
+    "README.md"
+  ]
+}
+
+
+   

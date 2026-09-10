@@ -1,0 +1,17 @@
+{
+  "sequence": [
+
+      "Lists.md",
+      "Tuples.md",
+      "Sets.md",
+      "Dictionaries.md"
+  ],
+  "ignore": [
+    "sequence.json",
+    "roadmap.json",
+    "README.md"
+  ]
+}
+
+
+   
