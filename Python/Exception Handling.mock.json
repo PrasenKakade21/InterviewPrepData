@@ -1,0 +1,65 @@
+{
+  "topic": "Exception Handling",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What do `else` and `finally` add to try/except, and what is the `finally`-return gotcha?",
+      "answer": "else runs only if try had no exception (success path). finally always runs for cleanup even after return/break. Never return from finally — it overrides try/except return values.",
+      "key_points": ["else success-only", "finally always", "no return in finally"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Why is bare `except:` dangerous, and how does exception hierarchy affect handler order?",
+      "answer": "Bare except catches BaseException including KeyboardInterrupt/SystemExit and masks bugs; use except Exception. Parent catches children (LookupError catches IndexError), so order specific subclasses first, generic Exception last.",
+      "key_points": ["no bare except", "BaseException vs Exception", "specific-first"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "When should Kakade catch vs propagate, and what is EAFP vs LBYL?",
+      "answer": "Low-level utils propagate (caller decides); top-level routes/entry points catch into user messages/HTTP codes; expected recoverable (missing config) catch with default. EAFP tries and handles KeyError/TypeError; LBYL pre-checks chains — EAFP is idiomatic and race-safe.",
+      "key_points": ["propagate low-level", "catch at boundary", "EAFP idiom"]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Parse Kakade's JSON payload safely, returning (data, ok) without crashing on bad JSON.",
+      "starter_code": "import json\ndef parse_user_payload(raw):\n    pass\nprint(parse_user_payload('{\"username\": \"kakade\",}'))",
+      "answer": "import json\ndef parse_user_payload(raw):\n    try:\n        return json.loads(raw), True\n    except json.JSONDecodeError as err:\n        return {\"error\": \"Invalid JSON\", \"line\": err.lineno}, False\n\nprint(parse_user_payload('{\"username\": \"kakade\",}'))\nprint(parse_user_payload('{\"username\": \"Kakade\"}'))",
+      "key_points": ["JSONDecodeError", "structured error", "no crash"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write `calculate_discount(price, pct)` that raises ValueError for pct outside 0-100, with `raise...from` chaining demo.",
+      "starter_code": "def calculate_discount(price, pct):\n    pass",
+      "answer": "def calculate_discount(price, pct):\n    if not 0 <= pct <= 100:\n        raise ValueError(f\"Discount must be 0-100. Got: {pct}\")\n    return price * (1 - pct / 100)\n\ntry:\n    calculate_discount(50, 150)\nexcept ValueError as e:\n    print(f\"Blocked: {e}\")\n\ntry:\n    int(\"Kakade\")\nexcept ValueError as cause:\n    raise ValueError(\"Kakade age parse failed\") from cause",
+      "key_points": ["validate then raise", "from chaining"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Implement custom `InsufficientFundsError` for Kakade's payment and EAFP access to nested profile name.",
+      "starter_code": "class InsufficientFundsError(Exception):\n    pass",
+      "answer": "class InsufficientFundsError(Exception):\n    def __init__(self, balance, required):\n        super().__init__(f\"Balance ${balance} insufficient for ${required}\")\n        self.balance = balance\n        self.required = required\n\ndef process_payment(balance, charge):\n    if balance < charge:\n        raise InsufficientFundsError(balance, charge)\n    return balance - charge\n\ntry:\n    process_payment(20, 100)\nexcept InsufficientFundsError as e:\n    print(f\"Blocked: {e} shortfall ${e.required - e.balance}\")\n\npayload = {\"user\": {\"profile\": {\"name\": \"Kakade\"}}}\ntry:\n    name = payload[\"user\"][\"profile\"][\"name\"]\nexcept (KeyError, TypeError):\n    name = \"Guest\"\nprint(name)",
+      "key_points": ["custom Exception + super", "extra attrs", "EAFP nested"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Trace: `run_test(0)` vs `run_test(2)` where try=10/val, except ZeroDivision prints DIV_ZERO returns ERROR, else prints SUCCESS returns OK, finally prints CLEANUP?",
+      "answer": "run_test(0): DIV_ZERO then CLEANUP then Result: ERROR (else skipped). run_test(2): SUCCESS then CLEANUP then Result: OK. finally prints in both, even with return.",
+      "key_points": ["else skipped on error", "finally always", "return + finally"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why does `except Exception` before `except KeyError` break, and why is `except Exception: pass` bad for Kakade's API?",
+      "answer": "First matching handler wins, so generic Exception swallows KeyError and the specific block is unreachable — reorder specific first. Silent pass hides failures and corrupts state; at minimum log, keep try small, and translate to HTTP error at boundary.",
+      "key_points": ["unreachable handler", "no silent pass", "log + narrow try"]
+    }
+  ]
+}

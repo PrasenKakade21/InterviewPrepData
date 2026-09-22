@@ -1,0 +1,65 @@
+{
+  "topic": "Functions",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Explain positional vs keyword arguments and the required ordering in signatures and calls.",
+      "answer": "Positional bind by order, keyword by name (order-free). Calls must put positionals before keywords. Signatures must be: required, defaults, *args, keyword-only, **kwargs — e.g. def f(a, b=1, *args, key=None, **kwargs).",
+      "key_points": ["binding rules", "call ordering", "signature ordering"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What is the mutable-default-argument bug and the correct pattern?",
+      "answer": "Defaults are evaluated once at def time, so def f(lst=[]) shares one list across calls and accumulates. Fix with None sentinel: def f(lst=None): lst = [] if lst is None else lst.",
+      "key_points": ["once at def", "shared state", "None sentinel"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Explain LEGB with `global` vs `nonlocal` for Kakade's counter/closure example.",
+      "answer": "Lookup is Local->Enclosing->Global->Builtin. Reading sees outer scopes, but assignment creates a local. Use global to reassign module-level names, nonlocal to reassign the nearest enclosing function variable (closures). Never shadow builtins like list.",
+      "key_points": ["LEGB order", "global vs nonlocal", "shadowing"]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Fix `add_item_bad(item, lst=[])` so Kakade's consecutive calls don't leak state.",
+      "starter_code": "def add_item_bad(item, lst=[]):\n    lst.append(item)\n    return lst\nprint(add_item_bad(\"Apple\"))\nprint(add_item_bad(\"Banana\"))",
+      "answer": "def add_item_good(item, lst=None):\n    if lst is None:\n        lst = []\n    lst.append(item)\n    return lst\n\nprint(add_item_good(\"Apple\"))\nprint(add_item_good(\"Banana\"))",
+      "key_points": ["reproduce leak", "None sentinel fix"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write `paginate(query, page=1, per_page=20)` and a `*args/**kwargs` logger, then demonstrate `*`/`**` unpacking.",
+      "starter_code": "# paginate + build_log + unpack demo for Kakade",
+      "answer": "def paginate(query, page=1, per_page=20):\n    offset = (page - 1) * per_page\n    return f\"SELECT * FROM {query} LIMIT {per_page} OFFSET {offset}\"\n\ndef build_log(level, *msgs, **meta):\n    return {\"level\": level, \"message\": \" \".join(msgs), \"metadata\": meta}\n\nprint(paginate(\"users\"))\nprint(paginate(\"users\", page=3, per_page=50))\nprint(build_log(\"INFO\", \"Kakade login\", user_id=42))\n\ndef pt(x, y, z):\n    return f\"{x},{y},{z}\"\nprint(pt(*[1, 2, 3]))\nprint(pt(**{\"x\": 1, \"y\": 2, \"z\": 3}))",
+      "key_points": ["defaults override", "*args tuple", "**kwargs dict", "call unpacking"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Build a closure counter with `nonlocal` and sort Kakade's users with `lambda`, then total prices with `reduce`.",
+      "starter_code": "from functools import reduce\n# closure + sorted + reduce",
+      "answer": "from functools import reduce\ndef outer():\n    n = 0\n    def inner():\n        nonlocal n\n        n += 1\n        return f\"Kakade requests: {n}\"\n    return inner\nt = outer()\nprint(t())\nprint(t())\nusers = [{\"name\": \"Kakade\", \"age\": 25}, {\"name\": \"Rahul\", \"age\": 22}]\nprint(sorted(users, key=lambda u: u[\"age\"]))\nprint(reduce(lambda acc, x: acc + x[\"price\"], [{\"price\": 100}, {\"price\": 25}], 0))",
+      "key_points": ["nonlocal closure", "lambda key", "reduce aggregate"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why does `counter += 1` inside a function raise UnboundLocalError, and why does `create_point(**{\"x\":1,\"y\":2,\"altitude\":3})` fail?",
+      "answer": "Assignment makes counter local, so read-before-write fails — add `global counter`. Dict-unpack keys must exactly match param names (x,y,z); altitude is unexpected -> TypeError. Rename key or change signature.",
+      "key_points": ["global needed", "key-name match"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "What is wrong with `add = lambda x,y: x+y` and `total = sum([x*x for x in nums])` for huge nums? Give idiomatic fixes.",
+      "answer": "Binding lambda to a name violates PEP8 and gives <lambda> tracebacks — use def add(x,y): return x+y. Wrapping genexp in [...] builds needless list — use sum(x*x for x in nums). Prefer [x*x for x in nums if p(x)] over map/filter+lambda.",
+      "key_points": ["PEP8 def preferred", "needless list", "comprehension over map/filter"]
+    }
+  ]
+}

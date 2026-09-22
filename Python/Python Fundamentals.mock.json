@@ -1,0 +1,65 @@
+{
+  "topic": "Python Fundamentals",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Explain variables as references in Python. What does `a is b` vs `a == b` tell you?",
+      "answer": "A variable is a name bound to an object. Assignment copies the reference, so mutable objects are shared. `==` checks value equality, `is` checks same object in memory. Use `is` mainly for `None`.",
+      "key_points": ["reference semantics", "mutable aliasing", "== vs is", "is None idiom"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Why does `0.1 + 0.2 != 0.3` in Python, and when would you use `Decimal`?",
+      "answer": "Floats are binary fractions and cannot represent 0.1 exactly, so 0.1+0.2 gives 0.30000000000000004. Use Decimal(\"0.1\") for money/financial calculations where exact decimal arithmetic matters.",
+      "key_points": ["binary float", "precision gotcha", "Decimal for finance"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "How do `and`/`or` short-circuit, and what do they actually return?",
+      "answer": "They return one operand, not necessarily bool: `a and b` returns a if falsy else b; `a or b` returns a if truthy else b. Evaluation stops early: `False and f()` never calls f(), `True or f()` never calls f(). Enables `x or default` and guards like `x != 0 and 10/x > 2`.",
+      "key_points": ["operand return", "short-circuit", "guard/default pattern"]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Given user Kakade's age as string `age_s = \"25\"`, convert safely to int, classify as working-age (18<=age<60) using a chained comparison, and default empty username to \"Guest\".",
+      "starter_code": "age_s = \"25\"\nusername = \"\"\n# convert, classify, default -> print(age, label, username)",
+      "answer": "age = int(age_s)\nlabel = \"Working age\" if 18 <= age < 60 else \"Other\"\nusername = username or \"Guest\"\nprint(age, label, username)",
+      "key_points": ["int() conversion", "chained comparison", "or-default with falsy"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write `is_valid_kakade_role(role, allowed)` that checks membership correctly for a list of roles and for dict-key vs value lookup.",
+      "starter_code": "def is_valid_kakade_role(role, allowed):\n    pass\n\nprint(is_valid_kakade_role(\"developer\", [\"admin\", \"developer\"]))",
+      "answer": "def is_valid_kakade_role(role, allowed):\n    if isinstance(allowed, dict):\n        return role in allowed or role in allowed.values()\n    return role in allowed\n\nprint(is_valid_kakade_role(\"developer\", [\"admin\", \"developer\"]))\nprint(is_valid_kakade_role(\"Kakade\", {\"name\": \"Kakade\"}))",
+      "key_points": ["in operator", "dict checks keys", ".values() for values", "isinstance"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Demonstrate `isinstance` vs `type` with an Animal/Dog hierarchy and a tuple-type check for numbers.",
+      "starter_code": "class Animal: pass\nclass Dog(Animal): pass\ndog = Dog()\n# print 4 checks: type vs isinstance, plus isinstance(10, (int, float))",
+      "answer": "class Animal: pass\nclass Dog(Animal): pass\ndog = Dog()\nprint(type(dog) == Dog)\nprint(type(dog) == Animal)\nprint(isinstance(dog, Animal))\nprint(isinstance(10, (int, float)))",
+      "key_points": ["inheritance-aware isinstance", "exact type()", "tuple of types"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "What prints and why? `a=[1,2]; b=a; b+=[3]; print(a); print(a is b)` vs `c=[1,2]; d=[1,2]; print(c==d, c is d)`?",
+      "answer": "First: a is [1,2,3] and True — b aliases a so in-place += mutates shared list. Second: True False — equal values but distinct objects. Fix aliasing bugs with c.copy() when independence is needed.",
+      "key_points": ["aliasing trap", "== vs is", "copy to decouple"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Spot the bugs: `int(\"10.5\")`, `-10 // 3 == -3`, and `if not value:` when value could be 0 but you meant None?",
+      "answer": "int(\"10.5\") raises ValueError — use int(float(\"10.5\")). -10//3 is -4 because floor division rounds toward -inf. `if not value` conflates None/0/\"\"/[] — use `if value is None` when only None is meant.",
+      "key_points": ["conversion ValueError", "floor vs truncate", "None vs falsy"]
+    }
+  ]
+}

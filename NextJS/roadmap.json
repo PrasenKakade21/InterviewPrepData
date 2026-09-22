@@ -1,0 +1,106 @@
+{
+  "NextJS Revision Roadmap": {
+    "01. Next.js Fundamentals": [
+      "What is Next.js",
+      "Framework vs library",
+      "SSR vs SSG vs ISR",
+      "App Router vs Pages Router",
+      "React Server Components overview",
+      "When to choose Next.js"
+    ],
+    "02. Project Setup": [
+      "create-next-app",
+      "Folder structure",
+      "Dev build and start scripts",
+      "Environment variables",
+      "TypeScript default setup"
+    ],
+    "03. App Router Basics": [
+      "Folders define routes",
+      "page.tsx conventions",
+      "Link and navigation",
+      "useRouter basics",
+      "Active link patterns"
+    ],
+    "04. Layouts Templates and Route Groups": [
+      "Root layout",
+      "Nested layouts",
+      "Template vs layout",
+      "Route groups",
+      "Colocated files"
+    ],
+    "05. Dynamic Routes Params and Search Params": [
+      "Dynamic segments",
+      "Params in pages",
+      "Catch-all routes",
+      "generateStaticParams",
+      "Search params"
+    ],
+    "06. Loading Error and Not Found": [
+      "loading.tsx",
+      "error.tsx boundaries",
+      "not-found.tsx",
+      "global-error basics",
+      "Suspense with routes"
+    ],
+    "07. Server Components": [
+      "Default server rendering",
+      "Async components",
+      "No hooks or browser APIs",
+      "Composition patterns",
+      "Benefits for Kakade apps"
+    ],
+    "08. Client Components and Composition": [
+      "use client directive",
+      "When to go client",
+      "Boundary placement",
+      "Hooks and events",
+      "Interleaving server and client"
+    ],
+    "09. Data Fetching Caching and Revalidation": [
+      "Fetch in server components",
+      "Request memoization",
+      "Parallel and sequential",
+      "Fetch cache options",
+      "revalidatePath and revalidateTag"
+    ],
+    "10. Server Actions and Mutations": [
+      "Action basics",
+      "Mutations without APIs",
+      "useFormState basics",
+      "useFormStatus basics",
+      "Revalidating after actions"
+    ],
+    "11. Route Handlers and Middleware": [
+      "route.ts conventions",
+      "GET and POST handlers",
+      "middleware.ts basics",
+      "Matcher config",
+      "Auth guards and redirects"
+    ],
+    "12. Authentication in Next.js": [
+      "Auth.js basics",
+      "Session in server components",
+      "Protected pages",
+      "Login flow overview"
+    ],
+    "13. Metadata SEO Images and Fonts": [
+      "Static metadata export",
+      "generateMetadata",
+      "Open Graph basics",
+      "next image and next font"
+    ],
+    "14. Deployment": [
+      "Vercel deployment",
+      "Standalone output",
+      "Docker brief",
+      "Env per deploy"
+    ],
+    "15. Projects": [
+      "Blog with routing",
+      "Shop with Postgres",
+      "Auth protected dashboard",
+      "Deployed portfolio site"
+    ]
+  }
+}

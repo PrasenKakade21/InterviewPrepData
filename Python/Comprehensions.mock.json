@@ -1,0 +1,65 @@
+{
+  "topic": "Comprehensions",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What are the 4 comprehension forms and how do you choose between them?",
+      "answer": "[...] builds a list, {k:v} a dict, {x} a set (dedups), (...) a lazy generator. Choose list for small results, set for uniqueness, dict for lookups, generator for huge streams or sum/any/all without materializing.",
+      "key_points": ["4 bracket types", "eager vs lazy", "dedup behavior"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Distinguish `[x for x in xs if p(x)]` from `[a if p(x) else b for x in xs]`.",
+      "answer": "Trailing if filters — output shorter, drops non-matching. Leading if/else transforms every item — output same length, value chosen per item. Example: evens filter gives [2,4] while even/odd labels gives ['odd','even',...].",
+      "key_points": ["filter vs transform", "output length", "syntax position"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Why is `sum(x*x for x in huge)` better than `sum([x*x for x in huge])`, and when should you avoid comprehensions?",
+      "answer": "Generator version streams values without building a 10M-item list, saving RAM. Avoid comprehensions with nested loops + multiple conditions or complex calls — a plain loop is clearer. Clarity over brevity.",
+      "key_points": ["lazy memory saving", "generator in aggregations", "readability rule"]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "From Kakade's user list, get names, active users, and a name->age dict using comprehensions.",
+      "starter_code": "users = [{\"name\": \"Kakade\", \"age\": 25, \"active\": True}, {\"name\": \"Rahul\", \"age\": 17, \"active\": False}, {\"name\": \"Amit\", \"age\": 30, \"active\": True}]\n# names, active, mapping",
+      "answer": "users = [{\"name\": \"Kakade\", \"age\": 25, \"active\": True}, {\"name\": \"Rahul\", \"age\": 17, \"active\": False}, {\"name\": \"Amit\", \"age\": 30, \"active\": True}]\nnames = [u[\"name\"] for u in users]\nactive = [u for u in users if u[\"active\"]]\nmapping = {u[\"name\"]: u[\"age\"] for u in users}\nprint(names, active, mapping)",
+      "key_points": ["extract field", "filter dicts", "dict comprehension"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Flatten Kakade's matrix, keep evens doubled, and show set-dedup vs list behavior.",
+      "starter_code": "matrix = [[1, 2, 3], [4, 5, 6]]\n# flat, even-doubled, dedup demo",
+      "answer": "matrix = [[1, 2, 3], [4, 5, 6]]\nflat = [x for row in matrix for x in row]\nevens = [x * 2 for row in matrix for x in row if x % 2 == 0]\ndedup = {x ** 2 for x in [1, 2, 2, 3]}\nprint(flat, evens, dedup)",
+      "key_points": ["nested order", "filter at end", "set dedups"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Rewrite `list(map(lambda x: x**2, filter(lambda x: x%2==0, nums)))` as a comprehension and as a memory-efficient total.",
+      "starter_code": "nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\n# comprehension + total",
+      "answer": "nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\nprocessed = [x ** 2 for x in nums if x % 2 == 0]\ntotal = sum(x ** 2 for x in nums if x % 2 == 0)\nprint(processed, total)",
+      "key_points": ["map+filter to comprehension", "generator in sum"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "What is `type((x*2 for x in [1,2]))` and why does second `list(g)` give `[]`? How to fix expecting a list?",
+      "answer": "It is a generator, lazy and single-use. First list(g) exhausts it, second is empty. Fix: use [x*2 for x in ...] for a reusable list, or recreate the generator.",
+      "key_points": ["generator exhaustion", "genexpr vs list", "single-use"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Predict lengths: `[n for n in [1,2,3,4] if n%2==0]` vs `[\"even\" if n%2==0 else \"odd\" for n in [1,2,3,4]]`, and `{x*2 for x in [1,2,2,3]}`?",
+      "answer": "Filter gives [2,4] length 2; ternary gives 4 labels length 4; set gives {2,4,6} length 3 with duplicate 2 collapsed. Confusing positions changes length and type.",
+      "key_points": ["filter shortens", "ternary preserves", "set dedups"]
+    }
+  ]
+}

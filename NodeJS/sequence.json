@@ -1,0 +1,39 @@
+{
+  "sequence": [
+    "Node Fundamentals.md",
+    "Modules.md",
+    "npm and Project Setup.md",
+    "Async in Node.md",
+    "Event Loop.md",
+    "EventEmitter.md",
+    "Buffers.md",
+    "Streams.md",
+    "File System.md",
+    "Path and OS.md",
+    "HTTP Module.md",
+    "Express Fundamentals.md",
+    "Middleware.md",
+    "REST APIs with Express.md",
+    "Validation.md",
+    "Error Handling.md",
+    "Authentication.md",
+    "Authorization and Sessions.md",
+    "MongoDB with Mongoose.md",
+    "Postgres with Prisma.md",
+    "Config and Logging.md",
+    "Uploads and Static.md",
+    "Realtime Basics.md",
+    "Caching and Performance.md",
+    "Security Essentials.md",
+    "Testing APIs.md",
+    "TypeScript with Node.md",
+    "Deployment.md",
+    "Debugging.md",
+    "Projects.md"
+  ],
+  "ignore": [
+    "sequence.json",
+    "roadmap.json",
+    "README.md"
+  ]
+}

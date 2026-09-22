@@ -1,0 +1,218 @@
+{
+  "Node Revision Roadmap": {
+    "01. Node Fundamentals": [
+      "What is Node.js",
+      "V8 and libuv overview",
+      "REPL basics",
+      "Globals (process, __dirname)",
+      "Node vs browser JS",
+      "Use cases and limits",
+      "Checking versions with node -v"
+    ],
+    "02. Modules": [
+      "CommonJS require and exports",
+      "ES modules import and export",
+      "CJS vs ESM differences",
+      "Core modules overview",
+      "dirname in ESM",
+      "Circular dependency basics"
+    ],
+    "03. npm and Project Setup": [
+      "npm init and package.json",
+      "Dependencies vs devDependencies",
+      "npm scripts",
+      "npx basics",
+      "Lockfiles and node_modules",
+      "gitignore for Node"
+    ],
+    "04. Async in Node": [
+      "Error-first callbacks",
+      "Promises",
+      "async and await",
+      "Promise.all and allSettled",
+      "Top-level await in ESM",
+      "Callback to promise with util.promisify"
+    ],
+    "05. Event Loop": [
+      "Event loop phases",
+      "Microtasks vs macrotasks",
+      "process.nextTick vs setImmediate",
+      "Timers basics",
+      "Blocking the loop demo",
+      "Offloading heavy work concept"
+    ],
+    "06. EventEmitter": [
+      "on and emit",
+      "once",
+      "Error events",
+      "Removing listeners",
+      "Custom emitter classes",
+      "Max listeners warning"
+    ],
+    "07. Buffers": [
+      "What buffers are for",
+      "Buffer.alloc and Buffer.from",
+      "Encodings (utf8, hex, base64)",
+      "Concat and slice",
+      "Buffer to JSON pattern"
+    ],
+    "08. Streams": [
+      "Readable and writable",
+      "pipe basics",
+      "pipeline for safety",
+      "Object mode concept",
+      "Backpressure concept",
+      "fs streams example"
+    ],
+    "09. File System": [
+      "fs promises read and write",
+      "Append and mkdir",
+      "Exists and stat checks",
+      "fs.watch basics",
+      "JSON store pattern",
+      "Paths with path.join"
+    ],
+    "10. Path and OS": [
+      "path.join vs resolve",
+      "basename dirname extname",
+      "ESM dirname pattern",
+      "os cpus and memory",
+      "Platform checks"
+    ],
+    "11. HTTP Module": [
+      "createServer basics",
+      "req and res objects",
+      "Hand routing by URL",
+      "JSON responses",
+      "Status codes and headers",
+      "Why Express comes next"
+    ],
+    "12. Express Fundamentals": [
+      "App and listen",
+      "Basic routes",
+      "req and res helpers",
+      "Nodemon for dev",
+      "Project structure"
+    ],
+    "13. Middleware": [
+      "app.use and next",
+      "Middleware order",
+      "Built-in json and static",
+      "Custom logger middleware",
+      "Route-level middleware"
+    ],
+    "14. REST APIs with Express": [
+      "Resources and routes",
+      "CRUD with Router",
+      "Params query and body",
+      "Status code conventions",
+      "JSON response shapes"
+    ],
+    "15. Validation": [
+      "Why validate at boundary",
+      "zod basics for bodies",
+      "400 error patterns",
+      "Query parsing and pagination",
+      "Validating params"
+    ],
+    "16. Error Handling": [
+      "Sync vs async errors",
+      "Async wrapper pattern",
+      "Four-arg error middleware",
+      "404 handler",
+      "Logging errors"
+    ],
+    "17. Authentication": [
+      "bcrypt hashing basics",
+      "JWT sign and verify",
+      "Login flow",
+      "Auth middleware",
+      "Header vs cookie tokens"
+    ],
+    "18. Authorization and Sessions": [
+      "Roles and RBAC middleware",
+      "Protected routes",
+      "Refresh tokens brief",
+      "Logout handling"
+    ],
+    "19. MongoDB with Mongoose": [
+      "Connect basics",
+      "Schema and model",
+      "CRUD operations",
+      "Schema validation",
+      "ObjectId and 404 handling"
+    ],
+    "20. Postgres with Prisma": [
+      "Schema basics",
+      "Migrate overview",
+      "Client CRUD",
+      "Relations brief"
+    ],
+    "21. Config and Logging": [
+      "dotenv basics",
+      "Validating env at startup",
+      "pino basics",
+      "Log levels",
+      "Request logging"
+    ],
+    "22. Uploads and Static": [
+      "Serving static files",
+      "multer basics",
+      "File limits and filters",
+      "S3 concept overview"
+    ],
+    "23. Realtime Basics": [
+      "WebSocket concept",
+      "ws server basics",
+      "Broadcast pattern",
+      "Rooms concept"
+    ],
+    "24. Caching and Performance": [
+      "In-memory cache pattern",
+      "Redis brief",
+      "Compression with gzip",
+      "Clustering concept",
+      "Worker threads concept"
+    ],
+    "25. Security Essentials": [
+      "helmet basics",
+      "CORS handling",
+      "Rate limiting",
+      "401 vs 403",
+      "Secrets and env safety"
+    ],
+    "26. Testing APIs": [
+      "Vitest basics",
+      "supertest for routes",
+      "Mocking the database",
+      "Coverage basics"
+    ],
+    "27. TypeScript with Node": [
+      "tsx setup for dev",
+      "Typing req and res",
+      "Env typing",
+      "Build with tsc"
+    ],
+    "28. Deployment": [
+      "Production start scripts",
+      "PM2 basics",
+      "Docker basics",
+      "Health check endpoint",
+      "Env per deploy"
+    ],
+    "29. Debugging": [
+      "node inspector basics",
+      "node --watch",
+      "Unhandled rejections",
+      "Reading stack traces",
+      "Common crash causes"
+    ],
+    "30. Projects": [
+      "Todo API",
+      "Notes API with auth",
+      "Blog API with MongoDB",
+      "Shop API with Postgres",
+      "Deployed portfolio API"
+    ]
+  }
+}

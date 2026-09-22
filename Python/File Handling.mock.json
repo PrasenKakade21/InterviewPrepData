@@ -1,0 +1,65 @@
+{
+  "topic": "File Handling",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Why must Kakade use `with open(...)` and explicit `encoding=\"utf-8\"`?",
+      "answer": "with creates a context manager that closes the file even on exception/return, avoiding descriptor leaks and buffered-write loss. Explicit utf-8 avoids Windows default cp1252 corrupting non-ASCII names like Kakade data.",
+      "key_points": ["auto-close", "leak on manual close", "cross-platform encoding"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Choose the mode: read config, overwrite report, append audit log, exclusive-create, binary image?",
+      "answer": "r for read (missing raises FileNotFoundError), w to truncate/create, a to append/create, x to create-only (raises FileExistsError if exists), rb/wb for binary bytes. r+ for read-write without truncating.",
+      "key_points": ["r/w/a/x/r+", "truncate vs append", "b for bytes"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Compare `read/readline/readlines/for line in f` and `pathlib` vs `os.path` for Kakade's log pipeline.",
+      "answer": "read loads all, readlines lists all lines, readline one line; for line in f streams lazily — required for GB logs. pathlib (Path/a/b, .suffix, .exists, mkdir, glob, read_text) is OO and cross-OS vs stringly os.path.join/splitext.",
+      "key_points": ["streaming vs loading", "memory safety", "Path advantages"]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write Kakade's audit log apppend and read it back with `pathlib`, ensuring directories exist.",
+      "starter_code": "from pathlib import Path\n# mkdir, write_text/append, read_text for Kakade",
+      "answer": "from pathlib import Path\nimport datetime\np = Path(\"logs/kakade_audit.log\")\np.parent.mkdir(parents=True, exist_ok=True)\nwith open(p, \"a\", encoding=\"utf-8\") as f:\n    f.write(f\"[{datetime.datetime.now().isoformat()}] USER_LOGIN | Kakade\\n\")\nprint(p.read_text(encoding=\"utf-8\"))\nprint(p.name, p.suffix, p.parent)",
+      "key_points": ["mkdir parents", "a mode append", "read_text"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Count ERROR lines in a huge log without loading it all into RAM.",
+      "starter_code": "def count_errors(path):\n    pass",
+      "answer": "def count_errors(path):\n    count = 0\n    with open(path, \"r\", encoding=\"utf-8\") as f:\n        for line in f:\n            if \"ERROR\" in line:\n                count += 1\n    return count\n\nwith open(\"kakade_demo.log\", \"w\", encoding=\"utf-8\") as f:\n    f.writelines([\"INFO ok\\n\", \"ERROR bad\\n\", \"ERROR fail\\n\"])\nprint(count_errors(\"kakade_demo.log\"))",
+      "key_points": ["stream loop", "no readlines", "strip if printing"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Copy Kakade's binary asset in 4KB chunks and verify the GIF header signature.",
+      "starter_code": "def copy_media(src, dst):\n    pass",
+      "answer": "def copy_media(src, dst, chunk_size=4096):\n    with open(src, \"rb\") as s, open(dst, \"wb\") as d:\n        while True:\n            chunk = s.read(chunk_size)\n            if not chunk:\n                break\n            d.write(chunk)\n\nwith open(\"kakade_header.bin\", \"wb\") as f:\n    f.write(bytes([0x47, 0x49, 0x46, 0x38, 0x39, 0x61]))\ncopy_media(\"kakade_header.bin\", \"kakade_copy.bin\")\nwith open(\"kakade_copy.bin\", \"rb\") as f:\n    header = f.read(6)\n    print(header, header.decode(\"ascii\"))",
+      "key_points": ["rb/wb bytes", "chunk loop EOF", "decode header"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "What happens to `credentials.json` with `open(...,\"w\")` when Kakade meant to add one key? Fix it.",
+      "answer": "w truncates the whole file instantly, destroying existing keys. Fix: open with \"a\" for logs, or better read JSON, update dict, rewrite; or use r+ / pathlib. Always confirm mode before running.",
+      "key_points": ["w clobbers", "a preserves", "read-modify-write for JSON"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why does `print(line)` double-space logs and `f.write(\"a\"); f.write(\"b\")` jam lines together? Also `open(p,\"wb\").write(\"hi\")`?",
+      "answer": "Iterated lines already end with \\n so print adds another — use line.strip() or end=''. write/writelines never add \\n — include them explicitly. Binary streams need bytes (b\"hi\" or \"hi\".encode()), str raises TypeError.",
+      "key_points": ["trailing newline", "explicit \\n", "bytes vs str"]
+    }
+  ]
+}

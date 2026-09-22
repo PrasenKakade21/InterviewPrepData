@@ -1,0 +1,65 @@
+{
+  "topic": "JSON and CSV",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "When should Kakade use JSON vs CSV, and how do `load/loads` and `dump/dumps` differ?",
+      "answer": "JSON for nested API/config objects (dicts/lists/None/bool); CSV for flat tables. loads parses a string, load reads an open file; dumps serializes to string, dump writes to file. Use indent=2 for readable output.",
+      "key_points": ["nested vs tabular", "string vs file variants", "indent"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "How do JSON types map to Python, and how should bad JSON be handled?",
+      "answer": "null->None, true/false->True/False, object->dict, array->list, number->int/float. Malformed JSON (e.g. trailing comma, single quotes) raises json.JSONDecodeError — catch it and report lineno/msg instead of crashing.",
+      "key_points": ["type mapping", "JSONDecodeError", "double quotes only"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Why does csv require `newline=\"\"` and what do reader vs DictReader return?",
+      "answer": "newline='' lets csv handle line breaks itself, avoiding blank rows on Windows. reader yields lists per row; DictReader uses the header to yield dicts. All values are str, so int()/float() conversion is needed; DictWriter needs fieldnames + writeheader().",
+      "key_points": ["newline='' rule", "list vs dict rows", "str-only values"]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Parse Kakade's JSON string and file round-trip with pretty printing preserving Unicode.",
+      "starter_code": "import json\ns = '{\"name\": \"Kakade\", \"age\": 25}'\n# loads, dumps pretty, dump/load file",
+      "answer": "import json\ns = '{\"name\": \"Kakade\", \"age\": 25}'\nobj = json.loads(s)\nprint(obj)\nprint(json.dumps(obj, indent=2, ensure_ascii=False))\nwith open(\"kakade_user.json\", \"w\", encoding=\"utf-8\") as f:\n    json.dump(obj, f, indent=2, ensure_ascii=False)\nwith open(\"kakade_user.json\", encoding=\"utf-8\") as f:\n    print(json.load(f))",
+      "key_points": ["loads/load", "dumps/dump", "ensure_ascii"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write Kakade's rows with DictWriter then read back with DictReader converting age to int.",
+      "starter_code": "import csv\n# write kakade.csv with header name,age then stream-read",
+      "answer": "import csv\nwith open(\"kakade.csv\", \"w\", newline=\"\", encoding=\"utf-8\") as f:\n    w = csv.DictWriter(f, fieldnames=[\"name\", \"age\"])\n    w.writeheader()\n    w.writerow({\"name\": \"Kakade\", \"age\": 25})\n    w.writerow({\"name\": \"Rahul\", \"age\": 28})\nwith open(\"kakade.csv\", newline=\"\", encoding=\"utf-8\") as f:\n    for row in csv.DictReader(f):\n        print(row[\"name\"], int(row[\"age\"]))",
+      "key_points": ["newline=''", "writeheader", "str to int"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Safely handle trailing-comma JSON and stream a large CSV counting active Kakade rows without loading all.",
+      "starter_code": "import json, csv\n# JSONDecodeError demo + streaming count",
+      "answer": "import json, csv\ntry:\n    json.loads('{\"username\": \"Kakade\",}')\nexcept json.JSONDecodeError as e:\n    print(f\"Invalid JSON line {e.lineno}: {e.msg}\")\ncount = 0\nwith open(\"kakade.csv\", newline=\"\", encoding=\"utf-8\") as f:\n    for row in csv.DictReader(f):\n        if row.get(\"name\") == \"Kakade\":\n            count += 1\nprint(count)",
+      "key_points": ["catch JSONDecodeError", "stream rows", ".get() guard"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why do `'{\"a\":1,}'` and `\"{'name':'Kakade'}\"` both fail json.loads? Fix them.",
+      "answer": "Trailing comma is invalid JSON and single quotes are invalid — JSON requires double quotes with no trailing comma. Fix: '{\"a\":1}' and '{\"name\":\"Kakade\"}'. Catch JSONDecodeError and validate payloads at API boundary.",
+      "key_points": ["no trailing comma", "double quotes", "validate input"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why does Kakade's CSV get blank lines on Windows and ages compare wrong (`\"25\" > \"100\"`)?",
+      "answer": "Opened without newline='' so \\r\\n is translated twice — always open csv with newline=''. All CSV fields are str, so '25'>'100' lexicographically True — convert with int(row['age']) before math/compare.",
+      "key_points": ["newline='' fix", "str comparison trap", "explicit conversion"]
+    }
+  ]
+}

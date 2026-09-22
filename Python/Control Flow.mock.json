@@ -1,0 +1,65 @@
+{
+  "topic": "Control Flow",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "When do you use `for` vs `while`, and how do `break`, `continue`, `pass` differ?",
+      "answer": "for iterates a known collection/range; while repeats until a condition changes (retries, polling). break exits the whole loop, continue skips to next iteration, pass does nothing and continues normally (placeholder).",
+      "key_points": ["for-collections", "while-conditions", "break/continue/pass"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Explain truthy/falsy and why `if value is None` differs from `if not value` for Kakade's API payloads.",
+      "answer": "Empty values (None, 0, '', [], {}) are falsy. `if not value` treats them all the same. If 0 or '' is valid (e.g. age 0), use `if value is None` to detect only missing fields.",
+      "key_points": ["falsy list", "idiomatic if users", "None-specific check"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "How do `enumerate()` and `zip()` improve on `range(len(...))`, and what is zip's truncation rule?",
+      "answer": "enumerate yields (index, value) directly, optional start=1 for display. zip pairs corresponding items from multiple iterables. zip stops at the shortest input, silently dropping extras.",
+      "key_points": ["pythonic iteration", "start=1", "shortest-wins"]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Classify Kakade's score with if/elif/else and also with a ternary for pass/fail.",
+      "starter_code": "score = 75\n# grade A>=90 B>=80 C>=70 else F; result Pass>=40 else Fail",
+      "answer": "score = 75\nif score >= 90:\n    grade = \"A\"\nelif score >= 80:\n    grade = \"B\"\nelif score >= 70:\n    grade = \"C\"\nelse:\n    grade = \"F\"\nresult = \"Pass\" if score >= 40 else \"Fail\"\nprint(grade, result)",
+      "key_points": ["elif chain order", "ternary syntax"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Print active adult users from a list using `continue` for skips (Kakade data included).",
+      "starter_code": "users = [{\"name\": \"Kakade\", \"age\": 25, \"active\": True}, {\"name\": \"Rahul\", \"age\": 17, \"active\": True}, {\"name\": \"Amit\", \"age\": 30, \"active\": False}]\n# print names that can access",
+      "answer": "users = [{\"name\": \"Kakade\", \"age\": 25, \"active\": True}, {\"name\": \"Rahul\", \"age\": 17, \"active\": True}, {\"name\": \"Amit\", \"age\": 30, \"active\": False}]\nfor u in users:\n    if not u[\"active\"]:\n        continue\n    if u[\"age\"] < 18:\n        continue\n    print(f\"{u['name']} can access the system\")",
+      "key_points": ["continue guard pattern", "dict access", "combined filters"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Number Kakade's team list from 1 using enumerate+zip, handling unequal lengths.",
+      "starter_code": "names = [\"Kakade\", \"Rahul\", \"Amit\"]\nroles = [\"Developer\", \"Designer\"]\n# print index, name, role",
+      "answer": "names = [\"Kakade\", \"Rahul\", \"Amit\"]\nroles = [\"Developer\", \"Designer\"]\nfor index, (name, role) in enumerate(zip(names, roles), start=1):\n    print(index, name, role)",
+      "key_points": ["enumerate(zip(...), start=1)", "zip truncates to 2 rows"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "What prints? `for i in range(5): if i==3: pass; print(i)` vs with `continue` instead of `pass`? And `list(range(2,6))`?",
+      "answer": "With pass: 0 1 2 3 4 (pass does nothing, print still runs). With continue: 0 1 2 4 (3 skipped). range(2,6) is [2,3,4,5] — stop 6 excluded.",
+      "key_points": ["pass vs continue", "range exclusivity"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Bug hunt: `while count <= 5: print(count)` never ends, and `for k,v in user: ...` on dict `{\"name\":\"Kakade\"}` fails. Fix both.",
+      "answer": "while never updates count — add count += 1. Iterating a dict yields keys only, so `for k,v in user` raises ValueError; use `for k,v in user.items()`. Also guard while with max attempts for retries.",
+      "key_points": ["infinite loop fix", "dict .items()", "retry break pattern"]
+    }
+  ]
+}

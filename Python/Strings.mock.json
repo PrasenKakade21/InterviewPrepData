@@ -1,0 +1,65 @@
+{
+  "topic": "Strings",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Why are Python strings immutable, and what does that imply for methods like `upper()` and `replace()`?",
+      "answer": "Once created the characters cannot change in place (s[0]='J' raises TypeError). All methods return new strings, so you must reassign: s = s.upper(). This also makes strings hashable and thread-safe.",
+      "key_points": ["immutability", "TypeError on assignment", "reassign result"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Contrast `split()` vs `split(\",\")` and `join()` — who owns `join` and what types does it accept?",
+      "answer": "split() with no sep splits on any whitespace and collapses repeats; split(',') splits on exact comma. join is called on the separator: SEP.join(iterable_of_str). Items must be str, else map(str, ...).",
+      "key_points": ["default whitespace split", "SEP.join pattern", "map(str) for numbers"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "When would you use raw strings and `strip()` variants? What does `strip(\"abc\")` really do?",
+      "answer": "Raw r\"...\" keeps backslashes literal for Windows paths and regex. strip() trims edge whitespace; lstrip/rstrip one side; strip(chars) removes any of those chars from edges, not the exact substring, and never touches interiors.",
+      "key_points": ["raw strings", "edge-only strip", "charset not substring"]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Clean Kakade's raw login input `\"  KaKaDe  \"` to canonical form and check it equals \"kakade\".",
+      "starter_code": "raw = \"  KaKaDe  \"\n# clean and compare",
+      "answer": "raw = \"  KaKaDe  \"\ncleaned = raw.strip().lower()\nprint(cleaned)\nprint(cleaned == \"kakade\")",
+      "key_points": ["strip().lower() chain", "case-insensitive compare"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Parse `\"Kakade,25,Developer\"` with split, convert age to int, then rebuild with join and format an f-string report with price formatting.",
+      "starter_code": "data = \"Kakade,25,Developer\"\nprice = 1234567.891\n# parse, rebuild, format",
+      "answer": "data = \"Kakade,25,Developer\"\nname, age, role = data.split(\",\")\nage = int(age)\nrebuilt = \", \".join([name, str(age), role])\nprint(rebuilt)\nprint(f\"{name=} {age=} {role} | \\u20B9{price:,.2f}\")\nprint(\"Kakade\"[::-1])",
+      "key_points": ["split unpacking", "join rebuild", "f-string :,.2f"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Write `is_image_file(fname)` using `endswith` tuple, plus normalize whitespace in `\"  hello   world  \"` to single spaces.",
+      "starter_code": "def is_image_file(fname):\n    pass",
+      "answer": "def is_image_file(fname):\n    return fname.lower().endswith((\".jpg\", \".jpeg\", \".png\"))\n\nprint(is_image_file(\"Kakade_photo.PNG\"))\ntext = \"  hello   world  \"\nprint(\" \".join(text.split()))",
+      "key_points": ["endswith tuple", "lower before check", "split+join normalize"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why does this print `hello` unchanged? `text=\"hello\"; text.replace(\"hello\",\"hi\"); print(text)` — fix it.",
+      "answer": "replace returns a new string and was discarded due to immutability. Fix: text = text.replace(\"hello\", \"hi\"). Same for upper/strip — always reassign.",
+      "key_points": ["discarded return", "immutability trap", "reassign"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Predict: `\", \".join([1,2,3])`, `\"abcHelloabc\".strip(\"abc\")`, and `\"a  b\".split(\" \")` vs `\"a  b\".split()`?",
+      "answer": "join([1,2,3]) raises TypeError — need map(str,...). strip('abc') strips any a/b/c chars from both edges giving 'Hello'. split(' ') keeps empty strings for double spaces while split() collapses whitespace.",
+      "key_points": ["join needs str", "charset strip", "split semantics"]
+    }
+  ]
+}

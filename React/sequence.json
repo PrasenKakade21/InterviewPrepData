@@ -1,0 +1,40 @@
+{
+  "sequence": [
+    "React Fundamentals.md",
+    "React-Fundamentals",
+    "JSX.md",
+    "Components.md",
+    "Props.md",
+    "State and useState.md",
+    "Event Handling.md",
+    "Conditional Rendering.md",
+    "Lists and Keys.md",
+    "Forms and Controlled Components.md",
+    "useEffect and Lifecycle.md",
+    "useRef, useMemo and useCallback.md",
+    "Context API.md",
+    "useReducer and Advanced State.md",
+    "Custom Hooks.md",
+    "React Router.md",
+    "Data Fetching.md",
+    "Global State Management.md",
+    "Performance Optimization.md",
+    "Error Handling.md",
+    "Portals, Fragments and StrictMode.md",
+    "Styling in React.md",
+    "Refs and DOM Patterns.md",
+    "Testing.md",
+    "TypeScript with React.md",
+    "Build Tools and Project Setup.md",
+    "Authentication Patterns.md",
+    "Deployment and Production.md",
+    "Accessibility in React.md",
+    "Best Practices and Interview Gotchas.md",
+    "Projects.md"
+  ],
+  "ignore": [
+    "sequence.json",
+    "roadmap.json",
+    "README.md"
+  ]
+}
