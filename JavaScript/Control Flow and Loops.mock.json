@@ -1,0 +1,105 @@
+{
+  "topic": "Control Flow and Loops",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Explain the difference between for...of and for...in. Which one would you use for an array, and which for an object?",
+      "answer": "for...of iterates the values produced by an iterable's iterator: arrays give elements, strings give characters, Map gives [key, value] pairs, Set gives values. It respects break and continue, cannot go out of bounds, and throws TypeError on a plain object because objects are not iterable by default.\n\nfor...in iterates the enumerable property keys of an object, as strings, and includes keys inherited through the prototype chain. That makes it suitable for walking an object's keys (with an Object.hasOwn guard or Object.keys instead), but wrong for arrays: you get \"0\", \"1\" as strings plus any custom properties, and the order is not the array order you expect. Rule of thumb: for...of for values, Object.keys/entries for object keys, and avoid for...in unless you specifically need inherited enumerable keys.",
+      "key_points": [
+        "for...of reads iterable values and supports break/continue",
+        "for...in reads enumerable keys as strings, including inherited ones",
+        "Plain objects are not iterable — use Object.keys/entries",
+        "Never use for...in on an array"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "When would you choose for, while, do...while, or an array method? Give one concrete situation for each.",
+      "answer": "Use for when you know the number of passes or need the index and a custom step, such as iterating a matrix by row and column. Use while when the number of iterations is unknown and the condition should be tested before the body, such as retrying a request until it succeeds or reading until a buffer is empty. Use do...while when the body must run at least once, such as displaying a menu before asking whether to continue. Use map/filter/reduce when you are transforming an array into a new value and do not need early exit, because they express intent and avoid manual index bookkeeping. Use for...of as the default for arrays when you only need values.\n\nThe decision is about the shape of the problem: known count → for, unknown count → while, at-least-once → do...while, transform → array method. If you need to stop early, for...of with break or .find() is clearer than forEach, which cannot break.",
+      "key_points": [
+        "for: known count, index, custom step",
+        "while: unknown count, test before the body",
+        "do...while: body must run at least once",
+        "Array methods for transforms; for...of for early exit"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Write fizzbuzz(n) that returns an array from 1 to n: multiples of 3 become \"Fizz\", multiples of 5 become \"Buzz\", multiples of both become \"FizzBuzz\", everything else stays a number.",
+      "starter_code": "const fizzbuzz = (n) => {\n  // your code\n};\n\nconsole.log(fizzbuzz(15));",
+      "answer": "const fizzbuzz = (n) => {\n  const out = [];\n  for (let i = 1; i <= n; i++) {\n    if (i % 15 === 0) out.push(\"FizzBuzz\");\n    else if (i % 3 === 0) out.push(\"Fizz\");\n    else if (i % 5 === 0) out.push(\"Buzz\");\n    else out.push(i);\n  }\n  return out;\n};\n\nconsole.log(fizzbuzz(15));\n// [ 1, 2, 'Fizz', 4, 'Buzz', 'Fizz', 7, 8, 'Fizz', 'Buzz', 11, 'Fizz', 13, 14, 'FizzBuzz' ]\n\nThe order of the checks matters: test the combined case first, otherwise i % 3 matches 15 and you never reach \"FizzBuzz\". Checking i % 15 === 0 is equivalent to i % 3 === 0 && i % 5 === 0. Build a fresh result array and return it rather than logging inside the loop, so the function is reusable and testable.",
+      "key_points": [
+        "Check the combined case (15) before 3 and 5",
+        "Loop from 1 to n inclusive",
+        "Push into a result array and return it",
+        "Order of conditions changes the output"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write firstDuplicate(arr) that returns the first value that appears twice, or null if there is none. It should stop as soon as the duplicate is found.",
+      "starter_code": "const firstDuplicate = (arr) => {\n  // your code\n};\n\nconsole.log(firstDuplicate([\"a\", \"b\", \"a\", \"c\", \"b\"]));\nconsole.log(firstDuplicate([1, 2, 3]));",
+      "answer": "const firstDuplicate = (arr) => {\n  const seen = new Set();\n  for (const value of arr) {\n    if (seen.has(value)) return value;\n    seen.add(value);\n  }\n  return null;\n};\n\nconsole.log(firstDuplicate([\"a\", \"b\", \"a\", \"c\", \"b\"])); // a\nconsole.log(firstDuplicate([1, 2, 3]));                     // null\n\nSet.has is O(1), so the whole scan is O(n) instead of the O(n^2) you get from includes inside a loop. Returning inside for...of exits the function immediately — that is the early stop. A forEach callback cannot break, but return inside forEach only skips one iteration and keeps going, which is a common bug when people try to convert this code.",
+      "key_points": [
+        "Set gives O(1) membership",
+        "return inside for...of stops the whole function",
+        "The first repeated value encountered wins",
+        "return in a forEach callback does not stop the loop"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "Predict the output and explain the difference.\n\nconst a = [];\nfor (var i = 0; i < 3; i++) a.push(() => i);\nconsole.log(a.map((f) => f()));\n\nconst b = [];\nfor (let j = 0; j < 3; j++) b.push(() => j);\nconsole.log(b.map((f) => f()));",
+      "answer": "It prints [ 3, 3, 3 ], then [ 0, 1, 2 ].\n\nvar is function-scoped (or global here), so there is one i shared by all three closures. By the time the callbacks run, the loop has finished and i is 3. let is block-scoped and the for header creates a fresh binding for each iteration, so each closure captures its own j — 0, 1, and 2.\n\nThis is the classic \"loop closure bug\". Before let, the fix was an IIFE or a local const copy inside the loop. If you need the value at push time, you can also write for (let j = 0; j < 3; j++) { const current = j; b.push(() => current); }.",
+      "key_points": [
+        "var: one shared function-scoped binding",
+        "let in a for header: fresh binding per iteration",
+        "All var callbacks see the final value, 3",
+        "Fix with let, an IIFE, or a local const copy"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "What is printed, and why does the string case not match?\n\nfunction describe(value) {\n  switch (value) {\n    case 1:\n      console.log(\"number one\");\n    case \"1\":\n      console.log(\"string one\");\n      break;\n    default:\n      console.log(\"other\");\n  }\n}\n\ndescribe(1);\ndescribe(\"1\");\ndescribe(2);",
+      "answer": "It prints:\nnumber one\nstring one\nstring one\nother\n\nswitch compares with strict equality, so the number 1 matches case 1 but never the string \"1\". When describe(1) matches case 1 there is no break, so execution falls through and also runs case \"1\" before hitting its break — hence two lines for the numeric call.\n\ndescribe(\"1\") matches the string case directly and prints one line. describe(2) matches nothing and runs default. To avoid the fallthrough, put a break or return after every case, or group empty cases deliberately. Also remember switch does not coerce, so \"1\" and 1 are different cases.",
+      "key_points": [
+        "switch uses strict equality, no coercion",
+        "Missing break falls through to the next case",
+        "describe(1) prints both number and string messages",
+        "Add break/return or group empty cases intentionally"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "coding",
+      "question": "Write findInGrid(grid, target) that returns [row, col] for the first match, or null. Use nested loops and a label so the search stops immediately.",
+      "starter_code": "const findInGrid = (grid, target) => {\n  // your code\n};\n\nconst grid = [\n  [1, 2, 3],\n  [4, 5, 6],\n];\nconsole.log(findInGrid(grid, 5));\nconsole.log(findInGrid(grid, 9));",
+      "answer": "const findInGrid = (grid, target) => {\n  let found = null;\n  outer: for (let row = 0; row < grid.length; row++) {\n    for (let col = 0; col < grid[row].length; col++) {\n      if (grid[row][col] === target) {\n        found = [row, col];\n        break outer;\n      }\n    }\n  }\n  return found;\n};\n\nA cleaner version returns directly and needs no label:\n\nconst findInGrid = (grid, target) => {\n  for (let row = 0; row < grid.length; row++) {\n    for (let col = 0; col < grid[row].length; col++) {\n      if (grid[row][col] === target) return [row, col];\n    }\n  }\n  return null;\n};\n\nconsole.log(findInGrid(grid, 5)); // [ 1, 1 ]\nconsole.log(findInGrid(grid, 9)); // null\n\nA return exits both loops and the function, which is simpler than a label plus variables. Labels are useful when you must break out and then continue work in the same function; then declare the result variable before the loop so it is still in scope after break.",
+      "key_points": [
+        "return exits both loops immediately",
+        "Labels are for breaking out while staying in the function",
+        "Return [row, col] on a match, null otherwise",
+        "Prefer early return over flag variables"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why does this loop log unexpected keys, and how do you fix it?\n\nconst arr = [\"Kakade\", \"Asha\"];\narr.extra = \"x\";\nfor (const key in arr) console.log(key, arr[key]);\n\nconst child = Object.create({ inherited: true });\nchild.own = 1;\nfor (const key in child) console.log(key);",
+      "answer": "It logs 0 Kakade, 1 Asha, extra x, then own and inherited.\n\nfor...in walks enumerable property keys, not array values. On an array it gives the indexes as strings, and because arrays are objects, any custom property such as arr.extra is included too. On an object it also walks the prototype chain, so the inherited key appears.\n\nThe fix for arrays is for...of, which reads values and ignores extra properties: for (const name of arr) console.log(name). If you need indexes, use arr.entries() or a classic for loop. For objects, use Object.keys(child) or Object.entries(child) to get own enumerable keys only, or add if (Object.hasOwn(child, key)) inside a for...in loop when inherited keys are genuinely needed.",
+      "key_points": [
+        "for...in reads keys, not values",
+        "Array indexes arrive as strings; custom properties appear",
+        "for...in includes inherited enumerable keys",
+        "Use for...of for arrays and Object.keys/entries for objects"
+      ]
+    }
+  ]
+}

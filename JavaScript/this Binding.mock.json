@@ -1,0 +1,104 @@
+{
+  "topic": "this Binding",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is `this` inside a plain function call? Explain the difference between strict mode and sloppy mode, and why the answer depends on the call site.",
+      "answer": "In a plain call `fn()` there is no receiver, so strict mode leaves `this` as `undefined` and sloppy mode substitutes the global object (`globalThis`, or `window` in a browser). The function body does not decide this; the call site and the mode do. That is why the same function can log `undefined` when called as `fn()` and an object when called as `obj.fn()`.",
+      "key_points": [
+        "Strict plain call: `this === undefined`.",
+        "Sloppy plain call: `this` is the global object.",
+        "The call site decides `this`, not where the function was written.",
+        "ES modules and class bodies are always strict."
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Why does an arrow function used as an object method fail to see the object, while a normal method works? What does `this` refer to in each case?",
+      "answer": "An arrow function has no own `this`; it captures the lexical `this` of the scope where it was written. At module or top level that is `undefined`, so `obj.arrow()` cannot read `obj.name`. A method shorthand creates a normal function, and calling it as `obj.method()` sets `this` to `obj` via implicit binding.",
+      "key_points": [
+        "Arrows have no own `this` and cannot be rebound with call/apply/bind.",
+        "Method shorthand gets the receiver from `obj.method()`.",
+        "Use arrows for callbacks that should inherit the outer `this`.",
+        "Use methods or arrow class fields when the function needs its own receiver."
+      ]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Compare `call`, `apply` and `bind`. What does each return, and can a bound `this` be changed afterwards?",
+      "answer": "`call(thisArg, ...args)` invokes immediately with arguments listed individually and returns the function result. `apply(thisArg, argsArray)` invokes immediately with an array of arguments. `bind(thisArg, ...leadingArgs)` does not invoke; it returns a new function with `this` permanently locked and optional leading arguments pre-filled. A later `call`, `apply`, or `bind` cannot override the bound `this`, though `new` on a bound function creates a fresh object and ignores the bound `this` while keeping the bound arguments.",
+      "key_points": [
+        "call = invoke now, args list; apply = invoke now, args array.",
+        "bind = new function, does not invoke.",
+        "Bound `this` is permanent; rebinding attempts are ignored.",
+        "`new` on a bound function ignores the bound `this` but keeps bound args."
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write a function `once(fn)` that returns a wrapper which calls `fn` at most once, preserves the caller's `this` and arguments, and returns the first result on every later call.",
+      "starter_code": "function once(fn) {\n  // your code here\n}\n\nconst kakade = {\n  name: 'Kakade',\n  greet(times) { return `${this.name} greeted ${times}`; },\n};\n\nconst greetOnce = once(kakade.greet);\nconsole.log(greetOnce.call(kakade, 1));\nconsole.log(greetOnce.call({ name: 'Asha' }, 2));",
+      "answer": "function once(fn) {\n  let called = false;\n  let result;\n  return function (...args) {\n    if (!called) {\n      called = true;\n      result = fn.apply(this, args);\n    }\n    return result;\n  };\n}\n\nconst kakade = {\n  name: 'Kakade',\n  greet(times) { return `${this.name} greeted ${times}`; },\n};\n\nconst greetOnce = once(kakade.greet);\nconsole.log(greetOnce.call(kakade, 1));\nconsole.log(greetOnce.call({ name: 'Asha' }, 2));",
+      "key_points": [
+        "Return a normal `function`, not an arrow, so the caller's `this` survives.",
+        "Capture the first arguments with rest parameters and forward with `apply(this, args)`.",
+        "Cache the result and return it on later calls.",
+        "Later calls must not invoke `fn` again, even with a different receiver."
+      ]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Refactor this class so `click` can be passed directly to `setTimeout` without losing `this`.",
+      "starter_code": "class Button {\n  constructor(label) {\n    this.label = label;\n  }\n\n  click() {\n    return `${this.label} clicked`;\n  }\n}\n\nconst button = new Button('Save');\nsetTimeout(button.click, 0);",
+      "answer": "class Button {\n  constructor(label) {\n    this.label = label;\n  }\n\n  click = () => `${this.label} clicked`;\n}\n\nconst button = new Button('Save');\nsetTimeout(() => console.log(button.click()), 0);",
+      "key_points": [
+        "Class methods are strict, so a detached method gets `this === undefined` and throws.",
+        "An arrow class field is created per instance with `this` bound to that instance.",
+        "Alternatively bind in the constructor: `this.click = this.click.bind(this)`.",
+        "Arrow class fields cost one function per instance, which is fine for handlers."
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "What does this print, and why?\n\n```javascript\nconst user = {\n  name: 'Kakade',\n  greet() { return this.name; },\n};\nconst greet = user.greet;\nconsole.log(greet());\n```",
+      "answer": "In strict mode (modules and classes) it throws `TypeError: Cannot read properties of undefined (reading 'name')`. `greet()` is a plain call, so `this` is `undefined`. In sloppy mode it prints `undefined` because `this` becomes the global object, which has no `name`. Storing `user.greet` in a variable drops the implicit binding; fix it with `greet.call(user)` or `user.greet.bind(user)`.",
+      "key_points": [
+        "Assigning a method to a variable removes the receiver.",
+        "Strict plain call → `this === undefined` → TypeError on property access.",
+        "Sloppy plain call → global object → `undefined` result, not a crash.",
+        "Fix with `bind` or by calling `user.greet()` directly."
+      ]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "What is logged, and what happened to the `name` assigned inside the constructor?\n\n```javascript\nfunction Person(name) {\n  this.name = name;\n  return { name: 'Asha' };\n}\nconsole.log(new Person('Kakade').name);\n```",
+      "answer": "It logs `Asha`. `new` creates a fresh object and uses it as `this`, so `this.name = 'Kakade'` writes to that object. But when a constructor returns an object, that object replaces the newly created one, so the returned literal wins and the `Kakade` instance is discarded. Returning a primitive would be ignored and the new object would be kept.",
+      "key_points": [
+        "`new` returns the created object by default.",
+        "An explicitly returned object overrides the created object.",
+        "An explicitly returned primitive is ignored.",
+        "This is a common source of surprising constructor behaviour."
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Explain the output order and the `this` value in each callback.\n\n```javascript\nconst team = {\n  name: 'Platform',\n  members: ['Kakade', 'Asha'],\n  list() {\n    return this.members.map(function (m) {\n      return `${m}:${this?.name ?? 'none'}`;\n    });\n  },\n};\nconsole.log(team.list());\n```",
+      "answer": "It prints `[ 'Kakade:none', 'Asha:none' ]`. `map` invokes its callback as a plain function, so the callback's `this` is `undefined` in strict mode and the optional chain falls back to `'none'`. The outer `list` method has `this === team`, but that binding is not inherited by a normal nested function. Use an arrow callback, or pass `team` as `map`'s second `thisArg`.",
+      "key_points": [
+        "Normal callbacks do not inherit the enclosing method's `this`.",
+        "Arrows inherit lexical `this`, so `map((m) => ...)` works.",
+        "`map` accepts a `thisArg` second argument for normal callbacks.",
+        "Optional chaining hides the bug by returning a fallback instead of throwing."
+      ]
+    }
+  ]
+}

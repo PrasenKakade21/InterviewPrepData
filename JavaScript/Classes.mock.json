@@ -1,0 +1,105 @@
+{
+  "topic": "Classes",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What does a `class` actually create in JavaScript? How do instance methods end up shared between objects?",
+      "answer": "A class creates a constructor function plus a `prototype` object. Methods declared in the class body are defined once on `Class.prototype`, non-enumerable. `new Class()` creates an object whose `[[Prototype]]` is `Class.prototype`, so every instance finds the same method function through the prototype chain instead of owning a copy. Class bodies are strict, are not hoisted (TDZ), and cannot be called without `new`.",
+      "key_points": [
+        "A class is a constructor function under the hood.",
+        "Methods live on `Class.prototype`, not on instances.",
+        "Instances link to the prototype via `new`.",
+        "Classes are always strict and live in the TDZ."
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "How do `static` members differ from instance members, and what is `this` inside a static method?",
+      "answer": "Instance members are reached through an object (`new User().name`) and live on the instance or its prototype. Static members live on the constructor function itself (`User.count`) and are not available on instances. Inside a static method, `this` is the class that was called — the subclass when inherited — which is why `static create() { return new this(); }` returns the right subclass. `static {}` blocks run once at class evaluation.",
+      "key_points": [
+        "Statics belong to the class, not instances.",
+        "`this` in a static method is the called class/subclass.",
+        "Static members are inherited by subclasses.",
+        "`static {}` runs once during class definition."
+      ]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What do `#private` fields guarantee that an underscore convention does not? What happens when you access one on the wrong object?",
+      "answer": "A `#` field is enforced by the language: the name is only accessible inside the class body, it is invisible to `Object.keys`, `JSON.stringify`, and bracket access, and access is brand-checked. Reading `other.#balance` where `other` is not an instance of that class throws `TypeError`. An underscore field is just a normal public property that anyone can read or overwrite.",
+      "key_points": [
+        "`#` is real encapsulation, enforced at parse/runtime.",
+        "Private names are not string keys and do not appear in enumeration.",
+        "Brand checks throw `TypeError` for foreign objects.",
+        "The field must be declared in the class body."
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Create an `Admin` class that extends `User`, adds a `level` field, calls the parent constructor, and overrides `describe()` to include the parent description.",
+      "starter_code": "class User {\n  constructor(name) {\n    this.name = name;\n  }\n\n  describe() {\n    return `User: ${this.name}`;\n  }\n}\n\nclass Admin extends User {\n  // your code here\n}\n\nconst asha = new Admin('Asha', 'senior');\nconsole.log(asha.describe());\nconsole.log(asha instanceof Admin, asha instanceof User);",
+      "answer": "class User {\n  constructor(name) {\n    this.name = name;\n  }\n\n  describe() {\n    return `User: ${this.name}`;\n  }\n}\n\nclass Admin extends User {\n  constructor(name, level) {\n    super(name);\n    this.level = level;\n  }\n\n  describe() {\n    return `${super.describe()} (${this.level})`;\n  }\n}\n\nconst asha = new Admin('Asha', 'senior');\nconsole.log(asha.describe());\nconsole.log(asha instanceof Admin, asha instanceof User);",
+      "key_points": [
+        "Call `super(name)` before using `this`.",
+        "`super.describe()` calls the parent method with the same `this`.",
+        "`instanceof` passes for both the subclass and parent.",
+        "Do not duplicate parent setup manually when `super` exists."
+      ]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Add a validated `age` accessor to `User`. The setter must reject values below 0 or above 150 with a `RangeError`, and the getter must return the stored value.",
+      "starter_code": "class User {\n  constructor(name, age) {\n    this.name = name;\n    this.age = age;\n  }\n}\n\nconst kakade = new User('Kakade', 30);\nconsole.log(kakade.age);\ntry {\n  kakade.age = -1;\n} catch (error) {\n  console.log(error.constructor.name);\n}",
+      "answer": "class User {\n  #age;\n\n  constructor(name, age) {\n    this.name = name;\n    this.age = age;\n  }\n\n  get age() {\n    return this.#age;\n  }\n\n  set age(value) {\n    if (!Number.isInteger(value) || value < 0 || value > 150) {\n      throw new RangeError('Invalid age');\n    }\n    this.#age = value;\n  }\n}\n\nconst kakade = new User('Kakade', 30);\nconsole.log(kakade.age);\ntry {\n  kakade.age = -1;\n} catch (error) {\n  console.log(error.constructor.name);\n}",
+      "key_points": [
+        "Use a private backing field (`#age`) to avoid setter recursion.",
+        "The constructor can assign through the setter for validation.",
+        "Throw `RangeError` for out-of-range numeric values.",
+        "The getter and setter form one property on the prototype."
+      ]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Implement a static `User.fromJSON(json)` factory that parses a JSON string and returns a `User`, throwing a `SyntaxError` unchanged for bad JSON.",
+      "starter_code": "class User {\n  constructor(name, role = 'member') {\n    this.name = name;\n    this.role = role;\n  }\n\n  // add the static factory\n}\n\nconsole.log(User.fromJSON('{\"name\":\"Kakade\"}').role);",
+      "answer": "class User {\n  constructor(name, role = 'member') {\n    this.name = name;\n    this.role = role;\n  }\n\n  static fromJSON(json) {\n    const data = JSON.parse(json);\n    return new this(data.name, data.role);\n  }\n}\n\nconsole.log(User.fromJSON('{\"name\":\"Kakade\"}').role);",
+      "key_points": [
+        "Static methods are called on the class, not an instance.",
+        "Use `new this(...)` so subclasses get the right type.",
+        "`JSON.parse` already throws `SyntaxError` for malformed input.",
+        "Validate the parsed shape if the input is untrusted."
+      ]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "What happens here, and how do you fix it?\n\n```javascript\nclass Button {\n  constructor(label) { this.label = label; }\n  click() { return `${this.label} clicked`; }\n}\n\nconst button = new Button('Save');\nconst handler = button.click;\nconsole.log(handler());\n```",
+      "answer": "It throws `TypeError: Cannot read properties of undefined (reading 'label')`. `handler()` is a plain call, and class methods are strict, so `this` is `undefined`. Fix with an arrow class field (`click = () => ...`), bind in the constructor (`this.click = this.click.bind(this)`), or call it as `button.click()` / pass a wrapper `() => button.click()`.",
+      "key_points": [
+        "Detached methods lose their receiver.",
+        "Class methods are always strict, so `this` is `undefined`, not the global object.",
+        "Arrow class fields bind per instance.",
+        "`bind` in the constructor is the pre-fields alternative."
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why does this throw, and what is the correct order?\n\n```javascript\nclass Animal {\n  constructor(name) { this.name = name; }\n}\n\nclass Dog extends Animal {\n  constructor(name) {\n    this.name = name;\n    super(name);\n  }\n}\n```",
+      "answer": "A derived constructor cannot access `this` before `super()` runs. The instance is created by the parent constructor, so `this.name = name` throws `ReferenceError: Must call super constructor ... before accessing 'this'`. The fix is to call `super(name)` first (and then optionally assign derived fields), or omit the derived constructor entirely so the default `constructor(...args) { super(...args); }` is used.",
+      "key_points": [
+        "Derived constructors must call `super()` before touching `this`.",
+        "The parent constructor creates and initialises the instance.",
+        "Omitting the constructor gives a correct default that forwards args.",
+        "Only returning an object can bypass `super()`; returning a primitive still requires it."
+      ]
+    }
+  ]
+}

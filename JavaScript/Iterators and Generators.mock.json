@@ -1,0 +1,105 @@
+{
+  "topic": "Iterators and Generators",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Explain the difference between the iterable protocol and the iterator protocol, and which object implements which.",
+      "answer": "The iterable protocol is a method `[Symbol.iterator]()` that returns an iterator. The iterator protocol is a `next()` method returning `{ value, done }`. An array is iterable but not an iterator; a generator object is both, because it has `next()` and its `[Symbol.iterator]()` returns itself. `for...of`, spread, and array destructuring all start by calling `[Symbol.iterator]()` on the iterable.",
+      "key_points": [
+        "Iterable = has `[Symbol.iterator]()`.",
+        "Iterator = has `next()` returning `{ value, done }`.",
+        "Generators satisfy both protocols.",
+        "`for...of` and spread consume the iterable protocol."
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "How does `for...of` work step by step, and why does it not work on a plain object?",
+      "answer": "`for...of` calls `obj[Symbol.iterator]()` once, then repeatedly calls `next()` and binds `value` until `done` is true. A plain object has no `Symbol.iterator` method, so the loop throws `TypeError: obj is not iterable`. Arrays, strings, `Map`, `Set`, and generator objects do implement it. Use `Object.entries(obj)` or `for...in` for objects.",
+      "key_points": [
+        "One `Symbol.iterator` call, then repeated `next()`.",
+        "Loop stops at `done: true`.",
+        "Plain objects are not iterable by default.",
+        "`Object.entries` makes object data iterable."
+      ]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What does `yield` do, and how does `next(value)` interact with a paused generator?",
+      "answer": "`yield` suspends the generator, returns its operand as the current `value`, and remembers the position. The next `next(value)` resumes execution immediately after that `yield`, and the argument becomes the **result** of the `yield` expression. The first `next()` starts the body, so its argument is discarded because there is no paused yield to receive it.",
+      "key_points": [
+        "`yield` pauses and emits a value.",
+        "`next(arg)` resumes and evaluates to `arg` inside the generator.",
+        "The first `next(arg)` argument is ignored.",
+        "`return` finishes with `{ value, done: true }`."
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Create an iterable `countdown` object with `from` and `to` properties that yields numbers downward and can be used with spread. Each new loop must start fresh.",
+      "starter_code": "const countdown = {\n  from: 3,\n  to: 1,\n  // implement Symbol.iterator\n};\n\nconsole.log([...countdown]);\nconsole.log([...countdown]);",
+      "answer": "const countdown = {\n  from: 3,\n  to: 1,\n  [Symbol.iterator]() {\n    let current = this.from;\n    const last = this.to;\n    return {\n      next() {\n        return current >= last\n          ? { value: current--, done: false }\n          : { value: undefined, done: true };\n      },\n    };\n  },\n};\n\nconsole.log([...countdown]);\nconsole.log([...countdown]);",
+      "key_points": [
+        "`[Symbol.iterator]()` must return an object with `next()`.",
+        "Keep `current` in the iterator closure, not on the object.",
+        "Returning a fresh iterator per call keeps repeated loops independent.",
+        "`done: true` ends iteration and is not included in the output."
+      ]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write a generator `take(iterable, count)` that returns an array of the first `count` values without consuming more than necessary.",
+      "starter_code": "function take(iterable, count) {\n  // your code here\n}\n\nfunction* naturals() {\n  let n = 1;\n  while (true) yield n++;\n}\n\nconsole.log(take(naturals(), 4));",
+      "answer": "function take(iterable, count) {\n  const result = [];\n  const iterator = iterable[Symbol.iterator]();\n\n  while (result.length < count) {\n    const { value, done } = iterator.next();\n    if (done) break;\n    result.push(value);\n  }\n\n  return result;\n}\n\nfunction* naturals() {\n  let n = 1;\n  while (true) yield n++;\n}\n\nconsole.log(take(naturals(), 4));",
+      "key_points": [
+        "Use the iterator protocol directly to control exactly how many `next()` calls happen.",
+        "Stop when `done` is true or the requested count is reached.",
+        "Never spread an infinite iterable.",
+        "Take one value per iteration; do not pre-materialise."
+      ]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Implement `flatten(tree)` as a generator that yields every node name depth-first, using `yield*` for children.",
+      "starter_code": "function* flatten(node) {\n  // your code here\n}\n\nconst tree = {\n  name: 'root',\n  children: [\n    { name: 'a' },\n    { name: 'b', children: [{ name: 'b1' }] },\n  ],\n};\n\nconsole.log([...flatten(tree)]);",
+      "answer": "function* flatten(node) {\n  yield node.name;\n  for (const child of node.children ?? []) {\n    yield* flatten(child);\n  }\n}\n\nconst tree = {\n  name: 'root',\n  children: [\n    { name: 'a' },\n    { name: 'b', children: [{ name: 'b1' }] },\n  ],\n};\n\nconsole.log([...flatten(tree)]);",
+      "key_points": [
+        "`yield*` delegates to another generator.",
+        "Use `?? []` for leaf nodes without children.",
+        "Depth-first order comes from yielding the parent first.",
+        "Recursion is lazy — values are produced as consumed."
+      ]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why does the second spread print an empty array?\n\n```javascript\nfunction* g() { yield 1; yield 2; }\nconst gen = g();\nconsole.log([...gen]);\nconsole.log([...gen]);\n```",
+      "answer": "It prints `[ 1, 2 ]` and then `[]`. A generator object is a **single-use** iterator: after it reaches `done: true`, every later `next()` returns `{ value: undefined, done: true }`. Spreading twice consumes the same iterator. Call `g()` again for a fresh generator, or cache the materialised array.",
+      "key_points": [
+        "Generators are exhausted after one full consumption.",
+        "They are iterators, not reusable collections.",
+        "Calling the generator function again creates a new one.",
+        "Arrays are re-iterable; generators are not."
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "What is wrong here, and what is the fix?\n\n```javascript\nfunction* process(items) {\n  items.forEach(function (item) {\n    yield item * 2;\n  });\n}\n```",
+      "answer": "It is a `SyntaxError`: `yield` is only allowed directly inside the generator body, not inside a nested normal function callback. `forEach` also cannot pause. Fix with a `for...of` loop (`for (const item of items) yield item * 2;`), or delegate with `yield* items.map((item) => item * 2)`. The first keeps laziness; `map` materialises the array.",
+      "key_points": [
+        "`yield` is illegal inside a non-generator nested function.",
+        "`forEach` cannot be paused or resumed.",
+        "Use `for...of` for lazy iteration.",
+        "`yield*` can delegate to another iterable."
+      ]
+    }
+  ]
+}

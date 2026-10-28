@@ -1,0 +1,105 @@
+{
+  "topic": "Variables, Scope and Hoisting",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Explain the differences between `var`, `let`, and `const`. When can a `const` value still change?",
+      "answer": "`var` is function-scoped, hoisted and initialized to `undefined`, can be redeclared or reassigned. `let` is block-scoped, hoisted but in the TDZ until initialized, reassignable but not redeclarable. `const` is block-scoped, in the TDZ, must be initialized at declaration, and cannot be reassigned or redeclared. A `const` binding to an object or array can still be mutated (`user.name = \"Asha\"`, `arr.push(1)`); only rebinding the name is forbidden.",
+      "key_points": [
+        "var = function scope, let/const = block scope",
+        "let reassignable, const not reassignable",
+        "const does not make objects immutable",
+        "const must be initialized at declaration"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What is hoisting, and how does the temporal dead zone differ from `var`'s `undefined`?",
+      "answer": "Hoisting is the engine registering declarations before execution. `var` is registered and initialized to `undefined`, so reading it early gives `undefined`. `let`/`const` are registered but left uninitialized; the period before initialization is the temporal dead zone, so reading them throws `ReferenceError`. Function declarations are fully hoisted and callable before their line; function expressions only hoist their variable binding.",
+      "key_points": [
+        "Hoisting moves declarations, not assignments",
+        "var reads as undefined",
+        "let/const throw in the TDZ",
+        "Function declarations are fully hoisted; expressions are not"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "This logs `3 3 3` instead of `0 1 2`. Fix it with a one-word change and explain why it works.",
+      "starter_code": "for (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 0);\n}",
+      "answer": "Change `var` to `let`:\n\nfor (let i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 0);\n}\n// 0\n// 1\n// 2\n\n`var` has one function-scoped binding shared by all three callbacks, and by the time they run the loop has finished with `i === 3`. `let` creates a fresh binding per iteration, so each arrow closes over its own `i`.",
+      "key_points": [
+        "var = one shared function-scoped binding",
+        "let = new binding each loop iteration",
+        "Callbacks run after the loop finishes",
+        "Same fix applies to event handlers and timers"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Refactor this function to use `const`/`let` only, keeping the same output, and remove the block leak.",
+      "starter_code": "function summarize() {\n  var total = 0;\n  if (true) {\n    var bonus = 10;\n    total = total + bonus;\n  }\n  console.log(total, bonus);\n}\n\nsummarize();",
+      "answer": "function summarize() {\n  let total = 0;\n  if (true) {\n    const bonus = 10;\n    total += bonus;\n  }\n  console.log(total);\n}\n\nsummarize(); // 10\n\n`bonus` is only needed inside the block, so it becomes a block-scoped `const`; `total` is reassigned, so it stays `let`. Logging `bonus` outside would now throw, which is the point — the leak is gone.",
+      "key_points": [
+        "Use const for values that never change",
+        "Use let for the accumulator",
+        "Block-scoped variables cannot leak",
+        "Removing the leak changes the log line"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "What does this print, and why? `let ok = true; { console.log(typeof ok); let ok = false; }`",
+      "answer": "It throws `ReferenceError: Cannot access 'ok' before initialization`. The inner `let ok` shadows the outer one for the entire block, and `typeof` is not magic: it is safe for a completely undeclared name but throws for a `let`/`const` binding that is still in its temporal dead zone.",
+      "key_points": [
+        "Inner let shadows the outer binding",
+        "TDZ spans the whole block before initialization",
+        "typeof throws for TDZ names",
+        "typeof only saves you for undeclared names"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "True or false: `const user = { name: \"Kakade\" }; user.name = \"Asha\";` throws because `user` is const.",
+      "answer": "False. It succeeds and `user.name` becomes `\"Asha\"`. `const` prevents reassigning the binding (`user = {}` throws `TypeError`), not mutating the object it points to. To make the object itself immutable you need `Object.freeze(user)`.",
+      "key_points": [
+        "const protects the binding, not the value",
+        "Object mutation is allowed",
+        "Reassignment throws TypeError",
+        "Object.freeze gives shallow immutability"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "theory",
+      "question": "What is shadowing, and why is `let name = \"Kakade\"; { var name = \"Asha\"; }` a syntax error while `let name = \"Kakade\"; { let name = \"Asha\"; }` is fine?",
+      "answer": "Shadowing is an inner binding hiding an outer one. The second version is fine because the inner `let` creates a separate block-scoped binding. The `var` version is a SyntaxError: `var` is not block-scoped, so it tries to declare `name` in the function/global scope where a `let name` already exists, which is an illegal redeclaration. The whole script fails at parse time.",
+      "key_points": [
+        "Shadowing = inner scope hides outer name",
+        "let can shadow let legally",
+        "var cannot cross an existing let/const binding",
+        "It is a parse-time SyntaxError, not catchable"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "coding",
+      "question": "Write `makeCounters()` that returns three functions logging `0`, `1`, and `2` respectively, using block scoping rather than three separate literals.",
+      "starter_code": "function makeCounters() {\n  // return an array of three functions\n}\n\nconst counters = makeCounters();\ncounters.forEach((fn) => fn());",
+      "answer": "function makeCounters() {\n  const counters = [];\n  for (let i = 0; i < 3; i++) {\n    counters.push(() => console.log(i));\n  }\n  return counters;\n}\n\nconst counters = makeCounters();\ncounters.forEach((fn) => fn());\n// 0\n// 1\n// 2",
+      "key_points": [
+        "let creates a per-iteration binding",
+        "Arrow functions close over that binding",
+        "var would make all three log 3",
+        "Returning functions is a closure preview"
+      ]
+    }
+  ]
+}

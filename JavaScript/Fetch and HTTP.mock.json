@@ -1,0 +1,104 @@
+{
+  "topic": "Fetch and HTTP",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Does fetch reject when the server returns 404 or 500? Explain what it does reject on and how you should handle HTTP errors.",
+      "answer": "No. fetch resolves with a Response for any HTTP status, including 404 and 500, because the request itself completed and the server answered. The promise rejects only when no usable response is produced: DNS failure, offline/connection reset (TypeError: fetch failed), a browser CORS block (TypeError: Failed to fetch), or an abort (DOMException named AbortError). A timeout is not built in, so it only rejects if you abort with a signal. The correct pattern is to inspect res.ok, which is true only for status 200-299, and throw or return an error state yourself: if (!res.ok) throw new Error(`HTTP ${res.status}`). Do this before res.json(), because an error page may return HTML and make parsing throw SyntaxError. A try/catch is still needed around the whole operation for network failures and for the parse step, but it is not a substitute for the ok check.",
+      "key_points": [
+        "fetch resolves for 4xx and 5xx; the request completed",
+        "It rejects on network failure, CORS block, or abort",
+        "Check res.ok before reading the body",
+        "Wrap network and JSON parse failures in try/catch too"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "trap",
+      "question": "What happens here, and how do you fix it?\n\nconst res = await fetch(\"/api/user\");\nconsole.log(await res.json());\nconsole.log(await res.json());",
+      "answer": "The first await res.json() reads and consumes the response body stream, so it prints the user object. The second call rejects with TypeError: Body is unusable: Body has already been read. res.bodyUsed becomes true after the first read. A Response body can be consumed only once, whether by json(), text(), blob() or arrayBuffer().\n\nFix 1: parse once and reuse the value — const user = await res.json(); console.log(user); console.log(user);. Fix 2: if you genuinely need two representations, clone before reading — const copy = res.clone(); const user = await res.json(); const text = await copy.text();. clone() buffers the body, so use it only for small responses. For debugging, read text() once and call JSON.parse on the stored string.",
+      "key_points": [
+        "A body stream is consumed once; bodyUsed becomes true",
+        "Second json()/text() call throws TypeError",
+        "Parse once and reuse the value",
+        "res.clone() must be called before reading; it buffers"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Write fetchWithTimeout(url, ms) that rejects with an AbortError if the request takes longer than ms, and does not leave a timer running after success.",
+      "starter_code": "async function fetchWithTimeout(url, ms = 5000) {\n  // your code\n}\n\nfetchWithTimeout(\"https://api.example.com/slow\", 100)\n  .catch((err) => console.log(err.name));",
+      "answer": "async function fetchWithTimeout(url, ms = 5000) {\n  const controller = new AbortController();\n  const timer = setTimeout(() => controller.abort(), ms);\n\n  try {\n    const res = await fetch(url, { signal: controller.signal });\n    if (!res.ok) throw new Error(`HTTP ${res.status}`);\n    return res;\n  } finally {\n    clearTimeout(timer);\n  }\n}\n\nfetchWithTimeout(\"https://api.example.com/slow\", 100)\n  .catch((err) => console.log(err.name));\n// AbortError\n\nfetch has no timeout option, so the timer aborts the controller and the pending fetch rejects. The finally block clears the timer on both success and failure; without it, Node keeps the event loop alive until the timer fires, and a browser tab holds a needless callback. A signal is one-shot, so create the controller inside the function, not at module scope. Modern alternative: fetch(url, { signal: AbortSignal.timeout(ms) }), which rejects with TimeoutError, making a timeout distinguishable from a user cancel.",
+      "key_points": [
+        "AbortController + setTimeout(abort)",
+        "clearTimeout in finally on success and failure",
+        "Create a fresh controller per request; signals are one-shot",
+        "AbortSignal.timeout gives a TimeoutError instead"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write getJSON(url) that checks the HTTP status, handles 204 No Content, and returns parsed JSON. Show how a caller catches both HTTP and network errors.",
+      "starter_code": "async function getJSON(url) {\n  // your code\n}\n\ngetJSON(\"https://jsonplaceholder.typicode.com/todos/1\")\n  .then((todo) => console.log(todo.title))\n  .catch((err) => console.error(err.message));",
+      "answer": "async function getJSON(url) {\n  const res = await fetch(url, { headers: { Accept: \"application/json\" } });\n  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);\n  if (res.status === 204) return null;\n  return res.json();\n}\n\ngetJSON(\"https://jsonplaceholder.typicode.com/todos/1\")\n  .then((todo) => console.log(todo.title))\n  .catch((err) => console.error(err.message));\n// delectus aut autem\n\nThe ok check converts an HTTP error into a rejected promise so one catch handles it. The 204 branch matters because an empty body makes res.json() throw SyntaxError, not return null. Network failures reject before the status check and reach the same catch. If the server can return 200 with non-JSON (an HTML login page, for example), read res.text() and parse inside try/catch, or check the content-type header first. Including the URL in the message makes logs actionable.",
+      "key_points": [
+        "Check res.ok and throw with status and URL",
+        "Return null for 204 before parsing",
+        "A single catch handles HTTP, network and parse errors",
+        "An empty body is not valid JSON"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "This request is cross-origin, and the server replies with Access-Control-Allow-Origin: * and Access-Control-Allow-Credentials: true. Why does the browser still block it, and what must change?\n\nfetch(\"https://api.example.com/me\", { credentials: \"include\" });",
+      "answer": "With credentials: \"include\" the browser demands a specific origin in Access-Control-Allow-Origin. The wildcard * is forbidden for credentialed requests, so the response is blocked even though the server also sent Access-Control-Allow-Credentials: true. The correct header is the exact page origin, for example Access-Control-Allow-Origin: https://app.example.com, plus Access-Control-Allow-Credentials: true, and ideally Vary: Origin so caches do not mix responses.\n\nThere is a second common failure: the cookie may not be sent at all. If it was set with SameSite=Lax (or Strict), a cross-site fetch will not include it; it needs SameSite=None; Secure. The cookie also needs the right Domain/Path; HttpOnly does not block sending, it only hides the cookie from JavaScript. Finally, CORS is enforced by the browser only: Node or curl will show a successful response, which is why server-side tests can miss this bug.",
+      "key_points": [
+        "Credentialed requests cannot use Access-Control-Allow-Origin: *",
+        "Echo the exact origin and send Allow-Credentials: true",
+        "SameSite=Lax/Strict cookies may not be sent cross-site",
+        "CORS is browser-enforced; Node/curl ignore it"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "theory",
+      "question": "Explain same-origin, CORS and preflight. Which requests trigger an OPTIONS preflight, and what does the server have to return?",
+      "answer": "An origin is scheme + host + port, so https://app.example.com and https://api.example.com are different origins even though the host suffix matches. The same-origin policy stops JavaScript on one origin from reading responses from another. CORS is the server-side opt-in: the browser sends Origin, and the server answers with Access-Control-Allow-Origin naming that origin (or * for non-credentialed requests). If the header is missing or mismatched, fetch rejects with a generic TypeError and JS cannot see the response, even if the server processed the request.\n\nA preflight is an automatic OPTIONS request sent before a non-simple request. It is triggered by methods other than GET/HEAD/POST, by a Content-Type other than the three form-friendly values (application/x-www-form-urlencoded, multipart/form-data, text/plain), or by a custom header. The server must reply with Access-Control-Allow-Origin, Access-Control-Allow-Methods listing the real method, and Access-Control-Allow-Headers listing custom headers; Access-Control-Max-Age caches the result. If the preflight fails, the actual PUT/PATCH/DELETE is never sent. Simple GETs skip the preflight but still need Allow-Origin on the response.",
+      "key_points": [
+        "Origin = scheme + host + port",
+        "CORS is enforced by the browser, not the server",
+        "JSON content type, PUT/PATCH/DELETE and custom headers trigger preflight",
+        "Preflight must allow origin, method and headers or the real request never runs"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "What is wrong with this POST, and what will the server likely receive?\n\nfetch(\"/api/todos\", {\n  method: \"POST\",\n  body: { title: \"Revise fetch\" }\n});",
+      "answer": "The body is a plain object, not a valid BodyInit. fetch coerces it to the string \"[object Object]\" and sends that, so the server cannot parse a title. There is also no Content-Type header, so even a correctly stringified body might be read as text rather than JSON. The response may be 400 or 415, and if the server answers with an error page, res.json() can also fail.\n\nFix: fetch(\"/api/todos\", { method: \"POST\", headers: { \"Content-Type\": \"application/json\" }, body: JSON.stringify({ title: \"Revise fetch\" }) }). For a form post use URLSearchParams or FormData and let the browser set the content type. Also check res.ok: a server rejection does not reject the fetch promise, so the bug can pass silently if the code never inspects the status.",
+      "key_points": [
+        "A plain object body becomes \"[object Object]\"",
+        "JSON needs JSON.stringify plus Content-Type: application/json",
+        "FormData/URLSearchParams set their own content type",
+        "A 400/415 response still resolves, so check res.ok"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "theory",
+      "question": "Map CRUD operations to REST methods and status codes. Why does PUT/PATCH/DELETE idempotency matter for retries?",
+      "answer": "A collection is /todos and an item is /todos/1. GET /todos lists, GET /todos/1 reads one, POST /todos creates (201 Created plus a Location header), PUT /todos/1 replaces the whole item (200 or 204), PATCH /todos/1 partially updates (200), and DELETE /todos/1 removes it (204, or 404 if it never existed). Validation failures are usually 400 or 422, missing authentication 401, authenticated-but-not-allowed 403, missing resource 404, and conflicts such as a duplicate unique field 409.\n\nIdempotency means repeating the same request has the same end state as doing it once. GET, PUT and DELETE are idempotent; POST is not. If a PUT or DELETE times out after the server processed it, a retry is safe. Retrying a POST can create two todos, which is why payment and order APIs use idempotency keys. PATCH is not guaranteed idempotent: an operation like \"increment count\" changes the result each time. When a timeout happens you often cannot know whether the write landed, so prefer idempotent designs or a server-side idempotency key.",
+      "key_points": [
+        "Collection vs item URLs; method is the verb",
+        "201 create, 204 no content, 400/422 validation, 401 vs 403, 404, 409",
+        "GET/PUT/DELETE idempotent; POST is not",
+        "Retrying POST can duplicate; use idempotency keys"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "topic": "Arrays",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is the difference between map, forEach and filter? Which one do you reach for when you need to remove items?",
+      "answer": "All three loop over an array and run a callback, but their contracts differ. map transforms every element and returns a new array of the same length — one output per input. forEach runs a side effect and returns undefined, so it cannot be chained; it is for logging, DOM writes or pushing into another array. filter returns a new array containing only the elements whose callback returned truthy, so it can shrink the array (and may return an empty one). To remove items you use filter; to reshape items you use map; to accumulate into a single value you use reduce. A common mistake is calling map when the callback returns nothing useful, or calling forEach and then wondering why the result is undefined.",
+      "key_points": [
+        "map: same length, new array, chainable",
+        "forEach: returns undefined, meant for side effects",
+        "filter: keeps truthy results, new (possibly empty) array",
+        "Use filter to remove, map to reshape, reduce to accumulate"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "trap",
+      "question": "What does this print? Explain both lines.\n\nconst nums = [10, 9, 1, 100];\nconsole.log(nums.sort());\nconsole.log([1, 2, 3].map(parseInt));\nconsole.log(nums);",
+      "answer": "It prints [ 1, 10, 100, 9 ], then [ 1, NaN, NaN ], then [ 1, 10, 100, 9 ].\n\nsort() without a comparator converts each element to a string and compares lexicographically, so \"10\" comes before \"9\" because \"1\" < \"9\". It also mutates in place and returns the same array, so the third line shows the reordered original. The fix is nums.sort((a, b) => a - b).\n\nThe second line is the map(parseInt) trap: map calls the callback with (element, index, array), and parseInt takes (string, radix). So it evaluates parseInt(1, 0) = 1, parseInt(2, 1) = NaN (radix 1 is invalid), parseInt(3, 2) = NaN (binary has no digit 3). The fix is to wrap it: [1, 2, 3].map((n) => parseInt(n, 10)).",
+      "key_points": [
+        "Default sort compares strings, so 10 sorts before 9",
+        "sort mutates and returns the same array",
+        "Numeric sort: sort((a, b) => a - b)",
+        "map passes (element, index, array); the index becomes parseInt's radix",
+        "Wrap callbacks that take extra arguments"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Write unique(arr) that removes duplicates while preserving first-seen order, and works for objects by reference and for NaN.",
+      "starter_code": "const unique = (arr) => {\n  // your code\n};\n\nconsole.log(unique([3, 1, 3, 2, 1]));\nconsole.log(unique([NaN, NaN, 1]));",
+      "answer": "const unique = (arr) => [...new Set(arr)];\n\nconsole.log(unique([3, 1, 3, 2, 1])); // [ 3, 1, 2 ]\nconsole.log(unique([NaN, NaN, 1]));   // [ NaN, 1 ]\n\nSet uses SameValueZero for key equality: insertion order is preserved, NaN equals NaN, and objects are compared by reference (two structurally equal objects stay distinct). Spreading the Set back into an array is the idiomatic ES6+ one-liner. If you needed to dedupe objects by a field, you would reduce into a Map keyed by that field instead.",
+      "key_points": [
+        "new Set(arr) dedupes in O(n) and preserves insertion order",
+        "Set uses SameValueZero, so NaN is deduped",
+        "Objects are compared by reference, not by shape",
+        "Spread back to an array: [...new Set(arr)]"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write chunk(arr, size) that splits an array into groups of at most `size`, without mutating the input. chunk([1,2,3,4,5], 2) should be [[1,2],[3,4],[5]].",
+      "starter_code": "const chunk = (arr, size) => {\n  // your code\n};\n\nconsole.log(chunk([1, 2, 3, 4, 5], 2));",
+      "answer": "const chunk = (arr, size) => {\n  if (size < 1) throw new RangeError(\"size must be >= 1\");\n  const out = [];\n  for (let i = 0; i < arr.length; i += size) {\n    out.push(arr.slice(i, i + size));\n  }\n  return out;\n};\n\nconsole.log(chunk([1, 2, 3, 4, 5], 2));\n// [ [ 1, 2 ], [ 3, 4 ], [ 5 ] ]\n\nslice(i, i + size) is safe when the end index overshoots — it simply stops at the array length, which is why the last chunk can be short. Guarding size < 1 prevents an infinite loop (i += 0). The input is never modified because slice copies. A functional alternative is Array.from({ length: Math.ceil(arr.length / size) }, (_, i) => arr.slice(i * size, i * size + size)).",
+      "key_points": [
+        "Step the index by size and use slice (non-mutating)",
+        "slice clamps an overshooting end index — last chunk may be short",
+        "Guard size < 1 to avoid an infinite loop",
+        "Alternative: Array.from with a mapper over the chunk count"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "Predict the output, then explain the difference.\n\nconst days = [\"Mon\", \"Tue\", \"Wed\", \"Thu\"];\nconsole.log(days.splice(1, 2));\nconsole.log(days);\n\nconst week = [\"Mon\", \"Tue\", \"Wed\", \"Thu\"];\nconsole.log(week.slice(1, 2));\nconsole.log(week);",
+      "answer": "Output: [ 'Tue', 'Wed' ], then [ 'Mon', 'Thu' ], then [ 'Tue' ], then the original [ 'Mon', 'Tue', 'Wed', 'Thu' ].\n\nsplice(start, deleteCount) changes the array in place and returns an array of the removed elements. Starting at index 1 and deleting 2 removes Tue and Wed, leaving Mon and Thu.\n\nslice(start, end) copies a range and returns it, leaving the original untouched. The end index is exclusive, so slice(1, 2) returns only the element at index 1 — one item, not two. The similar names and the fact that one end index is a count while the other is a position is exactly what interviewers test. If you want to remove two items without mutation, use toSpliced(1, 2).",
+      "key_points": [
+        "splice mutates and returns the removed elements",
+        "slice copies and returns a new array",
+        "splice's second argument is a delete count; slice's is an exclusive end index",
+        "toSpliced is the non-mutating ES2023 version"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "theory",
+      "question": "Explain reduce's accumulator and initial value. What happens without an initial value, and why is passing one usually the right call?",
+      "answer": "reduce(callback, initialValue) walks the array carrying an accumulator. On each step the callback receives (accumulator, current, index, array) and whatever it returns becomes the next accumulator; the final accumulator is the result. If you pass an initial value, the accumulator starts there and the callback runs once per element, including on an empty array (which returns the initial value). If you omit it, the first element becomes the initial accumulator, iteration starts at index 1, and an empty array throws TypeError: Reduce of empty array with no initial value.\n\nPassing an initial value is safer and clearer: the result type is fixed (0 for a sum, {} for grouping, [] for a list), the empty-array case is defined, and the callback does not need to special-case the first element. It also avoids surprises with object arrays, where the accumulator would otherwise start as an object rather than your intended shape.",
+      "key_points": [
+        "Callback gets (accumulator, current, index, array)",
+        "Return value becomes the next accumulator; final value is returned",
+        "Without an initial value the first element seeds it and empty arrays throw",
+        "Always pass 0, {}, [] or the correct starting shape"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "coding",
+      "question": "Given an array of orders, group them by status using reduce, and return the group names sorted alphabetically.",
+      "starter_code": "const orders = [\n  { id: 1, status: \"paid\" },\n  { id: 2, status: \"pending\" },\n  { id: 3, status: \"paid\" },\n];\n\nconst groupByStatus = (list) => {\n  // your code\n};\n\nconsole.log(groupByStatus(orders));",
+      "answer": "const groupByStatus = (list) => {\n  const groups = list.reduce((acc, order) => {\n    (acc[order.status] ??= []).push(order.id);\n    return acc;\n  }, {});\n\n  return Object.fromEntries(\n    Object.entries(groups).sort(([a], [b]) => a.localeCompare(b))\n  );\n};\n\nconsole.log(groupByStatus(orders));\n// { paid: [ 1, 3 ], pending: [ 2 ] }\n\nThe accumulator must be returned on every iteration, otherwise the next step receives undefined. acc[key] ??= [] creates the bucket only when missing (logical assignment, ES2021), then push adds the item. Sorting Object.entries gives alphabetical keys, and Object.fromEntries turns the pairs back into an object. If order of keys didn't matter, you could return groups directly.",
+      "key_points": [
+        "reduce with a {} initial value builds the grouping",
+        "Return the accumulator every iteration",
+        "acc[key] ??= [] lazily creates the bucket",
+        "Object.entries + sort + Object.fromEntries reorders keys"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why does this print an array of empty slots instead of doubled numbers, and why does every() on an empty array return true?\n\nconst a = new Array(3).map((n) => n * 2);\nconsole.log(a);\nconsole.log([].every((x) => x > 0));",
+      "answer": "new Array(3).map(...) produces [ <3 empty items> ]. Array(3) creates three holes, not three undefineds, and map/filter/forEach skip holes entirely — the callback is never called, so there is nothing to double. The fix is Array.from({ length: 3 }, (_, i) => i * 2), which calls the mapper for every index and returns [0, 2, 4]; or new Array(3).fill(0).map(...).\n\n[].every(...) is true because of vacuous truth: every element satisfies the predicate, and there are no elements to violate it. Its counterpart [].some(...) is false — no element satisfies it. Because filter and map preserve holes while spread ([...a]) and for...of read them as undefined, sparse arrays behave inconsistently across methods and are best avoided.",
+      "key_points": [
+        "Array(3) creates holes, not undefined values",
+        "map/filter/forEach skip holes; Array.from and spread do not",
+        "Array.from({ length: n }, mapper) fills correctly",
+        "every on [] is true (vacuous); some on [] is false"
+      ]
+    }
+  ]
+}

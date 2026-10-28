@@ -1,0 +1,107 @@
+{
+  "topic": "Objects",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Why does changing a copied object sometimes change the original? Explain reference, shallow copy and deep copy.",
+      "answer": "Objects are reference values: the variable holds a pointer, not the data. const b = a copies the pointer, so a and b are the same object and any write through either is visible through both. A shallow copy — { ...a } or Object.assign({}, a) — creates a new outer object but copies the nested values as references, so a nested object or array is still shared: mutating copy.address changes a.address. A deep copy recursively clones every level. structuredClone(obj) is the built-in that handles nested objects, arrays, Date, Map, Set and cycles; JSON.parse(JSON.stringify(obj)) also deep-clones but only for plain JSON data, losing Dates, undefined, functions and Map/Set. Primitives (string, number, boolean, null, undefined, symbol, bigint) are copied by value, so they never have this problem.",
+      "key_points": [
+        "Object variables hold references; `=` aliases the object",
+        "Spread and Object.assign are shallow — nested values stay shared",
+        "structuredClone is the deep copy tool; JSON clone is lossy",
+        "Primitives copy by value, objects copy by reference"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "trap",
+      "question": "What does this print, and why is the second line surprising?\n\nconst defaults = { theme: \"light\", nested: { lang: \"en\" } };\nconst settings = Object.assign(defaults, { theme: \"dark\" });\nconsole.log(settings === defaults);\nsettings.nested.lang = \"fr\";\nconsole.log(defaults.nested.lang);",
+      "answer": "It prints true, then 'fr'.\n\nObject.assign(target, ...sources) mutates and returns target. Because the first argument here is defaults, settings and defaults are literally the same object — settings === defaults is true. The spread-looking syntax does not create a copy. The safe form is Object.assign({}, defaults, overrides).\n\nThe second line shows shallowness: assign copied nested by reference, so settings.nested and defaults.nested are one object. Writing lang through settings is visible through defaults. Object.assign({}, defaults, overrides) would fix the top-level aliasing but still share nested; use structuredClone or spread at each level you intend to change.",
+      "key_points": [
+        "Object.assign mutates the first argument and returns it",
+        "Use Object.assign({}, defaults, overrides) to avoid mutating defaults",
+        "The copy is shallow — nested objects are shared",
+        "Fix nested sharing with structuredClone or per-level spreads"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Write pick(obj, keys) that returns a new object containing only the own properties named in keys, ignoring keys that don't exist. Do not mutate the input.",
+      "starter_code": "const pick = (obj, keys) => {\n  // your code\n};\n\nconsole.log(pick({ name: \"Kakade\", age: 30, city: \"Pune\" }, [\"name\", \"city\", \"missing\"]));",
+      "answer": "const pick = (obj, keys) =>\n  Object.fromEntries(\n    keys\n      .filter((key) => Object.hasOwn(obj, key))\n      .map((key) => [key, obj[key]])\n  );\n\nconsole.log(pick({ name: \"Kakade\", age: 30, city: \"Pune\" }, [\"name\", \"city\", \"missing\"]));\n// { name: 'Kakade', city: 'Pune' }\n\nObject.hasOwn filters out missing keys and inherited ones — using `key in obj` would let prototype properties through. map builds [key, value] pairs, and Object.fromEntries turns them into a fresh object, so the input is untouched. The same idea in reverse gives omit: filter out the listed keys. Note the copy is shallow, which is fine for whitelisting fields but not for editing nested values.",
+      "key_points": [
+        "Object.hasOwn ignores inherited keys; `in` does not",
+        "Object.fromEntries(entries) builds the result object",
+        "filter + map keeps the code declarative",
+        "The result is a new, shallow object"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write deepFreeze(obj) that recursively freezes an object and everything inside it, then prove the nested object can no longer be changed.",
+      "starter_code": "const deepFreeze = (obj) => {\n  // your code\n};\n\nconst config = deepFreeze({ a: 1, nested: { b: 2 } });\nconfig.nested.b = 99;\nconsole.log(config.nested.b, Object.isFrozen(config.nested));",
+      "answer": "const deepFreeze = (obj) => {\n  Object.values(obj).forEach((value) => {\n    if (value && typeof value === \"object\") deepFreeze(value);\n  });\n  return Object.freeze(obj);\n};\n\nconst config = deepFreeze({ a: 1, nested: { b: 2 } });\nconfig.nested.b = 99;\nconsole.log(config.nested.b, Object.isFrozen(config.nested));\n// 2 true\n\nObject.freeze is shallow, so the recursion walks each value first and freezes the children before the parent. The `value && typeof value === \"object\"` guard skips primitives and null (typeof null is \"object\"). In sloppy mode the later write fails silently; in strict mode or an ES module it throws TypeError. Watch out for cycles — this naive version would recurse forever; a WeakSet of visited objects fixes that.",
+      "key_points": [
+        "Object.freeze is shallow — recurse into nested objects",
+        "Guard against null and primitives (typeof null is 'object')",
+        "Silent failure in sloppy mode, TypeError in strict/modules",
+        "Cycles need a visited WeakSet to avoid infinite recursion"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "What is wrong with this clone, and what will the two console.log calls show?\n\nconst original = { when: new Date(\"2026-01-15T00:00:00Z\"), count: NaN, tag: undefined };\nconst clone = JSON.parse(JSON.stringify(original));\nconsole.log(clone);\nconsole.log(clone.when instanceof Date);",
+      "answer": "It prints { when: '2026-01-15T00:00:00.000Z', count: null }, then false.\n\nJSON only knows objects, arrays, strings, numbers, booleans and null. Date has a toJSON method, so it is serialized to an ISO string and never revived as a Date. NaN and Infinity are not valid JSON numbers, so JSON.stringify writes null. undefined values (and functions and symbols) are dropped entirely, which is why tag is missing rather than null. Map and Set become {}, BigInt throws TypeError, and circular references throw.\n\nThe clone is fine for plain data but silently changes types — which is dangerous if code later calls clone.when.getFullYear(). Use structuredClone(original) to keep Date, Map, Set and undefined values.",
+      "key_points": [
+        "Date becomes an ISO string, not a Date",
+        "NaN and Infinity become null",
+        "undefined, functions and symbols are dropped",
+        "Map/Set become {}, BigInt and cycles throw",
+        "structuredClone preserves types"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "theory",
+      "question": "Compare Object.freeze and Object.seal. What exactly do they prevent, and why is neither a deep protection?",
+      "answer": "Object.freeze makes every own property non-writable and non-configurable and prevents adding new ones — the object is effectively read-only. Object.seal prevents adding and deleting properties but leaves existing values writable. Both return the same object, and both are shallow: they only change the property descriptors of the object you pass. A nested object is a separate object, so its properties stay writable unless you freeze it too.\n\nFailure behaviour depends on strictness. In sloppy mode, writes and deletes fail silently; in strict mode or an ES module, assignment to a frozen property or deletion of a sealed one throws TypeError. After freezing, Object.isFrozen(obj) is true, and Object.isSealed is also true for a frozen object (freeze is a stronger seal). Freeze is a guard against accidental mutation, not a security boundary — code can still replace nested values and the prototype chain is untouched.",
+      "key_points": [
+        "freeze = no add, no edit, no delete (non-writable + non-configurable)",
+        "seal = no add, no delete, but values stay writable",
+        "Both are shallow — nested objects need their own freeze",
+        "Sloppy mode fails silently; strict/modules throw TypeError",
+        "A frozen object is also sealed"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why does this loop print a key the object never defined, and how do you fix it?\n\nconst proto = { role: \"admin\" };\nconst user = Object.create(proto);\nuser.name = \"Kakade\";\nfor (const key in user) console.log(key);\nconsole.log(Object.keys(user));",
+      "answer": "It prints name and role, then [ 'name' ].\n\nfor...in walks the entire prototype chain and includes inherited enumerable properties, so role from proto shows up even though user never defined it. Object.keys only returns own enumerable properties, which is why it shows just name. Object.hasOwn(user, \"role\") is false while \"role\" in user is true — `in` also walks the chain.\n\nFix: iterate with Object.keys(user), Object.entries(user) or Object.values(user), or guard inside the loop with if (Object.hasOwn(user, key)) continue. Never use for...in on plain data objects; it also picks up any library that adds enumerable properties to Object.prototype. hasOwnProperty works too, but fails on Object.create(null) objects, so Object.hasOwn is the safer modern choice.",
+      "key_points": [
+        "for...in includes inherited enumerable properties",
+        "Object.keys returns own enumerable string keys only",
+        "`in` walks the prototype chain; Object.hasOwn does not",
+        "Prefer Object.keys/entries or guard with Object.hasOwn"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "coding",
+      "question": "Write countBy(items, keyFn) that counts occurrences of a computed key and returns a plain object. Show it counting users by role.",
+      "starter_code": "const users = [\n  { name: \"Kakade\", role: \"admin\" },\n  { name: \"Asha\", role: \"editor\" },\n  { name: \"Rohan\", role: \"admin\" },\n];\n\nconst countBy = (items, keyFn) => {\n  // your code\n};\n\nconsole.log(countBy(users, (u) => u.role));",
+      "answer": "const countBy = (items, keyFn) =>\n  items.reduce((acc, item) => {\n    const key = keyFn(item);\n    acc[key] = (acc[key] ?? 0) + 1;\n    return acc;\n  }, {});\n\nconsole.log(countBy(users, (u) => u.role));\n// { admin: 2, editor: 1 }\n\nStart the accumulator as {} so the empty-input case returns an empty object rather than throwing. `acc[key] ?? 0` handles the first occurrence without an if/else, and the callback must return acc every iteration. Because object keys are strings, a numeric keyFn would produce string keys — use a Map if keys must keep their type, and Object.create(null) if keys come from user input (avoids prototype collisions like \"__proto__\").",
+      "key_points": [
+        "reduce with a {} initial value",
+        "acc[key] ?? 0 handles the first occurrence",
+        "Return the accumulator each iteration",
+        "Object keys are strings; use Map for typed keys"
+      ]
+    }
+  ]
+}

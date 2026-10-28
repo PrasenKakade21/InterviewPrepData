@@ -1,0 +1,100 @@
+{
+  "topic": "JavaScript Fundamentals",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is the difference between JavaScript and ECMAScript? Is React part of JavaScript?",
+      "answer": "ECMAScript is the written specification that defines the language's syntax and built-in behaviour; JavaScript is the implementation that browsers and Node.js actually run. React is not part of JavaScript — it is a library written in JavaScript that you use from it.",
+      "key_points": [
+        "ECMAScript = specification, JavaScript = implementation",
+        "React/Vue/Express are libraries or frameworks, not the language",
+        "Engines like V8 implement the spec"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "The same JavaScript file uses `document.querySelector` and works in the browser but crashes in Node. Why, and what is shared between the two environments?",
+      "answer": "The core language and built-in objects (arrays, objects, JSON, promises) are shared because both use a JavaScript engine. The host environment adds different APIs: browsers provide `window`, `document`, and localStorage, while Node provides `process`, `Buffer`, and the `fs` module. `document` simply does not exist in Node, so accessing it throws `ReferenceError: document is not defined`.",
+      "key_points": [
+        "Language core is shared; host APIs differ",
+        "Browser host: window, document, localStorage",
+        "Node host: process, Buffer, fs",
+        "SSR code must guard browser globals"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Write a function `describeHost()` that returns \"browser\" in a browser and \"node\" in Node.js without throwing in either environment.",
+      "starter_code": "function describeHost() {\n  // return \"browser\" or \"node\"\n}\n\nconsole.log(describeHost());",
+      "answer": "function describeHost() {\n  if (typeof window !== \"undefined\" && typeof document !== \"undefined\") {\n    return \"browser\";\n  }\n  return \"node\";\n}\n\nconsole.log(describeHost());\n// browser → \"browser\"\n// node    → \"node\"",
+      "key_points": [
+        "`typeof` on an undeclared identifier is safe and returns \"undefined\"",
+        "Check both window and document to avoid partial shims",
+        "Never reference `window` directly in shared code without a guard"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "This function returns `undefined` instead of 42. Explain the cause and fix it without renaming anything.",
+      "starter_code": "function getTotal() {\n  return\n  42;\n}\n\nconsole.log(getTotal());",
+      "answer": "Automatic Semicolon Insertion adds a semicolon right after `return` because the next token is on a new line, so the function returns `undefined` and `42;` becomes an unreachable expression. Fix it by keeping the value on the same line:\n\nfunction getTotal() {\n  return 42;\n}\n\nconsole.log(getTotal()); // 42",
+      "key_points": [
+        "ASI inserts a semicolon after `return` at a line break",
+        "The returned value must start on the same line as `return`",
+        "Open braces on the same line as the statement for the same reason"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "Does this file run in strict mode? `console.log(\"start\"); \"use strict\"; undeclared = 5;`",
+      "answer": "No. The `\"use strict\"` directive only works as the first statement of a script or function. Here it is just a string expression after a console call, so the file stays in sloppy mode and `undeclared = 5` silently creates a global instead of throwing `ReferenceError`.",
+      "key_points": [
+        "Directive must be the first statement",
+        "Comments are allowed before it, other statements are not",
+        "ES modules and class bodies are strict automatically"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "A page loads `a.js` with `defer` and `b.js` with `async`, in that order. Can you guarantee `a.js` runs before `b.js`?",
+      "answer": "No. `defer` scripts run after HTML parsing in document order, but an `async` script runs as soon as it finishes downloading, which may be before or after the deferred script. Only `defer` and module scripts guarantee relative order; `async` never does.",
+      "key_points": [
+        "defer: after parsing, document order preserved",
+        "async: runs when downloaded, order not guaranteed",
+        "module scripts are deferred by default",
+        "defer only works on external scripts with src"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "coding",
+      "question": "Rewrite this statement-based code as a single expression assigned to `label`, then log it.",
+      "starter_code": "const score = 72;\nlet label;\n\nif (score >= 60) {\n  label = \"pass\";\n} else {\n  label = \"fail\";\n}\n\nconsole.log(label);",
+      "answer": "const score = 72;\nconst label = score >= 60 ? \"pass\" : \"fail\";\n\nconsole.log(label); // pass",
+      "key_points": [
+        "Ternary is an expression, so it can be assigned",
+        "`if` is a statement and produces no value",
+        "Keep ternaries short; use `if` for multi-step logic"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "theory",
+      "question": "A button click does nothing and the console shows `TypeError: Cannot read properties of null (reading 'addEventListener')`. What does that tell you, and how do you debug it?",
+      "answer": "The selector returned `null`, so the element did not exist when the script ran — usually because the script is in `<head>` without `defer`, or the id/class is wrong. Debug by logging the element, checking the Elements panel for the actual markup, confirming the selector, and loading the script with `defer` or placing it at the end of `<body>`. In Sources, pause on the line and inspect the DOM at that moment.",
+      "key_points": [
+        "null means the query found no element",
+        "Common cause: script runs before HTML is parsed",
+        "Fix with defer or a script at the end of body",
+        "Verify selector and markup in Elements panel"
+      ]
+    }
+  ]
+}

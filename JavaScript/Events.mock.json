@@ -1,0 +1,104 @@
+{
+  "topic": "Events",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Explain the capture, target and bubble phases. In what order do listeners run when you click a button inside a div?",
+      "answer": "The event starts at window and travels down the ancestor chain to the target — that is the capture phase. It fires on the target itself, then travels back up through the ancestors to window — the bubble phase. Most listeners are registered for bubbling, which is why a click on a button is also seen by its parent and document.\n\nFor a button inside a div, a full order is: document capture, div capture, button target, div bubble, document bubble. Capture listeners run outside-in, bubble listeners inside-out. If both capture and bubble listeners exist on the same target, they run in registration order during the target phase. Use capture for global concerns such as analytics or dismissing popovers, and bubbling for normal component handlers.",
+      "key_points": [
+        "Capture: window → target, outside-in",
+        "Target phase: listeners on the element itself",
+        "Bubble: target → window, inside-out",
+        "Default addEventListener listens in the bubble phase"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What is the difference between event.target and event.currentTarget? Why does it matter in delegation?",
+      "answer": "event.target is the element where the event originated — the innermost element that was actually clicked or focused. event.currentTarget is the element whose listener is currently running. During propagation target stays fixed, while currentTarget changes at every listener on the path.\n\nIn delegation this distinction is the whole technique. The listener sits on a container, so currentTarget is always the container, while target may be a span, an image or the li itself. You use event.target.closest('li') to find the row you care about, then read its dataset. If you used currentTarget for that lookup you would always get the container. Inside an arrow function, currentTarget is also safer than this, which depends on how the handler was invoked.",
+      "key_points": [
+        "target = origin of the event; fixed during propagation",
+        "currentTarget = element whose listener is running",
+        "Delegation: listen on container, inspect target",
+        "closest walks from target to the row"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Compare stopPropagation and preventDefault. Can you need both?",
+      "answer": "stopPropagation stops the event from travelling to other elements in the capture/bubble path; it does not cancel the browser's built-in action. preventDefault cancels that default action — following a link, submitting a form, toggling a checkbox — but the event still bubbles to ancestors.\n\nYou need both when a component handles a click itself and must not trigger either the parent's handlers or the browser default. For example, a custom dropdown item that is an anchor: preventDefault stops navigation, stopPropagation stops an outside-click handler on document from immediately closing the menu. Use them sparingly; blanket stopPropagation breaks delegation and analytics. stopImmediatePropagation additionally blocks remaining listeners on the same element.",
+      "key_points": [
+        "stopPropagation = stop travel between elements",
+        "preventDefault = cancel the default action",
+        "Both can be needed for custom widgets",
+        "stopImmediatePropagation also blocks sibling listeners"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Why is event delegation useful, and what are its limits?",
+      "answer": "Delegation attaches one listener to a stable ancestor instead of one per child. It uses less memory, works automatically for rows added later, and survives re-renders because the ancestor usually stays in place. It also centralises logic: one handler can read data-id from the clicked row and dispatch the right action.\n\nIts limits: the event must bubble (focus, blur, mouseenter and load do not, though focusin/focusout do), the ancestor must exist when you attach the listener, and you must guard with closest because clicks can land on padding or nested elements. Events that do not bubble need capture or direct listeners. Very hot paths with thousands of events may also benefit from a direct listener, but for most lists one delegated handler is the right default.",
+      "key_points": [
+        "One ancestor listener instead of N child listeners",
+        "Works for dynamically added children",
+        "Requires a bubbling event and a stable ancestor",
+        "Use closest + a null guard"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write delegate(root, selector, type, handler) that calls handler(event, matchedElement) when the event target is inside an element matching selector.",
+      "starter_code": "function delegate(root, selector, type, handler) {\n  // your code\n}\n\nconst list = document.getElementById(\"team\");\ndelegate(list, \"li\", \"click\", (event, item) => {\n  console.log(\"selected\", item.dataset.id);\n});",
+      "answer": "function delegate(root, selector, type, handler) {\n  root.addEventListener(type, (event) => {\n    const matched = event.target.closest(selector);\n    if (!matched || !root.contains(matched)) return;\n    handler(event, matched);\n  });\n}\n\nconst list = document.getElementById(\"team\");\ndelegate(list, \"li\", \"click\", (event, item) => {\n  console.log(\"selected\", item.dataset.id);\n});\n\nclosest walks up from the real target to the nearest matching element. The root.contains check prevents a match outside the delegated root when the selector is generic — without it, a click on a nested list's li could be handled by the wrong root. The guard returns early for clicks on padding. The listener is attached once, so rows added later work automatically. To support capture or options, accept an options argument and pass it through.",
+      "key_points": [
+        "One listener on root, closest on event.target",
+        "root.contains guards against outside matches",
+        "Null guard handles clicks on the root itself",
+        "Works for future children"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Write onOutsideClick(element, handler) that calls handler when a click happens outside element, and returns a cleanup function using AbortController.",
+      "starter_code": "function onOutsideClick(element, handler) {\n  // your code\n}\n\nconst menu = document.getElementById(\"menu\");\nconst stop = onOutsideClick(menu, () => console.log(\"closed\"));\n// later: stop();",
+      "answer": "function onOutsideClick(element, handler) {\n  const controller = new AbortController();\n\n  document.addEventListener(\"click\", (event) => {\n    if (!element.contains(event.target)) handler(event);\n  }, { signal: controller.signal });\n\n  return () => controller.abort();\n}\n\nconst menu = document.getElementById(\"menu\");\nconst stop = onOutsideClick(menu, () => console.log(\"closed\"));\n// later: stop();\n\nThe listener lives on document so it sees every click, including clicks on elements added later. element.contains(event.target) checks whether the click started inside the menu; if not, the handler runs. The AbortController ties the listener's lifetime to the returned cleanup function, so calling stop() removes it without keeping a handler reference. A click on the menu that is stopped with stopPropagation will not reach document, which may be desirable or a bug depending on the design.",
+      "key_points": [
+        "Document-level listener sees all clicks",
+        "element.contains(event.target) detects inside clicks",
+        "AbortController gives idempotent cleanup",
+        "stopPropagation inside the menu can hide clicks"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "What logs, and does the page navigate?\n\nouter.addEventListener('click', () => console.log('outer'));\nlink.addEventListener('click', (e) => {\n  e.preventDefault();\n  console.log('link');\n});\nlink.click();",
+      "answer": "It logs link, then outer. The page does not navigate.\n\npreventDefault cancels the anchor's default navigation but does not stop propagation, so the click still bubbles to outer and any document listener. This is the key difference from stopPropagation: one controls the browser action, the other controls event travel. Many developers expect preventDefault to isolate the event and are surprised when a parent handler still runs.\n\nIf the parent handler must not run, add e.stopPropagation() as well — but question whether the parent should be listening so broadly. Conversely, stopPropagation alone would leave the link navigating, which is the opposite bug.",
+      "key_points": [
+        "preventDefault does not stop bubbling",
+        "Output: link, then outer; no navigation",
+        "stopPropagation controls travel, not the default",
+        "Use both only when the component truly owns the click"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why does the list's delegated handler never run?\n\nlist.addEventListener('click', (e) => {\n  const item = e.target.closest('li');\n  console.log('delegated', item?.dataset.id);\n});\nbutton.addEventListener('click', (e) => {\n  e.stopPropagation();\n  console.log('button');\n});",
+      "answer": "The button's handler calls stopPropagation, so the click never reaches list. Only 'button' logs; the delegated handler is skipped. This is a common bug when a component adds stopPropagation defensively or to prevent a parent action, without realising it also disables delegation higher in the tree.\n\nThe fix is to avoid stopPropagation unless the component genuinely owns the interaction. If the button needs to suppress a parent action, use a more specific condition in the parent handler, or attach the parent action via capture if it must run first. Another option is to call the shared logic directly from the button handler instead of relying on bubbling. Debugging tip: log event.eventPhase and check whether an ancestor listener fires at all.",
+      "key_points": [
+        "stopPropagation prevents the click reaching list",
+        "Only 'button' logs",
+        "Avoid defensive stopPropagation in reusable components",
+        "Capture or direct calls are alternatives"
+      ]
+    }
+  ]
+}

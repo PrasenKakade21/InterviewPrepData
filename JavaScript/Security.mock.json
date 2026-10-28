@@ -1,0 +1,110 @@
+{
+  "topic": "Security",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Explain stored, reflected and DOM-based XSS. Why does XSS bypass the same-origin policy?",
+      "answer": "Stored XSS saves the payload (a comment, profile name, support ticket) and serves it to every visitor from your own origin. Reflected XSS puts the payload in the current request — a search term echoed into the HTML — so the victim must click a crafted link. DOM-based XSS never reaches the server: client code reads an attacker-controlled source such as location.hash or document.referrer and writes it into a dangerous sink such as innerHTML.\n\nXSS bypasses the same-origin policy because the injected script does not run from the attacker's origin — it runs inside your page, with your origin. It can read non-HttpOnly cookies, call same-origin APIs with the user's session, read localStorage, and rewrite the UI. The browser sees a script from your origin, so it grants it your origin's privileges. The defence is to encode data for the sink it enters, never treat user text as HTML, and add CSP as a second layer.",
+      "key_points": [
+        "Stored: persisted and served to many users",
+        "Reflected: echoed from the current request",
+        "DOM-based: client source flows to a dangerous sink",
+        "XSS executes with the victim site's origin, so same-origin does not help",
+        "Encode output; use textContent; add CSP"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "How does the same-origin policy differ from CORS, and why is CORS not authorization?",
+      "answer": "The same-origin policy is the browser's default restriction: a page may read responses only from its own scheme + host + port. A cross-origin request can still be sent, but the response is hidden from JavaScript unless the server explicitly allows it. CORS is that explicit permission: the server returns Access-Control-Allow-Origin (and related headers), and the browser decides whether to expose the response. For non-simple requests the browser sends an OPTIONS preflight first.\n\nCORS is not authorization because it is enforced by the browser for the user's protection, not by the server for access control. Any non-browser client — curl, a script, a mobile app — can ignore CORS entirely and call the endpoint. The server must still authenticate the caller and authorize the action on every request. CORS also does not prevent a cross-site form POST from being sent, which is why CSRF defences are separate.",
+      "key_points": [
+        "Same-origin policy: browser blocks cross-origin reads by default",
+        "CORS: server opt-in headers that relax the read restriction",
+        "Preflight OPTIONS for non-simple requests",
+        "Any non-browser client can ignore CORS, so it is not auth",
+        "Server must authenticate and authorize independently"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What is CSRF, and how do SameSite cookies, CSRF tokens and Origin checks each help?",
+      "answer": "CSRF makes a logged-in browser send a state-changing request to your site from an attacker's page. The browser attaches cookies automatically, so a form POST to /transfer can succeed even though the attacker cannot read the response. The attack relies on ambient credentials, not on stealing them.\n\nSameSite=Lax or Strict stops the cookie from being sent on cross-site POSTs (Lax still sends it on top-level GET navigation). A CSRF token is a per-session secret embedded in the page and checked by the server; an attacker's cross-site form cannot read it. An Origin or Referer check rejects requests whose source is not your own site. Best practice is defence in depth: SameSite plus a token plus Origin validation, and never mutate state on GET. A custom header also helps because it forces a CORS preflight that a plain form cannot satisfy.",
+      "key_points": [
+        "CSRF abuses automatically attached cookies",
+        "SameSite=Lax/Strict blocks cross-site cookie sending",
+        "CSRF token must match the session on the server",
+        "Origin/Referer check rejects foreign sources",
+        "Never mutate state on GET; layer the defences"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write renderComment(el, text) that displays an untrusted comment safely, preserving line breaks but never interpreting HTML.",
+      "starter_code": "export function renderComment(el, text) {\n  // your code\n}\n\nrenderComment(document.querySelector(\"#out\"), '<img src=x onerror=\"alert(1)\">\\nHello Kakade');",
+      "answer": "export function renderComment(el, text) {\n  el.textContent = text;\n  el.style.whiteSpace = \"pre-wrap\";\n}\n\nconst dirty = '<img src=x onerror=\"alert(1)\">\\nHello Kakade';\nrenderComment(document.querySelector(\"#out\"), dirty);\n\nUsing textContent makes the browser treat the whole string as text: the angle brackets are displayed, the img is never created, and onerror never fires. white-space: pre-wrap preserves the newline without converting it to <br>, so no HTML parsing is needed. If the design truly requires bold links inside comments, sanitize with an allowlist (DOMPurify) instead of switching back to innerHTML on raw input. Never build HTML by concatenating user strings.",
+      "key_points": [
+        "textContent is the safe sink for plain text",
+        "It displays markup literally and never executes it",
+        "white-space: pre-wrap preserves newlines without HTML",
+        "Only sanitize when rich HTML is a real requirement"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write safeRedirect(url) that only allows same-origin http(s) paths, blocking javascript: URLs and open redirects to other hosts.",
+      "starter_code": "export function safeRedirect(url) {\n  // return a safe path or \"/\"\n}\n\nconsole.log(safeRedirect(\"/orders\"));\nconsole.log(safeRedirect(\"https://evil.example\"));\nconsole.log(safeRedirect(\"javascript:alert(1)\"));",
+      "answer": "export function safeRedirect(url) {\n  try {\n    const base = \"https://app.example.com\";\n    const target = new URL(url, base);\n    if (target.origin !== base) return \"/\";\n    if (target.protocol !== \"https:\" && target.protocol !== \"http:\") return \"/\";\n    return target.pathname + target.search + target.hash;\n  } catch {\n    return \"/\";\n  }\n}\n\nconsole.log(safeRedirect(\"/orders\"));                 // /orders\nconsole.log(safeRedirect(\"https://evil.example\"));    // /\nconsole.log(safeRedirect(\"javascript:alert(1)\"));     // /\n\nnew URL(url, base) resolves relative paths and parses absolute ones, so you can compare origins instead of string-matching. javascript: parses with origin \"null\", which fails the origin check; a protocol allowlist is a second guard. Return only pathname + search + hash, never the raw input, so a crafted value cannot smuggle a scheme. Catch malformed URLs and default to a safe route.",
+      "key_points": [
+        "Parse with new URL(url, base), do not regex the string",
+        "Compare target.origin to your own origin",
+        "Allow only http/https protocols explicitly",
+        "Return a normalized path, not the raw input",
+        "Catch parse errors and default to /"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "Does this execute the script? Explain both assignments.\n\nbox.innerHTML = '<script>alert(1)<\\/script>';\nbox.innerHTML = '<img src=x onerror=\"alert(2)\">';",
+      "answer": "The first does not execute the script; the second does. When innerHTML parses a string, script elements inserted this way are marked as non-executable — the HTML parser creates the node but the script is not run. That gives a false sense of safety.\n\nEvent-handler attributes are different: the img fails to load, the error event fires, and the onerror attribute is compiled and executed. The same applies to <svg onload>, <iframe srcdoc>, and <body onload> in some insertion paths. So testing with a <script> tag is a bad security test; use an onerror or onload payload instead. The correct defence is still textContent for text and DOMPurify with an allowlist when HTML is required — not a blocklist of script tags.",
+      "key_points": [
+        "Scripts inserted via innerHTML do not execute",
+        "Event-handler attributes such as onerror do execute",
+        "Do not validate XSS with a script-tag-only test",
+        "Use textContent or an allowlist sanitizer"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why does this credentialed request fail even though the server sends Access-Control-Allow-Origin: *?\n\nfetch(\"https://api.example.com/me\", { credentials: \"include\" });",
+      "answer": "The browser rejects the response because a wildcard origin cannot be combined with credentials. When credentials: \"include\" is used, the server must return the exact requesting origin, for example Access-Control-Allow-Origin: https://app.example.com, and also Access-Control-Allow-Credentials: true. With *, the browser treats the response as not allowed and the promise rejects with a TypeError.\n\nThe wildcard is only valid for anonymous requests. The server also needs Vary: Origin so caches do not serve one origin's response to another, and the preflight must allow the method and headers. A common debugging mistake is fixing the server header but forgetting credentials: \"include\" on the client, or vice versa; both sides must agree.",
+      "key_points": [
+        "Wildcard ACAO is invalid when credentials are included",
+        "Server must echo the exact origin",
+        "Access-Control-Allow-Credentials: true is required",
+        "Add Vary: Origin for caches",
+        "Client credentials and server headers must both match"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "A team stores the session token in localStorage to avoid cookie CSRF. What did they gain and what did they lose?",
+      "answer": "They removed cookie-based CSRF, because localStorage is not sent automatically with requests; the app must attach the token in an Authorization header. But they took on a much larger XSS risk: any script running on the origin can read localStorage, so one injected payload can exfiltrate the token and impersonate the user until it expires. An HttpOnly cookie is invisible to JavaScript, so XSS cannot read it directly.\n\nThe usual trade-off is an HttpOnly, Secure, SameSite cookie for the session plus CSRF tokens (or strict SameSite) for mutations. If a token must live in JavaScript, keep it in memory, keep it short-lived, and pair it with a refresh cookie. Storing it in localStorage, sessionStorage or IndexedDB does not protect it from XSS; preventing XSS is the real control.",
+      "key_points": [
+        "localStorage avoids automatic cookie sending, reducing CSRF",
+        "Any XSS can read localStorage and steal the token",
+        "HttpOnly cookies are not readable by JavaScript",
+        "Use HttpOnly + SameSite + CSRF token for sessions",
+        "In-memory short-lived tokens are the fallback"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "topic": "Prototypes and Inheritance",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Explain the prototype chain and what happens when you read a property that the object does not own.",
+      "answer": "Every ordinary object has an internal `[[Prototype]]` link to another object (or `null`). On a property read, JavaScript checks the object's own properties first, then its prototype, then that prototype's prototype, continuing until it finds the key or reaches `null`. If the chain ends, the result is `undefined`. Functions found this way are called with `this` set to the original receiver, which is why shared methods on a prototype work.",
+      "key_points": [
+        "Lookup order: own → prototype → prototype's prototype → null.",
+        "A missing property returns `undefined`; it does not throw.",
+        "Methods on the prototype are shared by all instances.",
+        "`this` is still the original object, not the prototype."
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What is the difference between `obj.__proto__` and `Fn.prototype`? Give an example where confusing them causes a bug.",
+      "answer": "`obj.__proto__` (or `Object.getPrototypeOf(obj)`) is the prototype link of a specific object. `Fn.prototype` is a normal property on a function that `new Fn()` uses as the prototype for new instances. They are not the same thing: `User.prototype` is not the prototype of `User`; it is the prototype of objects created with `new User()`. A common bug is writing `User.__proto__ = Person.prototype` thinking it sets up inheritance — it changes the function's own parent, while instances still inherit from `User.prototype`.",
+      "key_points": [
+        "`__proto__` / `getPrototypeOf` = an object's actual parent link.",
+        "`Fn.prototype` = template object installed by `new Fn()`.",
+        "`Fn.__proto__` is usually `Function.prototype`.",
+        "Inheritance for instances must change `Child.prototype`, not `Child.__proto__`."
+      ]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "How does `instanceof` work internally, and why can it return false after you reassign a constructor's prototype?",
+      "answer": "`obj instanceof Fn` walks `obj`'s prototype chain and returns true if it finds the current value of `Fn.prototype` anywhere in that chain. It does not look at the constructor that created the object. If you replace `Fn.prototype` with a new object after creating an instance, the old instance still points to the old prototype object, so the identity check fails and `instanceof` returns false.",
+      "key_points": [
+        "It is a prototype-chain search for `Fn.prototype`.",
+        "The constructor function itself is not consulted.",
+        "Reassigning `Fn.prototype` orphans existing instances.",
+        "`Symbol.hasInstance` can customise the behaviour."
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Implement `Admin` inheriting from `Person` using constructor functions, so that `Admin` instances get `name`, can call `greet()`, and pass `instanceof` for both constructors.",
+      "starter_code": "function Person(name) {\n  this.name = name;\n}\nPerson.prototype.greet = function () {\n  return `Hi ${this.name}`;\n};\n\nfunction Admin(name, level) {\n  // your code here\n}\n\n// set up inheritance here\n\nconst asha = new Admin('Asha', 'senior');\nconsole.log(asha.greet());\nconsole.log(asha instanceof Admin, asha instanceof Person);",
+      "answer": "function Person(name) {\n  this.name = name;\n}\nPerson.prototype.greet = function () {\n  return `Hi ${this.name}`;\n};\n\nfunction Admin(name, level) {\n  Person.call(this, name);\n  this.level = level;\n}\n\nAdmin.prototype = Object.create(Person.prototype);\nAdmin.prototype.constructor = Admin;\n\nconst asha = new Admin('Asha', 'senior');\nconsole.log(asha.greet());\nconsole.log(asha instanceof Admin, asha instanceof Person);",
+      "key_points": [
+        "Call the parent constructor with `Person.call(this, name)`.",
+        "Set `Admin.prototype = Object.create(Person.prototype)`.",
+        "Reset `Admin.prototype.constructor = Admin`.",
+        "Never assign `Admin.prototype = Person.prototype`, which merges the two types."
+      ]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Create a `createUser(name)` factory that returns an object inheriting a shared `greet` method from a `userMethods` object, without using classes or `new`.",
+      "starter_code": "const userMethods = {\n  greet() {\n    return `Hi ${this.name}`;\n  },\n};\n\nfunction createUser(name) {\n  // your code here\n}\n\nconst kakade = createUser('Kakade');\nconsole.log(kakade.greet());\nconsole.log(Object.hasOwn(kakade, 'greet'));",
+      "answer": "const userMethods = {\n  greet() {\n    return `Hi ${this.name}`;\n  },\n};\n\nfunction createUser(name) {\n  const user = Object.create(userMethods);\n  user.name = name;\n  return user;\n}\n\nconst kakade = createUser('Kakade');\nconsole.log(kakade.greet());\nconsole.log(Object.hasOwn(kakade, 'greet'));",
+      "key_points": [
+        "`Object.create(userMethods)` links the new object to shared methods.",
+        "Only `name` becomes an own property.",
+        "`greet` is inherited, so `Object.hasOwn` returns false.",
+        "No constructor or `new` is involved."
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "What does this print, and why is `spread` different from `child`?\n\n```javascript\nconst parent = { greet() { return 'hi'; } };\nconst child = Object.create(parent);\nconst spread = { ...child };\nconsole.log(child.greet());\nconsole.log(spread.greet);\n```",
+      "answer": "It prints `hi` and then `undefined`. `Object.create(parent)` sets `child`'s prototype, so `greet` is inherited and found by lookup. Object spread copies only **own enumerable** properties, and `child` has none, so `spread` gets nothing and has `Object.prototype` as its prototype, not `parent`.",
+      "key_points": [
+        "Spread is a shallow copy of own enumerable properties only.",
+        "It does not copy the prototype.",
+        "`Object.create` links instead of copying.",
+        "Use `Object.assign(Object.create(proto), obj)` when you need both."
+      ]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "What is logged here, and why?\n\n```javascript\nfunction User() {}\nUser.prototype.greet = () => 'hi';\nconst kakade = new User();\nUser.prototype = { hello: () => 'hello' };\nconsole.log(kakade instanceof User);\nconsole.log(typeof kakade.hello);\n```",
+      "answer": "It logs `false` and then `undefined`. `kakade` was created with the original prototype object, which had `greet`. Reassigning `User.prototype` creates a brand-new object; `instanceof` compares against that new object, which is not in `kakade`'s chain. The old instance keeps the old prototype. Mutating `User.prototype` (adding properties) would have been visible, but replacing it is not.",
+      "key_points": [
+        "Replacing `Fn.prototype` does not update existing instances.",
+        "`instanceof` uses the current `Fn.prototype` value.",
+        "Add to the prototype instead of replacing it after instances exist.",
+        "`kakade.constructor` still points at the old prototype's constructor."
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why does `child.hasOwnProperty('greet')` return false, and what is a safer modern check? What about a key whose value is explicitly `undefined`?",
+      "answer": "`hasOwnProperty` only inspects own properties; `greet` lives on the prototype, so it returns false even though `child.greet` works. Use `Object.hasOwn(child, 'greet')` for own-property checks, or `'greet' in child` when inherited properties should count. Avoid `child.greet !== undefined` because it returns false both for a missing key and for a present key whose value is `undefined`.",
+      "key_points": [
+        "`hasOwnProperty` ignores the prototype chain.",
+        "`Object.hasOwn` is the modern, null-prototype-safe version.",
+        "`in` includes inherited properties.",
+        "`obj[key] !== undefined` cannot distinguish missing from explicitly undefined."
+      ]
+    }
+  ]
+}

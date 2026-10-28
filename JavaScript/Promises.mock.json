@@ -1,0 +1,105 @@
+{
+  "topic": "Promises",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Describe a promise's states and the timing of its executor and handlers. What happens if resolve is called twice?",
+      "answer": "A promise is pending, then settles exactly once as fulfilled with a value or rejected with a reason. Once settled it is immutable: later resolve or reject calls are ignored, and the first settlement wins. The executor passed to new Promise runs synchronously, immediately, before the constructor returns. The handlers registered with then, catch, and finally always run asynchronously in a microtask, even when the promise is already fulfilled.\n\nThat timing explains the classic output order: executor code first, then synchronous code after the promise creation, then handlers. If the executor throws, the promise rejects automatically. A promise that never calls resolve or reject stays pending forever, which is how a hung request leaks memory and never runs its finally cleanup.",
+      "key_points": [
+        "States: pending, fulfilled, rejected",
+        "Settles once; later resolve/reject calls are ignored",
+        "Executor runs synchronously; handlers run in microtasks",
+        "A never-settled promise stays pending forever"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Compare Promise.all, allSettled, race and any. Give one use case for each.",
+      "answer": "Promise.all waits for every input and fulfils with an array in input order, but rejects immediately if any input rejects (fail-fast). Use it when every result is required, such as loading the user, their permissions, and their settings before rendering a page.\n\nPromise.allSettled also waits for every input but never rejects for individual failures; it returns { status, value } or { status, reason } per item. Use it for batch uploads or reports where partial success is useful. Promise.race settles with the first input to settle, fulfilment or rejection, and ignores the rest. Use it for timeouts by racing a request against a timer. Promise.any fulfils with the first success and ignores rejections; if all reject it throws an AggregateError. Use it for redundant mirrors where the fastest healthy response is enough.",
+      "key_points": [
+        "all: all must succeed, input order, fail-fast",
+        "allSettled: always fulfils, per-item status",
+        "race: first settled wins, including rejection",
+        "any: first fulfilled wins; all fail → AggregateError"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Write runSequential(tasks) that runs an array of async functions one after another and returns their results in order. Do not start task 2 before task 1 finishes.",
+      "starter_code": "const runSequential = async (tasks) => {\n  // your code\n};\n\nconst wait = (ms, value) => new Promise((r) => setTimeout(() => r(value), ms));\nrunSequential([\n  () => wait(20, \"Kakade\"),\n  () => wait(5, \"Asha\"),\n]).then(console.log);",
+      "answer": "const runSequential = async (tasks) => {\n  const results = [];\n  for (const task of tasks) {\n    results.push(await task());\n  }\n  return results;\n};\n\nconst wait = (ms, value) =>\n  new Promise((resolve) => setTimeout(() => resolve(value), ms));\n\nrunSequential([\n  () => wait(20, \"Kakade\"),\n  () => wait(5, \"Asha\"),\n]).then(console.log);\n// [ 'Kakade', 'Asha' ]\n\nawait inside the loop pauses before starting the next task, which is the sequential guarantee. Starting them all first and awaiting later (for example with map) would run them in parallel. for...of is the right loop because forEach cannot await. An empty tasks array returns [] immediately. Use Promise.all instead when the tasks are independent and can run concurrently.",
+      "key_points": [
+        "await each task before starting the next",
+        "for...of works with await; forEach does not",
+        "Results stay in task order",
+        "Use Promise.all when parallelism is safe"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write summarize(promises) that waits for all of them and returns { fulfilled, rejected } counts plus the rejection messages. It must not throw when some reject.",
+      "starter_code": "const summarize = async (promises) => {\n  // your code\n};\n\nsummarize([\n  Promise.resolve(\"ok\"),\n  Promise.reject(new Error(\"bad\")),\n]).then(console.log);",
+      "answer": "const summarize = async (promises) => {\n  const results = await Promise.allSettled(promises);\n  const summary = { fulfilled: 0, rejected: 0, errors: [] };\n  for (const result of results) {\n    if (result.status === \"fulfilled\") summary.fulfilled++;\n    else {\n      summary.rejected++;\n      summary.errors.push(result.reason.message);\n    }\n  }\n  return summary;\n};\n\nsummarize([\n  Promise.resolve(\"ok\"),\n  Promise.reject(new Error(\"bad\")),\n]).then(console.log);\n// { fulfilled: 1, rejected: 1, errors: [ 'bad' ] }\n\nallSettled is the key: Promise.all would reject on the first failure and lose the successful results. Each settled item is discriminated by status, and only rejected items have a reason. The function is async so it always returns a promise, and callers still need a catch for unexpected errors such as a non-iterable argument.",
+      "key_points": [
+        "Use Promise.allSettled to avoid fail-fast",
+        "Branch on status before reading value or reason",
+        "Collect reasons into an errors array",
+        "allSettled still rejects if the iterable itself throws"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "What is printed, and why is the order surprising?\n\nPromise.resolve(1)\n  .then((n) => { n + 1; })\n  .then((n) => console.log(\"got:\", n));\n\n[1, 2, 3].forEach(async (n) => {\n  await Promise.resolve();\n  console.log(\"item\", n);\n});\nconsole.log(\"after forEach\");",
+      "answer": "It prints after forEach, item 1, item 2, item 3, got: undefined.\n\nThe first handler does not return anything: n + 1 is evaluated and discarded, so the next then receives undefined. Use return n + 1 to pass 2 along. The second then is therefore not ready immediately; it waits for the first handler's promise to settle, which takes extra microtask ticks.\n\nforEach is synchronous: it starts each async callback and returns without waiting. The callbacks pause at await Promise.resolve() and resume in microtasks, printing the items. console.log(\"after forEach\") is synchronous, so it runs before all pending microtasks. forEach also discards the promises, so you cannot await completion — use for...of with await or Promise.all(items.map(...)).",
+      "key_points": [
+        "No return in a then handler → next step gets undefined",
+        "Handlers always run asynchronously",
+        "forEach does not await async callbacks",
+        "Use for...of or Promise.all for async iteration"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "Predict the order and values.\n\nconst wait = (ms, v) => new Promise((r) => setTimeout(() => r(v), ms));\n\nPromise.all([wait(20, \"a\"), Promise.reject(new Error(\"bad\"))])\n  .catch((e) => console.log(\"all:\", e.message));\n\nPromise.allSettled([wait(5, \"a\"), Promise.reject(new Error(\"bad\"))])\n  .then((r) => console.log(\"settled:\", r.map((x) => x.status)));\n\nPromise.race([wait(20, \"slow\"), Promise.reject(new Error(\"fast\"))])\n  .catch((e) => console.log(\"race:\", e.message));\n\nPromise.any([Promise.reject(new Error(\"x\")), wait(5, \"ok\")])\n  .then((v) => console.log(\"any:\", v));",
+      "answer": "Output order:\nall: bad\nrace: fast\nsettled: [ 'fulfilled', 'rejected' ]\nany: ok\n\nPromise.all rejects as soon as any input rejects, so its catch is queued first and does not wait for the 20 ms timer. Promise.race also settles on the first rejection, which is immediate, so race prints next. The 5 ms timers then fire: allSettled reports one fulfilled and one rejected, and any ignores the rejection and resolves with the first success, ok.\n\nThe lesson: all is all-or-nothing and fail-fast; allSettled collects every outcome; race cares about the first settlement, including failure; any cares only about the first success. Choosing the wrong one is how dashboards go blank because one optional widget failed.",
+      "key_points": [
+        "all rejects immediately on the first failure",
+        "race settles on first fulfilment or rejection",
+        "allSettled waits and reports every status",
+        "any ignores rejections until all fail"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "coding",
+      "question": "Write withTimeout(promise, ms) that rejects with new Error(\"Timeout\") if the promise has not settled in time, and clears the timer either way.",
+      "starter_code": "const withTimeout = (promise, ms) => {\n  // your code\n};\n\nconst wait = (ms, v) => new Promise((r) => setTimeout(() => r(v), ms));\nwithTimeout(wait(50, \"done\"), 10).catch((e) => console.log(e.message));",
+      "answer": "const withTimeout = (promise, ms) => {\n  let timer;\n  const timeout = new Promise((_, reject) => {\n    timer = setTimeout(() => reject(new Error(\"Timeout\")), ms);\n  });\n  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));\n};\n\nconst wait = (ms, v) => new Promise((r) => setTimeout(() => r(v), ms));\n\nwithTimeout(wait(50, \"done\"), 10).catch((e) => console.log(e.message));\n// Timeout\n\nrace gives whichever settles first. finally clears the timer on both paths, so a fast success does not leave a stray rejection scheduled (which would otherwise become an unhandled rejection in some designs). The original promise keeps running — promises cannot be cancelled — so the underlying request should also use an AbortController when cancellation matters. Rejecting with an Error, not a string, keeps the catch handler consistent.",
+      "key_points": [
+        "Race the work against a timer promise",
+        "Clear the timer in finally",
+        "The losing promise still runs; promises are not cancellable",
+        "Reject with an Error instance"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Predict the output.\n\nconst a = await Promise.resolve(1)\n  .then(() => Promise.resolve(2));\nconsole.log(a);\n\nconst b = await Promise.resolve(3)\n  .then((v) => [v, Promise.resolve(4)]);\nconsole.log(b);\n\nconst p = new Promise((resolve, reject) => {\n  resolve(\"first\");\n  reject(new Error(\"ignored\"));\n});\np.then(console.log);",
+      "answer": "It prints 2, then [ 3, Promise { 4 } ], then first.\n\nReturning a promise from a then handler flattens it: the awaited chain resolves to 2, not to a promise. The third chain returns an array containing a promise. Arrays are not thenables, so the chain does not flatten their contents or wait for them; the awaited value is the array as-is, with a fulfilled promise inside.\n\nA promise settles once: resolve(\"first\") wins and the later reject is ignored, so p logs first with no catch. If you need the values inside an array of promises, return Promise.all([v, Promise.resolve(4)]). This is the difference between adopting a thenable and merely putting a promise inside a container.",
+      "key_points": [
+        "Returning a promise flattens one level",
+        "Arrays are not thenables and are not flattened",
+        "First settlement wins; later resolve/reject calls are ignored",
+        "Use Promise.all to resolve promises inside an array"
+      ]
+    }
+  ]
+}

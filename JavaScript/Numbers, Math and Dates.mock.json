@@ -1,0 +1,109 @@
+{
+  "topic": "Numbers, Math and Dates",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Why is 0.1 + 0.2 !== 0.3 in JavaScript, and how do you handle it in real code?",
+      "answer": "Because every number is an IEEE-754 double stored in binary. 0.1 and 0.2 have no exact binary representation, so each is stored as a value slightly above or below the decimal it looks like. Adding them yields 0.30000000000000004, which of course is not exactly 0.3. You never fix this by rounding the type; you fix it by choosing the right technique: compare with a tolerance (Math.abs(a - b) < Number.EPSILON, or a scaled tolerance for larger magnitudes), format only for display with toFixed/toLocaleString, and for money store integer paise/cents (Math.round(rupees * 100)) so all arithmetic stays in exact integers. Never compare floats with === when they came out of arithmetic.",
+      "key_points": [
+        "All numbers are 64-bit binary floats — decimals like 0.1 are not exact",
+        "0.1 + 0.2 is 0.30000000000000004, so strict equality fails",
+        "Compare with Math.abs(a - b) < Number.EPSILON or a scaled tolerance",
+        "Money should be stored as integer paise/cents, not floats",
+        "toFixed/toLocaleString are for display, not for fixing the underlying value"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "trap",
+      "question": "Predict the output of each line, then explain the difference between parseInt, parseFloat and Number.\n\nconsole.log(parseInt(\"10px\"));\nconsole.log(Number(\"10px\"));\nconsole.log(parseInt(\"0x10\"));\nconsole.log(parseFloat(\"1.9e3\"));\nconsole.log(parseInt(0.0000005));",
+      "answer": "Output: 10, NaN, 16, 1900, 5.\n\nparseInt and parseFloat read from the left and stop at the first character that cannot continue a number, so \"10px\" yields 10 and the junk is ignored. Number is strict: the entire string must be numeric after trimming, so \"10px\" is NaN. parseInt without a radix auto-detects: the \"0x\" prefix means hex, so \"0x10\" is 16 — this is why you should always pass 10 as the radix. parseFloat does understand exponent notation, so \"1.9e3\" is 1900, whereas parseInt stops at the dot and returns 1. Finally parseInt stringifies its argument first: String(0.0000005) is \"5e-7\", so parseInt reads 5.",
+      "key_points": [
+        "parseInt/parseFloat stop at the first invalid character; Number is strict",
+        "parseInt without a radix auto-detects 0x as hexadecimal",
+        "parseFloat understands exponents (1.9e3 → 1900); parseInt does not",
+        "parseInt stringifies first, so parseInt(0.0000005) is 5",
+        "Always pass radix 10: parseInt(value, 10)"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Write two functions: toPaise(rupees) that converts a rupee amount to integer paise without floating-point drift, and formatINR(paise) that returns an Indian-formatted currency string. Show that toPaise(19.99) is exactly 1999.",
+      "starter_code": "const toPaise = (rupees) => {\n  // your code\n};\n\nconst formatINR = (paise) => {\n  // your code\n};\n\nconsole.log(toPaise(19.99), formatINR(1999));",
+      "answer": "const toPaise = (rupees) => Math.round(rupees * 100);\n\nconst formatINR = (paise) =>\n  new Intl.NumberFormat(\"en-IN\", {\n    style: \"currency\",\n    currency: \"INR\",\n  }).format(paise / 100);\n\nconsole.log(toPaise(19.99), formatINR(1999));\n// 1999 ₹19.99\n\nWhy Math.round and not Math.floor: 19.99 * 100 is 1998.9999999999998 in binary floating point. Math.floor would give 1998 — one paisa short. Math.round lands on 1999. All business maths then happens on integers, and Intl handles the symbol, grouping and decimals for display only.",
+      "key_points": [
+        "Math.round(rupees * 100), not floor, because 19.99 * 100 is 1998.9999...",
+        "Keep arithmetic in integer paise so sums stay exact",
+        "Intl.NumberFormat with style: 'currency' handles symbol and grouping",
+        "Format only at the display boundary"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write randomInt(min, max) that returns an inclusive random integer, then use it to roll a dice 6 times. Why is the + 1 required?",
+      "starter_code": "const randomInt = (min, max) => {\n  // your code\n};\n\nconsole.log(Array.from({ length: 6 }, () => randomInt(1, 6)));",
+      "answer": "const randomInt = (min, max) =>\n  Math.floor(Math.random() * (max - min + 1)) + min;\n\nconsole.log(Array.from({ length: 6 }, () => randomInt(1, 6)));\n// e.g. [ 3, 6, 1, 4, 2, 5 ]\n\nMath.random() returns 0 ≤ x < 1, never 1. For 1..6 the span is 6 values, so multiply by (max - min + 1) = 6, which gives 0..5.999..., and floor gives 0..5. Adding min shifts that to 1..6. Without the + 1 you would multiply by 5 and only ever produce 0..4, so the top value becomes impossible. Note this is not cryptographically secure; use crypto.getRandomValues for tokens.",
+      "key_points": [
+        "Formula: Math.floor(Math.random() * (max - min + 1)) + min",
+        "Math.random() is [0, 1), never exactly 1",
+        "+ 1 makes the upper bound reachable (inclusive range)",
+        "Math.random is not secure — use crypto for tokens"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "What is Number.MAX_SAFE_INTEGER and why do large database IDs get sent to the frontend as strings?",
+      "answer": "MAX_SAFE_INTEGER is 9007199254740991, or 2^53 - 1. Above that, doubles can no longer represent every integer, so two different integers can map to the same stored value. The failure happens at parse time: the literal 9007199254740993 becomes 9007199254740992 before any code runs, and Number.isSafeInteger returns false. REST APIs therefore serialize 64-bit IDs (Twitter snowflake IDs, some Postgres bigints) as JSON strings, because JSON numbers would be silently corrupted in the browser. The frontend keeps them as strings and never does arithmetic on them, or converts to BigInt when it truly must compute.",
+      "key_points": [
+        "MAX_SAFE_INTEGER is 2^53 - 1 = 9007199254740991",
+        "Above it adjacent integers collapse to the same double",
+        "The corruption happens when the literal/JSON number is parsed",
+        "APIs send 64-bit IDs as strings; use BigInt for real arithmetic"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "What does this print, and what is the correct way to add one month?\n\nconst d = new Date(2026, 0, 31);\nd.setMonth(d.getMonth() + 1);\nconsole.log(d.toDateString());\nconsole.log(new Date(2026, 1, 29).toDateString());",
+      "answer": "It prints 'Tue Mar 03 2026' and 'Sun Mar 01 2026'.\n\nMonth 0 is January, so new Date(2026, 0, 31) is 31 January. setMonth(1) asks for 31 February, which does not exist, so the Date rolls over into March: 3 March 2026. The second line shows the same rollover: 2026 is not a leap year, so 29 February becomes 1 March. Date never throws on out-of-range parts; it normalises them.\n\nCorrect month addition clamps to the last day of the target month:\n\nconst addMonths = (date, n) => {\n  const d = new Date(date);\n  const day = d.getDate();\n  d.setDate(1);\n  d.setMonth(d.getMonth() + n);\n  const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();\n  d.setDate(Math.min(day, lastDay));\n  return d;\n};\n\nconsole.log(addMonths(new Date(2026, 0, 31), 1).toDateString());\n// Sat Feb 28 2026",
+      "key_points": [
+        "Month is 0-indexed; day 0 means the last day of the previous month",
+        "Date normalises overflow instead of throwing",
+        "setMonth on the 31st rolls into the next month",
+        "Clamp with Math.min(day, lastDayOfTargetMonth)",
+        "2026 is not a leap year: 29 Feb becomes 1 Mar"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "coding",
+      "question": "Write daysBetween(a, b) that returns the whole number of calendar days between two local Dates, immune to DST shifts. Then format 15 Jan 2026 for an en-IN user in UTC.",
+      "starter_code": "const daysBetween = (a, b) => {\n  // your code\n};\n\nconsole.log(daysBetween(new Date(2026, 0, 1), new Date(2026, 0, 31)));\n\nconst label = new Intl.DateTimeFormat(\"en-IN\", {\n  // your code\n}).format(new Date(\"2026-01-15T10:30:00Z\"));\nconsole.log(label);",
+      "answer": "const daysBetween = (a, b) => {\n  const utcMidnight = (d) => Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());\n  return Math.round((utcMidnight(b) - utcMidnight(a)) / 86_400_000);\n};\n\nconsole.log(daysBetween(new Date(2026, 0, 1), new Date(2026, 0, 31))); // 30\n\nconst label = new Intl.DateTimeFormat(\"en-IN\", {\n  dateStyle: \"medium\",\n  timeZone: \"UTC\",\n}).format(new Date(\"2026-01-15T10:30:00Z\"));\nconsole.log(label); // 15 Jan 2026\n\nSubtracting two Dates directly divides milliseconds that include time-of-day, so 1 Jan 23:00 to 2 Jan 01:00 would be 0.08 days. Flattening both to UTC midnight removes the clock time. Using Date.UTC (rather than local midnight) removes DST, because UTC has no 23/25-hour days. Math.round absorbs any residual offset.",
+      "key_points": [
+        "Normalise both dates to UTC midnight before subtracting",
+        "Date.UTC avoids DST 23/25-hour days",
+        "Math.round the day count, don't floor",
+        "Intl with dateStyle and an explicit timeZone gives stable output"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "theory",
+      "question": "What are the rules and limits of BigInt? Why does JSON.stringify({ id: 1n }) throw?",
+      "answer": "BigInt represents arbitrary-precision integers, written 10n or BigInt(10). typeof is 'bigint'. Arithmetic works, but division truncates toward zero (10n / 3n is 3n), and mixing with a Number throws TypeError ('Cannot mix BigInt and other types') — you must convert explicitly with BigInt(n) or Number(big). Math methods do not accept BigInt, and there is no implicit conversion in either direction because both would silently lose information. JSON has no BigInt type, so JSON.stringify throws TypeError on a BigInt; the standard workaround is to serialize it as a string (id: id.toString()) and parse it back with BigInt(str). Comparisons like 10n > 5 are allowed, since ordering does not lose precision.",
+      "key_points": [
+        "Written 10n; typeof is 'bigint'",
+        "Integer division truncates: 10n / 3n === 3n",
+        "Mixing BigInt and Number throws — convert explicitly",
+        "No Math methods on BigInt",
+        "JSON.stringify throws; serialize as a string"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "topic": "Closures and the Scope Chain",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Define a closure precisely. Why does it depend on lexical scope, and when is the captured environment created?",
+      "answer": "A closure is a function together with the lexical environment in which it was created. That environment is a record of the variables in scope at the definition site, and the function keeps a live reference to it, so the variables stay reachable even after the outer function returns. This is why a function returned from makeGreeter('Hi') can still read greeting.\n\nIt depends on lexical scope because JavaScript resolves names by where code is written, not by who calls it. The engine walks the scope chain of the definition site — inner function, then enclosing function, then module, then global. Each call of the outer function creates a fresh environment, so two calls produce two independent closures; that is what makes per-instance counters work. A closure is created whenever a function is created, but it only becomes observable when the inner function outlives its outer scope or is passed somewhere that calls it later.",
+      "key_points": [
+        "Closure = function + its lexical environment",
+        "Names resolve where the function was written, not where it is called",
+        "Each outer call creates a fresh environment → independent state",
+        "Observable when the inner function outlives the outer scope"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "trap",
+      "question": "Predict the output, then explain the fix.\n\nfor (var i = 0; i < 3; i++) setTimeout(() => console.log(\"var\", i), 0);\nfor (let j = 0; j < 3; j++) setTimeout(() => console.log(\"let\", j), 0);",
+      "answer": "Output: var 3, var 3, var 3, let 0, let 1, let 2.\n\nvar is function-scoped, so the loop has exactly one binding of i, shared by all three callbacks. The timers run after the loop finishes, by which time i is 3. let is block-scoped and the for loop creates a new binding per iteration (copied from the previous one), so each callback closes over its own j.\n\nPre-let fixes: wrap the body in an IIFE — ((n) => setTimeout(() => console.log(n), 0))(i) — or use forEach over an array, whose callback already receives a per-item parameter. The bug is not about setTimeout; any deferred callback (event listener, promise, interval) shows it.",
+      "key_points": [
+        "var = one shared function-scoped binding for the whole loop",
+        "let = a fresh binding per iteration",
+        "Timers run after the loop, so they see the final value",
+        "Fixes: let, an IIFE, or forEach's per-item parameter"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Write createCounter() returning an object with inc(), reset() and value(), where the count is truly private. Two counters must not share state.",
+      "starter_code": "const createCounter = () => {\n  // your code\n};\n\nconst a = createCounter();\na.inc(); a.inc();\nconst b = createCounter();\nb.inc();\nconsole.log(a.value(), b.value(), a.count);",
+      "answer": "const createCounter = () => {\n  let count = 0;\n  return {\n    inc: () => ++count,\n    reset: () => (count = 0),\n    value: () => count,\n  };\n};\n\nconst a = createCounter();\na.inc(); a.inc();\nconst b = createCounter();\nb.inc();\nconsole.log(a.value(), b.value(), a.count);\n// 2 1 undefined\n\ncount lives in the environment created by each call, and all three methods close over that same environment, so they share one variable per counter. a and b were created by separate calls, so they have separate environments. Because count is a closure variable and not a property, a.count is undefined — that is what makes it private, unlike a _count convention. Note reset returns the assignment's value; wrap it in braces if you prefer an explicit undefined.",
+      "key_points": [
+        "One `let count` per createCounter() call",
+        "All returned methods share that environment",
+        "Separate calls → separate closures → independent state",
+        "No property on the object means no external access"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write memoize(fn) using a Map in a closure, then use it to speed up recursive fib. Why must the recursion call the memoized function?",
+      "starter_code": "const memoize = (fn) => {\n  // your code\n};\n\nlet calls = 0;\nconst fib = memoize((n) => {\n  calls++;\n  return n < 2 ? n : fib(n - 1) + fib(n - 2);\n});\nconsole.log(fib(10), calls);",
+      "answer": "const memoize = (fn) => {\n  const cache = new Map();\n  return (n) => {\n    if (cache.has(n)) return cache.get(n);\n    const result = fn(n);\n    cache.set(n, result);\n    return result;\n  };\n};\n\nlet calls = 0;\nconst fib = memoize((n) => {\n  calls++;\n  return n < 2 ? n : fib(n - 1) + fib(n - 2);\n});\nconsole.log(fib(10), calls);\n// 55 11\n\nThe Map is created once per memoize call and captured by the returned function, so it persists between calls. Use cache.has before cache.get, because a cached 0 is falsy and `if (cache.get(n))` would miss it. The recursion must call the memoized fib; if the inner function called itself by name, it would bypass the wrapper and every subproblem would be recomputed — calls would jump from 11 to 177 for fib(10). The cache is unbounded, so for long-running processes cap the size or use an LRU.",
+      "key_points": [
+        "Map lives in the closure and survives between calls",
+        "Use has(), not a truthiness check (0 and '' are valid results)",
+        "Recurse through the memoized reference to reuse the cache",
+        "Unbounded cache = memory growth; consider an LRU"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "How does a closure provide private state, and how does the module pattern use that? Compare it with class private fields.",
+      "answer": "A closure gives privacy because the variable is not a property of the returned object — it exists only in the environment captured by the functions you expose. Callers can invoke those functions but cannot read or assign the variable directly; there is no key to enumerate, no JSON serialization, no accidental external write. The module pattern wraps this in an IIFE: it creates the state and returns an object with only the public methods, so the object is the API and the closure is the hidden implementation.\n\nA class private field (#count) gives the same external inaccessibility with class syntax and per-instance storage, and the engine enforces it (accessing obj.#count outside the class is a syntax error). Closure privacy is enforced by scope, which also means it works without classes and can hide multiple variables and helper functions. The trade-offs: closures cost one function object per method per instance unless methods are defined on the returned object once, and private fields are not accessible to subclasses, whereas closure state is simply invisible to everyone.",
+      "key_points": [
+        "Private = captured variable, not an object property",
+        "Module pattern: IIFE creates state, returns a public API",
+        "Class #fields give the same privacy with class syntax",
+        "Closure privacy is scope-based; #fields are engine-enforced"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "What does this print, and what does it prove about closures?\n\nfunction make() {\n  let n = 0;\n  const get = () => n;\n  n = 5;\n  return get;\n}\nconsole.log(make());\n\nconst user = { name: \"Kakade\", greet() { return () => this.name; } };\nconsole.log(user.greet()());",
+      "answer": "It prints 5, then 'Kakade'.\n\nThe first part proves that a closure captures the **variable binding**, not a snapshot of its value at definition time. `get` closes over n, and n is reassigned to 5 before the function is returned, so get() sees 5. If you need the value at definition time, copy it into a new const inside a scope: const snapshot = n; return () => snapshot.\n\nThe second part shows that a closure does not capture this by itself — an arrow function inherits this from the enclosing scope, which is the greet method, whose this is user. With a normal function inside greet, this would be undefined in strict/module code and the call would throw. This is why arrows are the standard fix for `this` inside callbacks.",
+      "key_points": [
+        "Closures capture the binding, not the value at creation time",
+        "Later reassignment is visible through the closure",
+        "Copy into a const to snapshot a value",
+        "Arrows inherit this lexically; normal functions get their own"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "coding",
+      "question": "Write debounce(fn, delay) using a closure. Explain why the timer variable must be outside the returned function.",
+      "starter_code": "const debounce = (fn, delay) => {\n  // your code\n};\n\nconst search = debounce((q) => console.log(\"searching\", q), 300);\nsearch(\"ka\"); search(\"kak\"); search(\"kakade\");",
+      "answer": "const debounce = (fn, delay) => {\n  let timer;\n  return (...args) => {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn(...args), delay);\n  };\n};\n\nconst search = debounce((q) => console.log(\"searching\", q), 300);\nsearch(\"ka\"); search(\"kak\"); search(\"kakade\");\n// after ~300ms of silence: searching kakade\n\nIf timer were declared inside the returned function, every call would get a fresh undefined, clearTimeout would do nothing, and all three calls would fire — that is throttling's behaviour, not debouncing. Declaring it in the outer function means all calls share one binding through the closure, so each call cancels the previous timer. The args are captured per call by the rest parameter, and the arrow inside setTimeout keeps them. Because the pending timer keeps the callback alive, cancel it on teardown if the component unmounts.",
+      "key_points": [
+        "timer must live in the enclosing scope, shared across calls",
+        "Each call clears the previous timeout",
+        "Rest + spread preserve the latest arguments",
+        "Pending timers hold references — clear on teardown"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "theory",
+      "question": "How do closures cause memory leaks, and what are the practical ways to avoid them?",
+      "answer": "A closure keeps its captured environment alive for as long as the function object is reachable. If that function is stored somewhere long-lived — an event listener on window, a setInterval callback, a global cache, a subscription — then everything it references stays alive too, even if the rest of the app no longer needs it. A single returned function that reads one field can pin a large object, because the environment is retained as a unit (engines optimise to the variables actually referenced, but that is an implementation detail, not a guarantee).\n\nPractical fixes: remove listeners with removeEventListener or an AbortSignal; clear intervals and timeouts on teardown; bound caches (LRU or a max size) instead of letting a Map grow forever; capture only the value you need (const id = big.id) instead of the whole object; and use WeakMap/WeakSet when attaching data to objects you do not own, so entries disappear when the key is collected. In browsers, detached DOM nodes retained by a closure are a very common leak — the Heap snapshot showing 'Detached' nodes is the tell.",
+      "key_points": [
+        "Closures retain captured environments while reachable",
+        "Long-lived listeners, timers and caches are the usual culprits",
+        "Remove listeners, clear timers, bound caches",
+        "WeakMap/WeakSet allow garbage collection of keys",
+        "Detached DOM nodes retained by handlers are a classic browser leak"
+      ]
+    }
+  ]
+}

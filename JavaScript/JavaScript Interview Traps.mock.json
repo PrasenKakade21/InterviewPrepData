@@ -1,0 +1,110 @@
+{
+  "topic": "JavaScript Interview Traps",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Explain hoisting and the temporal dead zone. Why does typeof sometimes throw?",
+      "answer": "Before any code runs, the engine scans each scope and registers its declarations. var declarations are hoisted and initialised to undefined immediately, so reading one before its assignment gives undefined. Function declarations are hoisted with their bodies, so they are callable before the line where they appear. let, const and class declarations are also hoisted, but they are left uninitialised in the temporal dead zone (TDZ) from the start of the scope until the declaration executes.\n\nTouching a TDZ binding throws ReferenceError, and that includes typeof: typeof undeclaredVariable safely returns \"undefined\", but typeof tdzVariable throws because the binding exists and is uninitialised. This is intentional — it catches use-before-declaration bugs that var silently allowed. The practical rule is to declare variables before use and prefer const, then let, and avoid var.",
+      "key_points": [
+        "var is hoisted and initialised to undefined",
+        "Function declarations are fully hoisted",
+        "let/const/class are hoisted but stay in the TDZ",
+        "Accessing a TDZ binding throws ReferenceError, even with typeof",
+        "Declare before use; prefer const then let"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Walk through the rules that decide this. What are the four common call forms, and how do arrow functions differ?",
+      "answer": "this is determined by how a function is called, not where it is defined. There are four common forms: a plain call fn() gives undefined in strict mode or globalThis in sloppy mode; a method call obj.fn() gives obj; an explicit call fn.call(x), fn.apply(x, args) or a bound fn.bind(x) gives x; and a constructor call new Fn() gives the newly created object. Class methods are strict by default, so an unbound method loses this.\n\nArrow functions are the exception: they have no own this and capture it lexically from the enclosing scope. They also have no arguments object, cannot be used with new, and have no prototype property. Use arrows for callbacks that should keep the surrounding this, and regular functions for object methods, constructors and anything that needs its own arguments. Losing this usually shows up when a method is passed as a callback.",
+      "key_points": [
+        "this is bound at call time",
+        "fn() → undefined (strict) or globalThis",
+        "obj.fn() → obj; call/apply/bind → explicit value",
+        "new Fn() → the new instance",
+        "Arrows capture this lexically and have no arguments/new"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What is the difference between the microtask queue and the macrotask queue, and why does a resolved promise run before setTimeout(fn, 0)?",
+      "answer": "The event loop runs one task at a time. After each macrotask (a timer, an I/O callback, a UI event), it drains the entire microtask queue before doing anything else, including rendering and the next timer. Promise reactions, queueMicrotask callbacks and the continuations after await are microtasks. setTimeout, setInterval, I/O and message events are macrotasks.\n\nPromise.resolve().then(fn) schedules fn as a microtask immediately, while setTimeout(fn, 0) schedules a macrotask with a minimum delay. The current synchronous code finishes, the microtask queue drains, and only then does the loop pick the timer. That is why the order is sync code, then promises, then timers. A microtask that schedules another microtask keeps the queue busy, so an infinite microtask chain can starve rendering and timers.",
+      "key_points": [
+        "Microtasks: promise reactions, queueMicrotask, await continuations",
+        "Macrotasks: timers, I/O, UI events",
+        "The microtask queue drains fully after each macrotask",
+        "setTimeout(fn, 0) is a next-task delay, not immediate",
+        "Endless microtasks can starve rendering"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Fix this loop so it logs 0, 1, 2 without changing the callback style. Then explain the fix.\n\nfor (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 0);\n}",
+      "starter_code": "for (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 0);\n}",
+      "answer": "for (let i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 0);\n}\n\nWith var there is one function-scoped binding shared by all three callbacks. By the time the timers run, the loop has finished and i is 3, so the output is 3, 3, 3. let is block-scoped and creates a fresh binding for each iteration, so each closure captures its own i and the output is 0, 1, 2.\n\nBefore let, the fix was an IIFE: for (var i = 0; i < 3; i++) { (function (j) { setTimeout(() => console.log(j), 0); })(i); }. The IIFE creates a new parameter binding per call. Either way, the lesson is that closures capture bindings, not values.",
+      "key_points": [
+        "var creates one shared function-scoped binding",
+        "let creates a fresh binding per loop iteration",
+        "Closures capture bindings, not snapshots of values",
+        "Pre-ES6 fix: IIFE with a parameter"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write groupBy(items, keyFn) that returns a Map, preserving object keys by identity and string keys by value. Show why an object-based version breaks for object keys.",
+      "starter_code": "const groupBy = (items, keyFn) => {\n  // your code\n};\n\nconst asha = { name: \"Asha\" };\nconst rohan = { name: \"Rohan\" };\nconsole.log(groupBy([asha, rohan, asha], (u) => u));",
+      "answer": "const groupBy = (items, keyFn) => {\n  const map = new Map();\n  for (const item of items) {\n    const key = keyFn(item);\n    if (!map.has(key)) map.set(key, []);\n    map.get(key).push(item);\n  }\n  return map;\n};\n\nconst asha = { name: \"Asha\" };\nconst rohan = { name: \"Rohan\" };\nconsole.log(groupBy([asha, rohan, asha], (u) => u));\n// Map(2) { { name: 'Asha' } => [asha, asha], { name: 'Rohan' } => [rohan] }\n\nAn object version would do obj[key] ??= [] and push, but every object key is coerced to the string \"[object Object]\", so Asha and Rohan collapse into one bucket. Map uses SameValueZero, so object keys keep their identity and two references to asha share a bucket while rohan gets his own. Map also has size and preserves insertion order, and it does not inherit prototype keys. Convert with [...map] or Object.fromEntries(map) only when the keys are strings and you need JSON.",
+      "key_points": [
+        "Use Map when keys are objects or mixed types",
+        "Map keys use SameValueZero, so identity is preserved",
+        "Object keys stringify, collapsing distinct objects",
+        "Map preserves insertion order and has size",
+        "Serialize with [...map] or Object.fromEntries for string keys"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "Predict every line exactly.\n\nconsole.log(typeof null);\nconsole.log(NaN === NaN, Number.isNaN(NaN));\nconsole.log(0.1 + 0.2);\nconsole.log([] + {});\nconsole.log(\"5\" - 2, \"5\" + 2);",
+      "answer": "The output is:\n\nobject\nfalse true\n0.30000000000000004\n[object Object]\n3 52\n\ntypeof null is \"object\" because of a legacy internal tag; it is not a real object. NaN is the only value not equal to itself, so NaN === NaN is false, while Number.isNaN(NaN) checks the value directly and returns true. 0.1 and 0.2 have no exact binary64 representation, so their sum is 0.30000000000000004, not 0.3. [] + {} converts the array to \"\" and the object to \"[object Object]\", giving that string. \"5\" - 2 is numeric subtraction (3), but \"5\" + 2 is string concatenation (\"52\") because + with a string prefers concatenation.",
+      "key_points": [
+        "typeof null → \"object\" (legacy)",
+        "NaN !== NaN; Number.isNaN(NaN) → true",
+        "0.1 + 0.2 → 0.30000000000000004",
+        "[] + {} → \"[object Object]\"",
+        "\"5\" - 2 → 3 but \"5\" + 2 → \"52\""
+      ]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "What does this print, and why does the second call fail?\n\n\"use strict\";\nconst user = {\n  name: \"Kakade\",\n  greet() { return this.name; },\n};\nconst loose = user.greet;\nconsole.log(user.greet());\nconsole.log(loose());",
+      "answer": "It prints Kakade, then throws TypeError: Cannot read properties of undefined (reading 'name').\n\nuser.greet() is a method call, so this is the object before the dot — user — and this.name is \"Kakade\". loose is the same function, but loose() is a plain call. In strict mode a plain call sets this to undefined, so reading this.name throws. In sloppy mode this would be globalThis, and unless a global name exists the result would be undefined rather than an error.\n\nFixes: loose.call(user), const loose = user.greet.bind(user), or wrap it: const loose = () => user.greet(). Passing a method as a callback is the classic way to lose this; arrow functions avoid it by capturing the surrounding this.",
+      "key_points": [
+        "Method call sets this to the receiver object",
+        "Plain call sets this to undefined in strict mode",
+        "Losing this throws when a property is read",
+        "Fix with bind, call/apply, or an arrow wrapper"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Predict the order, then explain the rule.\n\nconsole.log(\"A\");\nsetTimeout(() => console.log(\"B\"), 0);\nPromise.resolve().then(() => console.log(\"C\"));\nqueueMicrotask(() => console.log(\"D\"));\nconsole.log(\"E\");",
+      "answer": "The order is A, E, C, D, B.\n\nA and E are synchronous, so they run first in source order. The promise reaction and queueMicrotask callback are microtasks, queued while the synchronous code runs. After the current task finishes, the event loop drains the entire microtask queue in FIFO order, so C then D. setTimeout registers a macrotask, which runs only after the microtask queue is empty, so B is last.\n\nAn await continuation behaves the same way: code after await resumes as a microtask, before the next timer. Note that setTimeout(fn, 0) is not guaranteed to run in 0 ms — it runs in a later task, after microtasks and possibly after rendering.",
+      "key_points": [
+        "Synchronous code runs first: A, E",
+        "Microtasks drain fully: C, D",
+        "Macrotask runs after microtasks: B",
+        "await continuations are microtasks",
+        "setTimeout 0 means next task, not immediate"
+      ]
+    }
+  ]
+}

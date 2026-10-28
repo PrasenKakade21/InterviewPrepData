@@ -1,0 +1,106 @@
+{
+  "topic": "Functions",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is the difference between a function declaration, a function expression and an arrow function in terms of hoisting and use?",
+      "answer": "A function declaration (function greet() {}) is hoisted completely — both the name and the body — so it can be called on a line above its definition. A function expression assigns a function to a variable, so it follows that variable's rules: with const it sits in the temporal dead zone until the assignment and calling it earlier throws ReferenceError; with var the name hoists as undefined and calling it throws TypeError. Arrow functions are always expressions, so they are never callable before their assignment.\n\nBeyond hoisting, arrows have no own this, no arguments and cannot be used with new. Declarations are good for top-level named helpers and for mutual recursion; expressions keep a helper scoped and make it obvious it is a value; arrows are best for short callbacks and transforms.",
+      "key_points": [
+        "Declarations hoist name + body — callable before definition",
+        "const expressions are in the TDZ; var expressions are undefined",
+        "Arrows are expressions with no this, arguments or new",
+        "Use declarations for named helpers, arrows for callbacks"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "trap",
+      "question": "Predict both outputs and explain why the default did not apply.\n\nfunction add(a, b = 10) { return a + b; }\nconsole.log(add(5, null));\n\nfunction bad() {\n  return\n  5;\n}\nconsole.log(bad());",
+      "answer": "It prints 5, then undefined.\n\nDefault parameters are used only when the argument is undefined. null is not undefined, so b stays null; then 5 + null evaluates to 5 because null coerces to 0 in numeric addition. The default looks like it should protect you but it never ran. If you need to treat null like missing, use b ?? 10 inside the body (nullish coalescing) rather than a default parameter.\n\nThe second function returns undefined because of automatic semicolon insertion: a newline directly after return ends the statement, so the function returns nothing and the 5 is unreachable dead code. JavaScript does not warn about this. Keep the value on the same line as return.",
+      "key_points": [
+        "Defaults fire only for undefined, not null/0/\"\"/false",
+        "5 + null is 5 because null coerces to 0",
+        "Use ?? in the body for null-safe defaults",
+        "A newline after return triggers ASI → undefined"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Write once(fn) that returns a function which calls fn at most once, caches the result, and returns that same result on later calls.",
+      "starter_code": "const once = (fn) => {\n  // your code\n};\n\nlet calls = 0;\nconst init = once(() => { calls++; return \"done\"; });\nconsole.log(init(), init(), calls);",
+      "answer": "const once = (fn) => {\n  let called = false;\n  let result;\n  return (...args) => {\n    if (!called) {\n      called = true;\n      result = fn(...args);\n    }\n    return result;\n  };\n};\n\nlet calls = 0;\nconst init = once(() => { calls++; return \"done\"; });\nconsole.log(init(), init(), calls);\n// done done 1\n\nThe flag and the cached value live in the closure created by once, so every call of the returned function sees the same state — that is the whole mechanism. Rest parameters forward whatever arguments the caller passes. Set called = true before invoking fn, so a throwing fn is still not retried (choose the opposite if you want retries on failure). A Map keyed by arguments would extend this into memoization.",
+      "key_points": [
+        "Closure holds the called flag and cached result",
+        "Set the flag before calling to avoid re-entry",
+        "Return the cached result on later calls",
+        "Rest/spread forwards arguments transparently"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write compose(...fns) so that compose(inc, double)(3) applies double first, then inc, giving 7. Explain the order.",
+      "starter_code": "const compose = (...fns) => {\n  // your code\n};\n\nconst inc = (n) => n + 1;\nconst double = (n) => n * 2;\nconsole.log(compose(inc, double)(3));",
+      "answer": "const compose = (...fns) => (x) => fns.reduceRight((value, fn) => fn(value), x);\n\nconst inc = (n) => n + 1;\nconst double = (n) => n * 2;\nconsole.log(compose(inc, double)(3)); // 7\n\ncompose reads right to left, like the maths notation f(g(x)): double(3) is 6, then inc(6) is 7. reduceRight starts from the rightmost function, which is why the result is 7 and not 8 (pipe, the left-to-right version, uses reduce and would give 8). The inner functions run in order, and each receives the previous return value. Composition is the backbone of point-free pipelines in functional JavaScript.",
+      "key_points": [
+        "reduceRight applies the rightmost function first",
+        "compose(f, g)(x) = f(g(x))",
+        "A left-to-right version is usually called pipe (reduce)",
+        "Each function's return feeds the next"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "When should you use an arrow function instead of a normal function? What do arrows give up?",
+      "answer": "Use an arrow when you want a short expression, when you want to keep the surrounding this (array callbacks, class field handlers, a function inside a method), or when you do not need a dynamic this. Arrows inherit this lexically from the enclosing scope, so an arrow inside an object method still sees the method's this — which is exactly what you want for setTimeout(() => this.count++).\n\nArrows give up four things: their own this (so they cannot be used as object methods that need the object), their own arguments object (use rest parameters), the ability to be called with new (they have no prototype and throw TypeError), and the ability to be used with call/apply to rebind this. They are also not hoisted as declarations, since they are always expressions.",
+      "key_points": [
+        "Arrows inherit this lexically — great for callbacks and timers",
+        "No own arguments → use ...args",
+        "Cannot be constructed with new",
+        "call/apply/bind cannot change an arrow's this",
+        "Avoid arrows for object methods that need this"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "This code logs 'Kakade' immediately instead of after one second, and the value is wrong. Why?\n\nfunction greet(name) { console.log(\"Hello\", name); }\nsetTimeout(greet(\"Kakade\"), 1000);\n\n[1, 2, 3].map(console.log);",
+      "answer": "greet(\"Kakade\") is a function call, not a function reference. It runs immediately, returns undefined, and setTimeout receives undefined as its callback — so the greeting prints right away and nothing is scheduled. The fix is to pass a function that will call greet later: setTimeout(() => greet(\"Kakade\"), 1000), or setTimeout(greet, 1000, \"Kakade\") to forward the argument.\n\nThe second line is the same class of bug in reverse: map passes (element, index, array) to console.log, so it logs three lines like 1 0 [1,2,3]. console.log accepts extra arguments, which is why it does not crash — but it is not printing what the author expected. Wrap callbacks that take extra parameters: .map((n) => console.log(n)).",
+      "key_points": [
+        "Pass a function reference, not the result of calling it",
+        "setTimeout(fn, delay, ...args) can forward arguments",
+        "map/filter/forEach callbacks receive (element, index, array)",
+        "Extra arguments are silently accepted by many functions"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "coding",
+      "question": "Write a recursive flatten(arr) that flattens arbitrarily nested arrays without using Array.prototype.flat.",
+      "starter_code": "const flatten = (arr) => {\n  // your code\n};\n\nconsole.log(flatten([1, [2, [3, [4]]]]));",
+      "answer": "const flatten = (arr) =>\n  arr.reduce(\n    (acc, value) => acc.concat(Array.isArray(value) ? flatten(value) : value),\n    []\n  );\n\nconsole.log(flatten([1, [2, [3, [4]]]]));\n// [ 1, 2, 3, 4 ]\n\nThe base case is implicit: when a value is not an array, concat appends it. The recursive case handles nested arrays, and reduce builds the result level by level. Starting with [] means the empty array input returns [], and concat keeps everything non-mutating. A loop with an explicit stack avoids recursion limits on very deep structures — this version throws RangeError if nesting exceeds the call stack.",
+      "key_points": [
+        "Recursive case: array → recurse; base case: scalar → append",
+        "reduce with [] as the initial accumulator",
+        "concat flattens one level and does not mutate",
+        "Deep nesting can overflow the stack — use an explicit stack"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "theory",
+      "question": "What makes a function pure, and why does purity matter for testing and for array methods?",
+      "answer": "A pure function has two properties: given the same arguments it always returns the same result, and it has no side effects. Side effects include mutating an argument or an outer variable, writing to the DOM, logging, network calls, reading Math.random() or Date.now(), and throwing exceptions for control flow. A function that pushes into the array it was given is impure even if it also returns the array, because the caller's data changed.\n\nPurity matters because pure functions are trivially testable (no mocks, no setup), safe to cache (memoization is only valid if the output depends solely on inputs), safe to run in parallel, and easy to compose. Array methods like map, filter and reduce are designed around pure callbacks: if the callback mutates shared state, you get order-dependent bugs, especially when the code later moves to a different engine or async context.",
+      "key_points": [
+        "Same input → same output, every time",
+        "No mutation, I/O, randomness, or time reads",
+        "Pure functions are easy to test, cache and compose",
+        "Mutating callbacks break map/filter/reduce assumptions"
+      ]
+    }
+  ]
+}

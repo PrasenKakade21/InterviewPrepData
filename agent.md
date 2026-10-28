@@ -2,29 +2,31 @@
 
 ## 0. Current Session (read first)
 
-- Active track: **Node.js**.
-- Python track is DONE. React track is DONE (30 topics + sequence.json).
-- Source of truth: `NodeJS/roadmap.json`.
-- Progress: roadmap created (30 topics). Content writing NOT started. Start from `01. Node Fundamentals`.
-- When user says `start` (or `next 5`, `next five`): write the next 5 unwritten Node.js topics, one `.md` per topic, then verify and summarize. Do not ask for batch size.
-- Default output dir: `NodeJS/` directly (no subfolders for new files).
+- Active track: **JavaScript** (DONE, verified).
+- Python (37), React (30), Node.js (30), HTML (20 + 10 tag docs), CSS (22 + 10 property docs), JavaScript (34) are DONE.
+- Source of truth: `JavaScript/roadmap.json` (34 topics).
+- Progress: all 34 topics have `.md` + `.mock.json` + `.revision.md`; JSON, sequence, structure, and closing-section checks passed.
+- Default output dir: `JavaScript/` directly. No reference subfolder.
+- "Python way" = Python-track depth: granular `###` sub-sections, runnable examples, verbose explanations, 8-question mocks, ~2.5KB revisions. Do not use the shorter HTML/CSS style.
 
 This repo holds interview-prep notes as Markdown. Match the existing style exactly.
 Reference files: `Python/Decorators.md`, `Python/Python Standard Library.md`, `Python/HTTP and REST APIs.md`.
 
 ## 1. Scope / Input
 
-- Active track is React: `React/roadmap.json` is source of truth for topics + sub-topics.
-- Python track (`Python/roadmap.json`) is done — ignore unless user asks for Python.
-- `sequence.json` (if present) defines order. Don't reorder without asking.
+- Active track is JavaScript: `JavaScript/roadmap.json` is source of truth for topics + sub-topics.
+- Python, React, Node.js, HTML, and CSS tracks are done — ignore unless the user asks for them.
+- `sequence.json` (if present) defines order, including subfolders. Don't reorder without asking.
 - One `.md` file per roadmap topic. Cover EVERY sub-topic listed for it — none skipped.
-- Only read `React/roadmap.json` + one `.md` for style unless user asks for more.
+- Only read the active track's `roadmap.json` + one existing `.md` for style unless the user asks for more.
 
 ## 2. Filename Convention
 
-- Title Case with spaces, matching Python files.
-- React examples: `React Fundamentals.md`, `JSX.md`, `State and useState.md`, `React Router.md`.
-- Place new React files directly under `React/` (ignore old `React/React-Fundamentals/` kebab-case layout for new work).
+- Title Case with spaces, matching existing files.
+- HTML examples: `HTML Fundamentals.md`, `Forms Fundamentals.md`, `HTML Interview Traps.md`.
+- CSS examples: `CSS Fundamentals.md`, `Box Model.md`, `CSS Interview Traps.md`.
+- JavaScript examples: `JavaScript Fundamentals.md`, `Closures and the Scope Chain.md`, `JavaScript Interview Traps.md`.
+- Place new topic files directly under the track folder. Reference subfolders use category names, e.g. `HTML/Tags/Form Tags.md`, `CSS/Properties/Layout Properties.md`.
 
 ## 3. Document Structure (follow in order)
 
@@ -51,7 +53,7 @@ Reference files: `Python/Decorators.md`, `Python/Python Standard Library.md`, `P
 Each numbered section must have:
 
 - Short plain-English explanation (2-5 lines, no jargon dump).
-- Small snippet (5-15 lines max). Python track: `python` (stdlib-only unless pip needed). React track: `jsx`/`js` (copy-paste into Vite/CRA, `Kakade` examples).
+- Small snippet (5-15 lines max). Python track: `python` (stdlib-only unless pip needed). React track: `jsx`/`js`. HTML track: `html` (plain document snippets, `Kakade` examples).
 - `Output:` + `text` block showing exact output / render result.
 - `---` separator after each major section.
 - Where helpful: `Think:` text diagram, `Compare:` block, table, or `Notice:` callout.
@@ -115,10 +117,13 @@ Hello Kakade
 
 - Python track: run key snippets with `python` before finishing (use `C:\Users\PRASEN~1\AppData\Local\Temp\opencode\` for temp scripts).
 - React track: snippets are `jsx`/`js` for Vite — no execution needed. Just re-read each file once for syntax (balanced tags/backticks, every sub-topic covered).
+- HTML track: snippets are plain `html` — no execution needed. Verify valid nesting, balanced code fences, every roadmap sub-topic covered, and all `.mock.json` files parse.
+- JavaScript track: snippets are plain `javascript` (Node-compatible) or `html` for DOM/browser examples. Run key Node snippets with `node` before finishing when practical. Verify balanced code fences, every roadmap sub-topic covered, and all `.mock.json` files parse.
 - Required Python packages (reference only): `pydantic 2.x` (use `model_dump`/`model_validate`, NOT `.dict()`), `fastapi`, `flask`, `requests`.
 - Don't commit, push, or update `sequence.json` unless explicitly asked.
 
 ## 8. Batching
 
-- React: on `start` / `next 5` / `next five`, write the next 5 unwritten topics in roadmap order. No need to ask batch size.
+- HTML: on `start` / `next 5` / `next five`, write the next 5 unwritten topics in roadmap order — `.md` plus `.mock.json` and `.revision.md`. No need to ask batch size.
+- JavaScript: same batching as Python/HTML — 5 topics per batch, each with `.md`, `.mock.json`, `.revision.md`.
 - Write one file per `write` call. Update todos as you go.

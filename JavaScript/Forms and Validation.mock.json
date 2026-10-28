@@ -1,0 +1,104 @@
+{
+  "topic": "Forms and Validation",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Which controls does a form actually submit, and how does FormData decide?",
+      "answer": "A form submits its successful controls. A control is successful when it has a name, is not disabled, and — for checkboxes and radios — is checked. Controls without a name are skipped entirely, which is why an input can look fine but never reach the server. Disabled controls are skipped even when they contain a value, and an unchecked checkbox contributes nothing at all rather than false.\n\nFormData applies the same rules. Pass the submitter as a second argument (new FormData(form, event.submitter)) if you need the button's name/value. File inputs contribute File objects. This is why the usual advice is to give every field a name, use disabled only for truly non-submitted data, and use hidden inputs or explicit JSON for values that must always be sent.",
+      "key_points": [
+        "Needs a name, not disabled, checked if checkbox/radio",
+        "Unchecked checkbox contributes nothing, not false",
+        "Disabled controls are skipped",
+        "FormData follows the same successful-control rules"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Explain the submit event, preventDefault, and the difference between form.submit() and form.requestSubmit().",
+      "answer": "The submit event fires on the form when the user activates a submit button, presses Enter in a text field, or calls requestSubmit(). Calling preventDefault() inside the handler stops the browser's navigation or reload and lets your JavaScript send the data instead. It must happen synchronously, before any await, because the browser decides whether to navigate as soon as the event dispatch finishes.\n\nform.requestSubmit() runs constraint validation first and only fires submit if the form is valid; it behaves like a user submission and accepts an optional submitter button. form.submit() skips validation and does not fire the submit event, so your handler never runs — it is a raw navigation. Listening for a button click is not a replacement for submit, because it misses Enter-key submissions.",
+      "key_points": [
+        "submit fires on the form; preventDefault is synchronous",
+        "requestSubmit validates then fires submit",
+        "form.submit() bypasses validation and the event",
+        "Button click listeners miss Enter submissions"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "How does the constraint validation API work? Compare checkValidity and reportValidity.",
+      "answer": "Every submittable control has a validity object (ValidityState) with flags such as valueMissing, typeMismatch, patternMismatch, rangeUnderflow, rangeOverflow, stepMismatch, tooShort, tooLong, badInput and customError. validity.valid is true only when all flags are false. validationMessage is the browser-localized message, and willValidate says whether the control participates.\n\ncheckValidity() returns a boolean and fires an invalid event on each invalid control, but shows no UI. reportValidity() does the same and also displays the browser's validation bubble and focuses the first invalid control. The form itself exposes both methods and aggregates its controls. On submit, the browser runs this validation automatically and blocks submission if anything is invalid, unless the form has novalidate or the submission came from form.submit().",
+      "key_points": [
+        "validity flags + valid + validationMessage",
+        "checkValidity: boolean + invalid event, no UI",
+        "reportValidity: also shows bubble and focuses",
+        "Browser blocks submit on invalid unless novalidate"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "How do you serialize a form for a JSON API, and what are the pitfalls compared with sending FormData directly?",
+      "answer": "For JSON, build a plain object from FormData. Object.fromEntries(new FormData(form)) is the shortcut, but every value is a string, duplicate names collapse to the last value, unchecked checkboxes disappear, and files do not serialize to JSON at all. Convert numbers and booleans explicitly, use getAll for repeated fields, and treat missing checkboxes as false in your schema.\n\nFor a JSON API, set Content-Type: application/json and send JSON.stringify(payload). For file uploads or a traditional endpoint, send the FormData object itself and let the browser set multipart/form-data with the boundary; manually setting that header breaks the request. URLSearchParams is for application/x-www-form-urlencoded. Never rely on client serialization for trust — validate and authorize on the server.",
+      "key_points": [
+        "fromEntries → strings, duplicates collapse, files lost",
+        "Convert types and handle unchecked boxes explicitly",
+        "JSON: set Content-Type and stringify",
+        "FormData for multipart; never set the boundary header"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write serialize(form) that returns an object, keeps repeated names as arrays, and omits nothing that FormData omits.",
+      "starter_code": "function serialize(form) {\n  // your code\n}\n\nconst form = document.getElementById(\"profile\");\nconsole.log(serialize(form));",
+      "answer": "function serialize(form) {\n  const out = {};\n\n  for (const [key, value] of new FormData(form)) {\n    if (key in out) {\n      out[key] = [].concat(out[key], value);\n    } else {\n      out[key] = value;\n    }\n  }\n\n  return out;\n}\n\n// <input name=\"name\" value=\"Kakade\">\n// <input name=\"hobby\" value=\"chess\">\n// <input name=\"hobby\" value=\"code\">\n// → { name: 'Kakade', hobby: [ 'chess', 'code' ] }\n\nFormData already applies the successful-control rules, so disabled and unchecked fields never enter the loop. The key in out check turns the second occurrence into an array; [].concat handles both the string-to-array and array-to-array cases. Values remain strings, so convert known numeric or boolean fields afterwards. File values would be File objects, which are not JSON-serializable — handle uploads separately or send FormData directly.",
+      "key_points": [
+        "Iterate FormData entries; it already filters controls",
+        "First value scalar, later values array",
+        "[].concat handles both cases",
+        "Values are strings; files are not JSON-safe"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Write validation that marks a confirm-password field invalid with setCustomValidity whenever it differs from the password, and clears the error when they match.",
+      "starter_code": "const form = document.getElementById(\"signup\");\nconst password = form.elements.password;\nconst confirm = form.elements.confirm;\n\nfunction checkPasswords() {\n  // your code\n}\n\npassword.addEventListener(\"input\", checkPasswords);\nconfirm.addEventListener(\"input\", checkPasswords);",
+      "answer": "function checkPasswords() {\n  if (confirm.value !== password.value) {\n    confirm.setCustomValidity(\"Passwords do not match\");\n  } else {\n    confirm.setCustomValidity(\"\");\n  }\n}\n\npassword.addEventListener(\"input\", checkPasswords);\nconfirm.addEventListener(\"input\", checkPasswords);\n\nform.addEventListener(\"submit\", (event) => {\n  checkPasswords();\n  if (!form.checkValidity()) {\n    event.preventDefault();\n    form.reportValidity();\n  }\n});\n\nsetCustomValidity sets validity.customError and the message shown by reportValidity. Clearing with an empty string is mandatory: otherwise the field stays invalid forever, even after the values match. Listening on both fields catches edits in either order, including pasting. Re-checking on submit closes the race where the user edits and submits before the input event runs. The check is UX only; the server must compare hashes again.",
+      "key_points": [
+        "Set message on mismatch, clear with \"\" on match",
+        "Listen on both password and confirm",
+        "Re-check on submit and call reportValidity",
+        "Client check is UX; server validates again"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why does clicking Cancel log 'submitted'?\n\n<form id=\"f\">\n  <input name=\"q\" value=\"Kakade\">\n  <button id=\"cancel\">Cancel</button>\n</form>\n<script>\n  const form = document.getElementById(\"f\");\n  form.addEventListener(\"submit\", (e) => {\n    e.preventDefault();\n    console.log(\"submitted\");\n  });\n  document.getElementById(\"cancel\").click();\n</script>",
+      "answer": "A button's default type inside a form is submit, not button. The Cancel button therefore triggers a form submission, the submit handler runs, and 'submitted' logs. This is one of the most common form bugs because it looks like an ordinary button.\n\nThe fix is to be explicit: <button type=\"button\">Cancel</button> for actions that should not submit, and <button type=\"submit\">Save</button> for the real submission. Alternatively, handle Cancel with a click listener and never let it reach submit. Do not rely on preventDefault in the submit handler to distinguish intent — by then the form has already decided to submit.",
+      "key_points": [
+        "Default button type is submit",
+        "Cancel triggers the submit handler",
+        "Set type=\"button\" for non-submit actions",
+        "Be explicit on every button"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "What does this log, and why?\n\n<form id=\"f\">\n  <input name=\"name\" value=\"Kakade\">\n  <input name=\"locked\" value=\"secret\" disabled>\n  <input type=\"checkbox\" name=\"news\" value=\"yes\">\n  <input type=\"number\" name=\"age\" value=\"30\">\n</form>\n<script>\n  const data = new FormData(document.getElementById(\"f\"));\n  console.log(data.get(\"locked\"));\n  console.log(data.get(\"news\"));\n  console.log(typeof data.get(\"age\"));\n</script>",
+      "answer": "It logs null, null, and string.\n\nThe disabled input is not a successful control, so it is omitted even though it has a value. The unchecked checkbox is omitted too — absence means false, not the string 'false'. The number input's value is still a string in FormData, so typeof is 'string'; the numeric type only affects the keyboard and validation, not the data type.\n\nHandle missing checkboxes explicitly with data.has('news') or default them to false when building JSON. Convert numbers with Number(...) at the boundary, and use hidden inputs for values that must always be submitted. Avoid using disabled for fields you still need to read; use readonly instead.",
+      "key_points": [
+        "Disabled controls are omitted",
+        "Unchecked checkbox is absent, not false",
+        "Number input values are strings in FormData",
+        "Use has()/defaults and convert types"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "sequence": [
+    "JavaScript Fundamentals.md",
+    "Variables, Scope and Hoisting.md",
+    "Data Types and Coercion.md",
+    "Operators and Equality.md",
+    "Strings.md",
+    "Numbers, Math and Dates.md",
+    "Arrays.md",
+    "Objects.md",
+    "Functions.md",
+    "Closures and the Scope Chain.md",
+    "this Binding.md",
+    "Prototypes and Inheritance.md",
+    "Classes.md",
+    "Destructuring, Rest and Spread.md",
+    "Iterators and Generators.md",
+    "Map, Set and Weak Collections.md",
+    "Control Flow and Loops.md",
+    "Error Handling.md",
+    "Modules.md",
+    "Promises.md",
+    "Async Await.md",
+    "Event Loop.md",
+    "DOM Fundamentals.md",
+    "Events.md",
+    "Forms and Validation.md",
+    "Fetch and HTTP.md",
+    "JSON, Storage and Browser Data.md",
+    "Regular Expressions.md",
+    "Functional JavaScript.md",
+    "Browser APIs and Performance.md",
+    "Testing and Tooling.md",
+    "Security.md",
+    "JavaScript Interview Traps.md",
+    "Projects.md"
+  ],
+  "ignore": [
+    "sequence.json",
+    "roadmap.json",
+    "README.md"
+  ]
+}

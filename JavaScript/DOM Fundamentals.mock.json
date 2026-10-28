@@ -1,0 +1,104 @@
+{
+  "topic": "DOM Fundamentals",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is the DOM, and how does it relate to the HTML source you write?",
+      "answer": "The DOM (Document Object Model) is the browser's in-memory tree of nodes created by parsing HTML. The HTML file is text; the DOM is the live object graph that JavaScript reads and mutates. Elements, text, comments and the document itself are all nodes, with document.documentElement as the root html element and document.body as the visible content root.\n\nThe DOM is not a copy of the source. The browser fixes invalid nesting, adds elements such as tbody, and reflects every change you make at runtime. That is why the Elements panel shows the current DOM, not the original file, and why changing an input's value does not change its value attribute in the markup. Rendering flows from the DOM: style, layout, paint and composite.",
+      "key_points": [
+        "DOM = live tree of nodes parsed from HTML",
+        "document → html → head/body → elements",
+        "Runtime changes are reflected, source is not",
+        "Style and layout are computed from the DOM"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "When should you use textContent instead of innerHTML? What is the security issue with innerHTML?",
+      "answer": "Use textContent when the value is data: a name, a message, a search term. It sets a text node, so angle brackets are displayed literally and nothing is parsed or executed. Use innerHTML only for trusted, static markup that you control, or for markup produced by a sanitizer.\n\ninnerHTML parses its string as HTML. If that string contains user input, an attacker can inject elements and event handlers — for example an img with an onerror handler — and the browser will execute them. That is DOM-based XSS. It also destroys and recreates all child nodes on every assignment, which removes their event listeners and can be slow for large subtrees. textContent is both safer and cheaper.",
+      "key_points": [
+        "textContent for user data — never parsed",
+        "innerHTML parses HTML and can execute injected handlers",
+        "innerHTML assignment recreates children and loses listeners",
+        "Sanitize if HTML input is genuinely required"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Explain the difference between a live HTMLCollection and a static NodeList, and why it matters.",
+      "answer": "getElementsByClassName and getElementsByTagName return an HTMLCollection that is live: it re-queries the document when you read length or an index, so nodes added later appear automatically. querySelectorAll returns a static NodeList: it is a snapshot taken at call time, so later DOM changes are not reflected.\n\nThis matters when you cache a collection and then mutate the DOM. A live collection can also surprise you in loops: appending inside a loop over a live collection changes its length and can cause an infinite loop. Static NodeLists are predictable and support forEach; HTMLCollections do not have forEach (iterate with a for loop or Array.from). If you need current results, re-query or use a live collection deliberately.",
+      "key_points": [
+        "getElementsBy* → live HTMLCollection",
+        "querySelectorAll → static NodeList snapshot",
+        "Live collections change during loops — re-check length",
+        "NodeList has forEach; HTMLCollection does not"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "What are reflow and repaint, and how does reading offsetWidth in a loop make code slower?",
+      "answer": "Reflow (layout) calculates the geometry of every affected box: position and size. Repaint draws pixels using the computed styles and layout. Changing width, font, or adding a node invalidates layout; changing only color invalidates paint. The browser batches these invalidations and normally does them once per frame.\n\nReading a layout property such as offsetWidth, offsetHeight, scrollTop or getBoundingClientRect forces the browser to flush pending style and layout immediately so it can return an accurate number. If you write a style and then read layout inside a loop, each read forces a synchronous layout — that is layout thrashing. The fix is to batch: read all measurements first into variables, then perform all writes, or change classes and let one layout happen at the next frame.",
+      "key_points": [
+        "Reflow = geometry; repaint = pixels",
+        "Layout reads force a synchronous flush",
+        "write → read → write in a loop thrashes layout",
+        "Batch reads, then writes; animate transform/opacity"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Given a template and an array of users, render every user into #team using a DocumentFragment. Do not use innerHTML.",
+      "starter_code": "<ul id=\"team\"></ul>\n<template id=\"row\">\n  <li class=\"row\"><span class=\"name\"></span></li>\n</template>\n<script>\n  const users = [{ name: \"Kakade\" }, { name: \"Asha\" }, { name: \"Rohan\" }];\n\n  function renderTeam(users) {\n    // your code\n  }\n\n  renderTeam(users);\n</script>",
+      "answer": "const users = [{ name: \"Kakade\" }, { name: \"Asha\" }, { name: \"Rohan\" }];\n\nfunction renderTeam(users) {\n  const template = document.getElementById(\"row\");\n  const fragment = document.createDocumentFragment();\n\n  for (const user of users) {\n    const node = template.content.cloneNode(true);\n    node.querySelector(\".name\").textContent = user.name;\n    fragment.append(node);\n  }\n\n  document.getElementById(\"team\").append(fragment);\n}\n\nrenderTeam(users);\n// <ul id=\"team\"> with three li.row elements: Kakade, Asha, Rohan\n\nTemplate content is inert until cloned, so cloneNode(true) is required for every row — appending content directly would move its children and leave nothing for the next iteration. All rows are built off-DOM inside the fragment, then inserted with one append, so the browser performs one insertion instead of three. textContent sets the name safely; no HTML parsing and no XSS. If the list is re-rendered, clear it first or reuse nodes deliberately.",
+      "key_points": [
+        "cloneNode(true) per row from template.content",
+        "Build inside DocumentFragment, append once",
+        "textContent for names — no HTML injection",
+        "One insertion avoids repeated layout work"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Write buildCard(user) that returns an article element with class card, data-user-id, an h3 name and a p bio — built with DOM methods, not innerHTML.",
+      "starter_code": "function buildCard(user) {\n  // your code\n}\n\nconst card = buildCard({ id: 7, name: \"Kakade\", bio: \"Frontend developer\" });\ndocument.body.append(card);\nconsole.log(card.outerHTML);",
+      "answer": "function buildCard(user) {\n  const card = document.createElement(\"article\");\n  card.className = \"card\";\n  card.dataset.userId = user.id;\n\n  const name = document.createElement(\"h3\");\n  name.textContent = user.name;\n\n  const bio = document.createElement(\"p\");\n  bio.textContent = user.bio;\n\n  card.append(name, bio);\n  return card;\n}\n\nconst card = buildCard({ id: 7, name: \"Kakade\", bio: \"Frontend developer\" });\ndocument.body.append(card);\n// <article class=\"card\" data-user-id=\"7\"><h3>Kakade</h3><p>Frontend developer</p></article>\n\ncreateElement plus textContent makes every value a text node, so a name like <img onerror=...> is displayed, not executed. dataset.userId writes the data-user-id attribute and stringifies the number. append accepts several children in one call. The function returns a detached element, which makes it easy to test and lets the caller decide where to insert it. Setting className replaces all classes; classList.add is better when preserving existing ones.",
+      "key_points": [
+        "createElement + textContent = no HTML parsing",
+        "dataset.userId maps to data-user-id",
+        "append accepts multiple children",
+        "Return detached nodes for testability"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "The HTML has whitespace between li elements. What does this log, and why?\n\n<ul id=\"team\">\n  <li>Kakade</li>\n  <li>Asha</li>\n</ul>\n<script>\n  const team = document.getElementById(\"team\");\n  console.log(team.children.length);\n  console.log(team.childNodes.length);\n</script>",
+      "answer": "It logs 2, then 5.\n\nchildren contains only element children, so it counts the two li elements. childNodes contains every node, including text nodes. The newline and indentation before the first li, between the two li elements, and after the last li are three separate text nodes, so 2 elements + 3 text nodes = 5.\n\nThis is why traversal code should usually use children, firstElementChild and nextElementSibling rather than childNodes, firstChild and nextSibling. The element variants skip whitespace and comments, so they behave the same whether the HTML is minified or pretty-printed. If you do need all nodes, filter by nodeType === Node.ELEMENT_NODE.",
+      "key_points": [
+        "children = elements only",
+        "childNodes = elements + text + comments",
+        "Whitespace creates text nodes",
+        "Prefer *ElementChild / *ElementSibling"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why do the existing buttons stop working after this line runs?\n\nlist.innerHTML += '<li><button>Asha</button></li>';",
+      "answer": "innerHTML += is not an append. It reads the entire current HTML as a string, concatenates the new markup, then parses the whole string back into new nodes and replaces every child of list. The original li and button elements are destroyed, so every event listener attached to them is gone. The new button looks identical but has no handler.\n\nThe fix depends on the goal. To add one row, create the element and append it: const li = document.createElement('li'); li.innerHTML = '<button>Asha</button>'; list.append(li) — or build the button with createElement and textContent. If you need to keep listeners across large re-renders, use event delegation on the list, or a rendering library that reconciles nodes. Avoid innerHTML += entirely in interactive lists.",
+      "key_points": [
+        "innerHTML += re-parses and replaces all children",
+        "Replaced nodes lose their listeners",
+        "Use createElement/append for incremental updates",
+        "Delegation survives re-renders"
+      ]
+    }
+  ]
+}

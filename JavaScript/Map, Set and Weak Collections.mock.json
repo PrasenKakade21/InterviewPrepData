@@ -1,0 +1,105 @@
+{
+  "topic": "Map, Set and Weak Collections",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Why does a Map handle object keys better than a plain object? When would you still choose a plain object?",
+      "answer": "A plain object coerces every non-symbol key to a string, so two different objects both become \"[object Object]\" and the second write overwrites the first. A Map stores the actual key value and compares keys with SameValueZero: objects by reference, NaN equal to NaN. It also has a real size, is directly iterable in insertion order, and does not inherit keys from Object.prototype.\n\nYou still choose an object for a fixed record shape you know in advance (user.name, config.port), for JSON payloads, for destructuring, and for methods. Choose a Map when keys arrive at runtime, are objects or numbers, when entries are frequently added and deleted, or when guaranteed insertion order and a cheap size matter.",
+      "key_points": [
+        "Object keys are strings or symbols only; objects stringify to \"[object Object]\"",
+        "Map keys can be any value and are compared by reference for objects",
+        "Map has size, iteration, and no prototype keys",
+        "Use objects for fixed records and JSON, Maps for dynamic keyed data"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What can a WeakMap do that a Map cannot, and what does it give up in return?",
+      "answer": "A WeakMap holds its object keys weakly, so an entry does not keep the key alive. When nothing else references the key object, the garbage collector may remove the entry and its value. That makes WeakMap ideal for metadata attached to objects, private state, and caches keyed by object, because the cache cannot cause a leak.\n\nIn return it gives up almost every convenience: keys must be objects (or non-registered symbols), there is no size, no clear, no iteration, and no way to list keys. Those restrictions exist so the engine can collect entries safely. Map is the right choice when you need to count, iterate, serialise, or use primitive keys; WeakMap is only for hidden per-object data.",
+      "key_points": [
+        "Weak keys do not prevent garbage collection",
+        "Object keys only; no size, clear, or iteration",
+        "Best for metadata, private state, and object-keyed caches",
+        "Use Map when you need enumeration or primitive keys"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Write wordCounts(text) that returns a Map of word to count, then return the most frequent word. Ignore letter case and punctuation is already stripped.",
+      "starter_code": "const wordCounts = (text) => {\n  // your code\n};\n\nconst text = \"js css js node css js\";\nconsole.log(wordCounts(text));",
+      "answer": "const wordCounts = (text) => {\n  const counts = new Map();\n  for (const word of text.toLowerCase().split(/\\s+/)) {\n    if (word) counts.set(word, (counts.get(word) ?? 0) + 1);\n  }\n  return counts;\n};\n\nconst counts = wordCounts(\"js css js node css js\");\nconsole.log([...counts]);\nconst top = [...counts].sort((a, b) => b[1] - a[1])[0];\nconsole.log(top[0], top[1]);\n\n// [ [ 'js', 3 ], [ 'css', 2 ], [ 'node', 1 ] ]\n// js 3\n\nMap preserves insertion order, so the keys appear in first-seen order. counts.get(word) is undefined for a new word, and ?? 0 supplies the starting count; the alternative is (counts.get(word) || 0) + 1, which is fine for positive counts. Sorting entries is not needed to build the map, only to answer the top-word question. For a very large stream, track the best word while looping instead of sorting.",
+      "key_points": [
+        "Map counts keys added at runtime",
+        "Initialize with (counts.get(word) ?? 0) + 1",
+        "Map keeps first-seen insertion order",
+        "Sort entries only when you need a ranking"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write intersection(a, b) that returns the shared values once each, in the order they first appear in a. Use a Set and do not mutate the inputs.",
+      "starter_code": "const intersection = (a, b) => {\n  // your code\n};\n\nconsole.log(intersection([1, 2, 2, 3], [2, 3, 4]));",
+      "answer": "const intersection = (a, b) => {\n  const other = new Set(b);\n  return [...new Set(a)].filter((value) => other.has(value));\n};\n\nconsole.log(intersection([1, 2, 2, 3], [2, 3, 4]));\n// [ 2, 3 ]\n\nnew Set(b) gives O(1) membership tests. new Set(a) removes duplicates from the left side while keeping first-seen order, and filter preserves that order. Neither input is mutated. The naive version a.filter((x) => b.includes(x)) is O(n * m) and keeps duplicates. Modern engines also have a.intersection(b) on Set instances (ES2025), with this filter as the portable fallback.",
+      "key_points": [
+        "Build a Set from b for O(1) lookups",
+        "Dedupe a with [...new Set(a)] and keep order",
+        "filter checks other.has(value)",
+        "Avoid includes inside filter — it is O(n * m)"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "Predict the output.\n\nconst key1 = { id: 1 };\nconst key2 = { id: 1 };\nconst m = new Map();\nm.set(key1, \"a\");\nm.set(key2, \"b\");\nconsole.log(m.size, m.get({ id: 1 }));\n\nconst obj = {};\nobj[key1] = \"a\";\nobj[key2] = \"b\";\nconsole.log(Object.keys(obj).length, obj[\"[object Object]\"]);",
+      "answer": "It prints 2 undefined, then 1 b.\n\nkey1 and key2 are two different objects. Map compares object keys by reference with SameValueZero, so both entries exist and size is 2. The freshly created { id: 1 } in m.get(...) is a third reference, so the lookup misses and returns undefined.\n\nThe plain object stringifies both keys to \"[object Object]\". The second assignment overwrites the first, leaving one own key whose value is \"b\". This is exactly the collision a Map avoids. To look up by shape you must keep the original reference, or key the collection by a primitive such as id.",
+      "key_points": [
+        "Map object keys are compared by reference",
+        "A new object literal never matches a stored object key",
+        "Object keys stringify, so objects collide on \"[object Object]\"",
+        "Key by id when you need shape-based lookup"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "What is logged, and why?\n\nconst s = new Set([1, \"1\", NaN, NaN, { id: 1 }, { id: 1 }]);\nconsole.log(s.size);\n\nconst m = new Map([[\"a\", 1]]);\nm.forEach((value, key) => console.log(key, value));\nconsole.log(m.size, m.length);",
+      "answer": "It prints 5, then a 1, then 1 undefined.\n\nThe Set contains 1, \"1\", NaN, and two distinct object references: 1 and \"1\" are different types, the duplicate NaN collapses because SameValueZero treats NaN as equal to itself, but the two { id: 1 } objects are different references and both stay. So size is 5, not 3.\n\nMap.prototype.forEach calls its callback with (value, key, map), the reverse of Array.prototype.forEach's (element, index, array). The entry \"a\" -> 1 therefore logs \"a 1\". A Map has size, not length, so m.length is undefined.",
+      "key_points": [
+        "Set uses SameValueZero: NaN dedupes, 1 and \"1\" differ",
+        "Objects dedupe only by reference",
+        "Map forEach callback is (value, key, map)",
+        "Use map.size, not map.length"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "coding",
+      "question": "Write uniqueBy(items, key) that removes duplicate objects by a field and keeps the first occurrence. It should work for any field name and preserve order.",
+      "starter_code": "const uniqueBy = (items, key) => {\n  // your code\n};\n\nconst users = [\n  { id: 1, name: \"Kakade\" },\n  { id: 2, name: \"Asha\" },\n  { id: 1, name: \"Kakade (again)\" },\n];\nconsole.log(uniqueBy(users, \"id\"));",
+      "answer": "const uniqueBy = (items, key) => {\n  const seen = new Set();\n  return items.filter((item) => {\n    if (seen.has(item[key])) return false;\n    seen.add(item[key]);\n    return true;\n  });\n};\n\nconsole.log(uniqueBy(users, \"id\"));\n// [ { id: 1, name: 'Kakade' }, { id: 2, name: 'Asha' } ]\n\nA Set of field values is enough because we only need membership, not a value per key. filter preserves order and keeps the first item that claims each id. Switching to a Map keyed by item[key] and assigning unconditionally would keep the last occurrence instead — decide which rule you want. If the field can hold objects, remember they are compared by reference, so key on a primitive where possible.",
+      "key_points": [
+        "Set tracks which field values were already seen",
+        "filter preserves order and keeps the first match",
+        "Assigning into a Map instead would keep the last match",
+        "Field values should be primitives for predictable dedupe"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Explain what happens here and how to inspect a WeakMap or serialise a Map.\n\nconst cache = new WeakMap();\ncache.set({}, \"x\");\nconsole.log(cache.size);\ntry { console.log([...cache]); } catch (e) { console.log(e.name); }\nconsole.log(JSON.stringify(new Map([[\"a\", 1]])));",
+      "answer": "It prints undefined, then TypeError, then {}.\n\nA WeakMap deliberately exposes no size, no keys, and no iterator, so cache.size is undefined and spreading it throws TypeError: cache is not iterable. The same restrictions let the garbage collector remove entries whose keys are no longer referenced. You can only check a key you already hold with cache.has(key) or cache.get(key).\n\nJSON.stringify does not know about Map or Set internals, so a Map becomes an empty object. Convert first with Object.fromEntries(map) or [...map], and for a Set use [...set]. A WeakMap cannot be serialised at all, by design.",
+      "key_points": [
+        "WeakMap has no size, iteration, or clear",
+        "Spreading a WeakMap throws TypeError",
+        "JSON.stringify(new Map()) is \"{}\"",
+        "Convert with Object.fromEntries or spread for Map/Set"
+      ]
+    }
+  ]
+}

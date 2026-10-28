@@ -1,0 +1,106 @@
+{
+  "topic": "Strings",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Compare `slice`, `substring`, and `substr` with negative and reversed arguments.",
+      "answer": "`slice(start, end)` uses an exclusive end index and supports negative indexes from the end; if start > end it returns an empty string. `substring(start, end)` also uses an exclusive end but treats negatives as 0 and swaps the arguments when start > end, so `\"Kakade\".substring(4, 1)` is `\"aka\"`. `substr(start, length)` takes a length instead of an end and supports negative starts, but it is deprecated. Prefer `slice`.",
+      "key_points": [
+        "slice: end exclusive, negatives count from end",
+        "substring: negatives become 0, swaps arguments",
+        "substr: second arg is length, deprecated",
+        "slice(4,1) is \"\", substring(4,1) is \"aka\""
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Are JavaScript strings mutable? What happens with `let s = \"Kakade\"; s[0] = \"X\";`?",
+      "answer": "Strings are immutable. The indexed assignment does not change the string: in sloppy mode it is silently ignored, and in strict mode it throws `TypeError`. Methods like `toUpperCase`, `trim`, `replace`, and `slice` return new strings rather than modifying the original, so you must assign or chain the result.",
+      "key_points": [
+        "Strings are immutable",
+        "Index assignment is ignored or throws in strict mode",
+        "All string methods return new strings",
+        "Assign the result: `s = s.trim()`"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Turn `\"  JavaScript Strings Guide  \"` into the slug `\"javascript-strings-guide\"`.",
+      "starter_code": "const title = \"  JavaScript Strings Guide  \";\n// build the slug",
+      "answer": "const title = \"  JavaScript Strings Guide  \";\nconst slug = title.trim().toLowerCase().replaceAll(\" \", \"-\");\n\nconsole.log(slug); // \"javascript-strings-guide\"\n\n`trim()` removes the surrounding spaces, `toLowerCase()` normalizes case, and `replaceAll(\" \", \"-\")` replaces every remaining space. For production slugs, also collapse repeated separators and strip punctuation.",
+      "key_points": [
+        "trim first to remove edge whitespace",
+        "toLowerCase returns a new string",
+        "replaceAll replaces every match",
+        "Chain methods for a readable pipeline"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write `truncate(text, max)` that returns the text unchanged if it fits, otherwise cuts it to `max` characters and appends `\"…\"`.",
+      "starter_code": "function truncate(text, max) {\n  // your code\n}\n\nconsole.log(truncate(\"Kakade\", 10));\nconsole.log(truncate(\"Interview preparation\", 9));",
+      "answer": "function truncate(text, max) {\n  return text.length <= max ? text : text.slice(0, max) + \"…\";\n}\n\nconsole.log(truncate(\"Kakade\", 10));              // \"Kakade\"\nconsole.log(truncate(\"Interview preparation\", 9)); // \"Interview…\"\n\n`slice(0, max)` takes the first `max` characters without mutating the original. Decide whether the ellipsis counts toward the limit — this version adds it on top.",
+      "key_points": [
+        "length check avoids unnecessary work",
+        "slice(0, max) is safe and non-mutating",
+        "Ternary keeps it to one expression",
+        "Clarify whether the ellipsis counts in the limit"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "What do `\"Kakade\".substring(4, 1)` and `\"Kakade\".slice(4, 1)` return?",
+      "answer": "`substring(4, 1)` returns `\"aka\"` because it swaps the arguments to `(1, 4)`. `slice(4, 1)` returns `\"\"` because it does not swap and the start is after the end. This is the classic reason to prefer `slice` — its behaviour is easier to reason about.",
+      "key_points": [
+        "substring swaps start and end",
+        "slice returns empty when start > end",
+        "slice supports negative indexes",
+        "substr is deprecated"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "Why does `\"😀\".length` return 2, and why can `str.split(\"\").reverse().join(\"\")` corrupt emoji?",
+      "answer": "JavaScript strings are sequences of UTF-16 code units. An emoji outside the Basic Multilingual Plane needs a surrogate pair, so it counts as two units. `split(\"\")` splits by code unit, cutting the pair in half, and reversing then produces invalid halves. Use `[...str]` or `Array.from(str)` to iterate by code point instead.",
+      "key_points": [
+        "length counts UTF-16 code units",
+        "Emoji may be a surrogate pair",
+        "split(\"\") splits inside the pair",
+        "Use [...str] for code points"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "theory",
+      "question": "What is the difference between `replace` and `replaceAll`, and what happens with a non-global regex?",
+      "answer": "With a string pattern, `replace` changes only the first match while `replaceAll` changes every match. With a regex, `replace` uses the regex's own flags, so `/a/g` replaces all; `replaceAll` requires the regex to have the `g` flag and throws `TypeError` otherwise. Both support `$&` for the whole match, `$1` for groups, and a replacer function.",
+      "key_points": [
+        "replace: first match for a string pattern",
+        "replaceAll: every match",
+        "replaceAll with a regex requires g",
+        "$& = whole match, $1 = group",
+        "Replacer function receives the match"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "coding",
+      "question": "Write `initials(fullName)` so `\"kakade prasen\"` becomes `\"KP\"`.",
+      "starter_code": "function initials(fullName) {\n  // split, take first letters, uppercase, join\n}\n\nconsole.log(initials(\"kakade prasen\"));",
+      "answer": "function initials(fullName) {\n  return fullName\n    .split(\" \")\n    .filter(Boolean)\n    .map((part) => part[0].toUpperCase())\n    .join(\"\");\n}\n\nconsole.log(initials(\"kakade prasen\")); // \"KP\"\n\n`split(\" \")` creates the words, `filter(Boolean)` drops empty strings from repeated spaces, `map` takes the first character, and `join(\"\")` concatenates without a separator.",
+      "key_points": [
+        "split turns the name into an array",
+        "filter(Boolean) handles extra spaces",
+        "part[0] gets the first character",
+        "join(\"\") builds the final string"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "topic": "Browser APIs and Performance",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Why prefer requestAnimationFrame over setTimeout for animation? What does the callback receive, and what happens in a background tab?",
+      "answer": "requestAnimationFrame schedules the callback before the browser's next paint, so visual updates are aligned with the compositor instead of racing it. The callback receives a high-resolution timestamp that you can use to compute elapsed time, which keeps speed consistent across 60Hz, 120Hz and throttled displays. setTimeout(fn, 16) is not synced to paint: it may fire just after a frame, causing a missed frame and judder, and its delay is a minimum, not a guarantee. Nested timeouts are also clamped to about 4ms.\n\nIn a background tab, rAF callbacks are paused or heavily throttled, which saves battery and CPU; setTimeout continues to run (also throttled), so an animation timer can pile up work while invisible. Use cancelAnimationFrame(id) to stop a loop. rAF is for visual work, not for arbitrary delays or polling — use setTimeout/setInterval for those. Do not assume 60fps: compute movement from the timestamp (delta time), and avoid layout thrashing by batching DOM reads before writes.",
+      "key_points": [
+        "rAF runs before paint and is synced to the display",
+        "Callback receives a high-resolution timestamp",
+        "Background tabs pause/throttle rAF",
+        "setTimeout is not paint-synced; its delay is a minimum"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "coding",
+      "question": "Implement debounce(fn, delay) so that only the last call runs after the input stops. Include a cancel method.",
+      "starter_code": "function debounce(fn, delay = 300) {\n  // your code\n}\n\nconst search = debounce((q) => console.log(\"search\", q), 300);\nsearch(\"k\");\nsearch(\"ka\");\nsearch(\"kakade\");",
+      "answer": "function debounce(fn, delay = 300) {\n  let timer = null;\n\n  const debounced = (...args) => {\n    clearTimeout(timer);\n    timer = setTimeout(() => {\n      timer = null;\n      fn(...args);\n    }, delay);\n  };\n\n  debounced.cancel = () => {\n    clearTimeout(timer);\n    timer = null;\n  };\n\n  return debounced;\n}\n\nconst search = debounce((q) => console.log(\"search\", q), 300);\nsearch(\"k\");\nsearch(\"ka\");\nsearch(\"kakade\");\n// after 300ms of quiet: search kakade\n\nEvery call clears the previous timer and schedules a new one, so only the final call survives the quiet period. The args are captured in the closure and forwarded with spread. cancel() is important for cleanup on unmount or when a request is superseded; without it, a pending callback can fire after the component is gone. This is a trailing-edge debounce; a leading-edge variant runs immediately and then ignores calls for the delay. For search, pair it with AbortController so an in-flight request is cancelled when a newer query arrives.",
+      "key_points": [
+        "clearTimeout on every call, then set a new timer",
+        "Forward args with a closure and spread",
+        "Expose cancel() for cleanup",
+        "Trailing edge by default; leading edge is a variant"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Implement throttle(fn, wait) that runs at most once per wait interval on the leading edge. Then explain how a trailing-edge throttle differs.",
+      "starter_code": "function throttle(fn, wait = 200) {\n  // your code\n}\n\nconst onScroll = throttle(() => console.log(scrollY), 200);\nwindow.addEventListener(\"scroll\", onScroll);",
+      "answer": "function throttle(fn, wait = 200) {\n  let last = 0;\n\n  return (...args) => {\n    const now = Date.now();\n    if (now - last >= wait) {\n      last = now;\n      fn(...args);\n    }\n  };\n}\n\nconst onScroll = throttle(() => console.log(scrollY), 200);\nwindow.addEventListener(\"scroll\", onScroll);\n// at most one log every 200ms while scrolling\n\nThe first call runs immediately because last starts at 0, then calls inside the window are dropped. A trailing-edge throttle schedules one final call at the end of the interval so the last event is not lost; many production helpers support both with options { leading: true, trailing: true }. Use Date.now() or performance.now(); performance.now() is monotonic and immune to clock changes. Throttle is right for scroll, mousemove and drag, where you want steady updates. Debounce is right when only the final value matters, such as search input.",
+      "key_points": [
+        "Compare now - last with wait; update last on run",
+        "Leading edge runs immediately, then rate-limits",
+        "Trailing edge schedules the final call",
+        "Throttle = steady rate; debounce = after quiet"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "trap",
+      "question": "A developer sets threshold 0.5 on an IntersectionObserver and expects the callback on every scroll frame while an element is half visible. Why doesn't that happen, and when does the callback actually fire?",
+      "answer": "IntersectionObserver is not a scroll listener. The callback fires when the intersection state crosses a configured threshold, not continuously while the element stays above it. With threshold 0.5 it fires when the visible ratio crosses 0.5 in either direction (plus the initial observation), so scrolling while the ratio stays at 0.7 produces no new callback. It also batches entries and delivers them asynchronously, so several elements may arrive in one callback.\n\nThe callback receives (entries, observer). Each entry has isIntersecting, intersectionRatio, target, boundingClientRect and intersectionRect. If you need to know the exact ratio at every moment, read it from the entry when it fires or use a scroll handler; do not expect a stream. Common fixes: use multiple thresholds ([0, 0.25, 0.5, 1]) if you need more checkpoints, use rootMargin to preload before visibility, and call unobserve(target) once the work is done. Also remember the callback runs on observe(), even before any scrolling.",
+      "key_points": [
+        "Fires on threshold crossings, not every frame",
+        "Initial callback runs on observe()",
+        "Entries are batched and asynchronous",
+        "Use multiple thresholds or rootMargin; unobserve when done"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "This component leaks memory every time it mounts. Why, and how do you fix it?\n\nfunction mount() {\n  const data = new Array(1000000).fill(\"x\");\n  window.addEventListener(\"resize\", () => console.log(data.length));\n  setInterval(() => console.log(data.length), 1000);\n}",
+      "answer": "Each mount adds a new anonymous resize listener and a new interval, and neither is ever removed. The listener closure captures data, so the million-element array stays reachable for the lifetime of the page. The anonymous function cannot be passed to removeEventListener later, and the interval keeps firing forever, retaining its own closure and burning CPU. After ten mounts there are ten listeners, ten intervals and ten arrays.\n\nFix: keep a named handler or use AbortController. const controller = new AbortController(); window.addEventListener(\"resize\", handler, { signal: controller.signal }); const id = setInterval(tick, 1000); and on unmount call controller.abort() and clearInterval(id). Null out references to detached DOM nodes, call disconnect() on observers, and avoid unbounded Map caches — use WeakMap when keys are objects. In DevTools, a heap snapshot comparison shows the retained arrays and the listeners holding them.",
+      "key_points": [
+        "Each mount adds a listener and interval with no cleanup",
+        "Closures retain the large array",
+        "Anonymous handlers cannot be removed by reference",
+        "AbortController + clearInterval on unmount"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "theory",
+      "question": "Explain pushState, replaceState and popstate. Does pushState reload the page or fire popstate? What are the constraints on the state and URL?",
+      "answer": "history.pushState(state, title, url) adds a new history entry and changes the address bar without a network request or reload. replaceState does the same but overwrites the current entry instead of adding one, which is useful for updating a query string or correcting the URL after a redirect. The title argument is largely ignored by browsers. The state can be any structured-cloneable value, and it is stored with the entry so it can be read later as history.state.\n\npopstate fires when the user navigates back or forward to a different entry, with the associated state in event.state; it does not fire from pushState or replaceState themselves. The URL must be same-origin as the current document or the call throws SecurityError. A single-page router renders on load, calls pushState on link clicks, and listens to popstate for Back/Forward. On a hard refresh the server must return the app shell for deep links, otherwise the user gets a 404. scrollRestoration can be set to manual when restoring scroll yourself.",
+      "key_points": [
+        "pushState adds an entry; replaceState overwrites",
+        "Neither reloads the page nor fires popstate",
+        "popstate fires on Back/Forward",
+        "State must be structured-cloneable; URL must be same-origin"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "theory",
+      "question": "What do the Clipboard and Notifications APIs require in practice? How should you handle a denied permission?",
+      "answer": "Both require a secure context (HTTPS or localhost). navigator.clipboard.writeText returns a promise and normally needs a transient user activation, such as a click; readText may additionally show a permission prompt. In an insecure context navigator.clipboard is undefined, and a denied call rejects with NotAllowedError. Always wrap clipboard calls in try/catch and show a fallback message; do not call readText automatically on page load.\n\nNotification.requestPermission() returns a promise resolving to default, granted or denied, and browsers increasingly require it to be called from a user gesture. Once denied, the promise resolves denied without prompting again, so the only recovery is the browser's site settings. Check Notification.permission before constructing new Notification, and provide an in-page status instead of repeatedly asking. On mobile, notifications generally must go through a service worker registration's showNotification rather than the constructor. Never treat permission as guaranteed: the feature is optional and may be blocked by policy.",
+      "key_points": [
+        "Secure context required for both",
+        "Clipboard writes need user activation; reads may prompt",
+        "Notifications permission is default/granted/denied",
+        "A denial is permanent; provide an in-page fallback"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "coding",
+      "question": "Use IntersectionObserver to lazy-load images that have data-src instead of src. Unobserve each image after it loads and preload 200px early.",
+      "starter_code": "const images = document.querySelectorAll(\"img[data-src]\");\n\n// create the observer and observe every image",
+      "answer": "const io = new IntersectionObserver(\n  (entries, observer) => {\n    for (const entry of entries) {\n      if (!entry.isIntersecting) continue;\n      const img = entry.target;\n      img.src = img.dataset.src;\n      img.removeAttribute(\"data-src\");\n      observer.unobserve(img);\n    }\n  },\n  { root: null, rootMargin: \"200px\", threshold: 0.01 }\n);\n\ndocument.querySelectorAll(\"img[data-src]\").forEach((img) => io.observe(img));\n\nThe observer callback receives entries and the observer instance. Check isIntersecting before doing work, copy data-src into src, then unobserve so the image is not processed again. rootMargin: \"200px\" expands the root box, so loading starts before the image is visible. Keep width and height attributes in the HTML to reserve space and avoid layout shift. If the image fails, add an error handler that sets a placeholder; otherwise the broken state is permanent. Disconnect the observer when the gallery unmounts, and do not lazy-load the hero image because it delays LCP.",
+      "key_points": [
+        "Callback gets (entries, observer)",
+        "Check isIntersecting, swap data-src into src",
+        "unobserve after loading; disconnect on unmount",
+        "rootMargin preloads early; width/height prevent CLS"
+      ]
+    }
+  ]
+}

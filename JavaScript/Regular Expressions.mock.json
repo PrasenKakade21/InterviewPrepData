@@ -1,0 +1,104 @@
+{
+  "topic": "Regular Expressions",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Compare test, exec, match and matchAll. When do you get capture groups, and when do you get all matches?",
+      "answer": "test(str) returns a boolean and is the right choice for validation. exec(str) returns an array-like match object: index 0 is the full match, 1..n are capture groups, plus index, input and groups for named captures; it returns null when there is no match. With the g flag, exec resumes from lastIndex on each call, which lets you loop through matches but makes repeated exec calls stateful.\n\nString.prototype.match is overloaded: without g it behaves like exec (one match with groups and index); with g it returns an array of full matched strings only, with no groups, indices or named captures. String.prototype.matchAll requires g and returns an iterator of full match objects, so it is the tool for extracting every occurrence with groups. test and exec live on the regex; match and matchAll live on the string. For a simple yes/no check use test without g; for all structured matches use matchAll with g.",
+      "key_points": [
+        "test → boolean; exec → match object or null",
+        "With g, exec advances lastIndex",
+        "match with g loses groups and indices",
+        "matchAll needs g and yields full match objects"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "trap",
+      "question": "Why does this print true and then false for the same string?\n\nconst re = /a/g;\nconsole.log(re.test(\"Asha\"));\nconsole.log(re.test(\"Asha\"));",
+      "answer": "The g flag makes test stateful. The first call starts at lastIndex 0, finds the lowercase a at index 3, and sets lastIndex to 4. The second call starts searching at index 4, which is the end of the 4-character string, so it finds nothing, returns false, and resets lastIndex to 0. A third call would return true again. The string looks identical each time, but the regex object carries state between calls.\n\nThis is why reusing a global regex for independent checks is dangerous: a validation function or render can return different answers depending on how many times it has run before. Fixes: use a non-global regex for test (/a/), reset re.lastIndex = 0 before each independent test, or create the regex inside the function. Do not share a /g regex across requests or components. Note the uppercase A is not matched because the regex has no i flag; the only match is the final lowercase a.",
+      "key_points": [
+        "g makes test/exec advance lastIndex",
+        "LastIndex persists between calls",
+        "After a failed match, lastIndex resets to 0",
+        "Use a non-global regex for repeated validation"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Write parseLogs(lines) that turns each line like \"2026-03-01 INFO Kakade logged in\" into { date, level, message } using named groups. Return null for lines that do not match.",
+      "starter_code": "const lines = [\n  \"2026-03-01 INFO Kakade logged in\",\n  \"2026-03-02 WARN Asha session expired\",\n  \"not a log line\",\n];\n\nconst parseLogs = (lines) => {\n  // your code\n};\n\nconsole.log(parseLogs(lines));",
+      "answer": "const LOG = /^(?<date>\\d{4}-\\d{2}-\\d{2}) (?<level>\\w+) (?<message>.+)$/;\n\nconst parseLogs = (lines) =>\n  lines.map((line) => {\n    const match = LOG.exec(line);\n    return match ? { ...match.groups } : null;\n  });\n\nconsole.log(parseLogs(lines));\n// [\n//   { date: '2026-03-01', level: 'INFO', message: 'Kakade logged in' },\n//   { date: '2026-03-02', level: 'WARN', message: 'Asha session expired' },\n//   null\n// ]\n\nUse ^...$ so a partial line does not pass. Named groups keep the destructuring readable and avoid counting parentheses. groups is a null-prototype object; spreading it returns a normal object that prints and serializes predictably. exec with a non-global regex is correct here because you test one line at a time; a global LOG would advance lastIndex between lines and skip matches. If you later add the g flag, use matchAll over the whole text instead of reusing exec. message uses .+ so it can contain spaces; it stops at the end because of $.",
+      "key_points": [
+        "Anchor with ^ and $ for whole-line parsing",
+        "Named groups avoid positional counting",
+        "Do not share a /g regex with exec across independent strings",
+        "Return null when exec returns null"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write maskEmails(text) that turns every email into its first character plus \"***@\" plus the domain — kakade@dev.io becomes k***@dev.io. Use a replace callback.",
+      "starter_code": "const text = \"Contact kakade@dev.io or asha@example.com today\";\n\nconst maskEmails = (text) => {\n  // your code\n};\n\nconsole.log(maskEmails(text));",
+      "answer": "const maskEmails = (text) =>\n  text.replace(/(?<user>[\\w.+-]+)@(?<domain>[\\w.-]+\\.[a-z]{2,})/gi, (match, user, domain) =>\n    `${user[0]}***@${domain}`\n  );\n\nconsole.log(maskEmails(text));\n// Contact k***@dev.io or a***@example.com today\n\nThe replace callback receives (match, p1, p2, offset, input, groups) for numbered groups. Here the first two parameters after the match are user and domain, so user[0] is safe as long as the group is non-empty. Return the replacement string; returning the original match would leave the email unchanged. The g flag is required to replace every email, and i makes the domain case-insensitive. This is masking for display or logs, not a validation pattern: a stricter email regex would be longer and still would not prove the address exists. Never build HTML from the result without escaping.",
+      "key_points": [
+        "replace(regex, fn) calls fn per match",
+        "Callback args: match, p1, p2, offset, input, groups",
+        "g replaces all; i ignores case",
+        "Masking is not validation"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "What do these two lines print, and why?\n\n\"<b>Kakade</b>\".match(/<.+>/)[0]\n\"<b>Kakade</b>\".match(/<.+?>/)[0]",
+      "answer": "The first prints <b>Kakade</b>; the second prints <b>.\n\n+ is greedy by default, so .+ consumes as much as possible and then backtracks only enough to let the final > match. That final > is the closing tag, so the whole string is captured. Adding ? makes the quantifier lazy: .+? consumes as little as possible, so it stops at the first > it can use, which is the one ending <b>.\n\nThe same choice matters when extracting quoted values or a single attribute. Greedy is usually correct for validation, where you want the whole input consumed. Lazy is useful for pulling one field out of a larger string, but it is not an HTML parser: nested tags and > inside attributes still break both patterns. Use DOMParser or the DOM for real HTML.",
+      "key_points": [
+        "Greedy + takes the most, then backtracks",
+        "Lazy +? takes the least",
+        "Neither parses nested HTML correctly",
+        "Choose based on whether you validate or extract"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "theory",
+      "question": "Explain capturing groups, non-capturing groups, named groups and backreferences. How do replacement tokens differ from backreferences?",
+      "answer": "A capturing group (pattern) saves the sub-match and numbers it left to right; m[1] is the first group, m[2] the second. A non-capturing group (?:pattern) groups for quantifiers or alternation without adding a capture number, which keeps numbering stable. A named group (?<name>pattern) is still a capture but is also available as m.groups.name and can be referenced inside the pattern as \\k<name>. An unnamed group can be referenced inside the pattern as \\1, \\2 and so on.\n\nBackreferences are pattern syntax: they require the same text to appear again, so /(\\w+)\\s+\\1/ matches a repeated word. Replacement tokens are string syntax used by replace: $1 and $<name> insert captured text into the output, $& is the whole match, and $$ is a literal dollar. They look similar but run at different times: \\1 constrains the match, $1 builds the result. Named groups make both directions more readable and survive refactoring better than counting parentheses.",
+      "key_points": [
+        "(...) captures; (?:...) groups without capturing",
+        "(?<name>...) exposes m.groups.name",
+        "\\1 and \\k<name> are in-pattern backreferences",
+        "$1 and $<name> are replacement tokens"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why does the second line return [ '2', '4', '60' ] instead of [ '60' ]?\n\nconst prices = \"tea 20, coffee 40, cake 60\";\nprices.match(/\\d+(?!,)/g);\nprices.match(/\\d+\\b(?!,)/g);",
+      "answer": "The first pattern means digits not followed by a comma. On \"20,\" the engine first tries \\d+ = \"20\", sees the comma, and the negative lookahead fails. It then backtracks: \\d+ = \"2\" leaves \"0\" next, which is not a comma, so the lookahead succeeds and the match is \"2\". The same happens to \"40\" -> \"4\". \"60\" is followed by end-of-string, so it matches fully. Result: [ '2', '4', '60' ].\n\nThe second pattern adds \\b after \\d+. A word boundary cannot sit between \"2\" and \"0\" because both are word characters, so backtracking to \"2\" is impossible. Only \"60\" satisfies the boundary and the lookahead, giving [ '60' ]. This is a general lesson: a negative lookahead after a greedy quantifier can be defeated by backtracking; anchor the token with \\b, $, or a consuming class. Test the exact failing string, not just the happy path.",
+      "key_points": [
+        "Greedy \\d+ backtracks to satisfy a lookahead",
+        "\\d+(?!,) can match the first digit of a number",
+        "\\b prevents splitting a number",
+        "Lookaround is zero-width but still affected by backtracking"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "theory",
+      "question": "What is ReDoS? Give a vulnerable pattern, explain why it explodes, and list practical defences.",
+      "answer": "ReDoS (regular-expression denial of service) is a catastrophic slowdown caused by a pattern that explores exponentially many backtracking paths on a failing input. The classic is /^(a+)+$/ tested against a long string of a's followed by a character that cannot match, such as \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!\". The inner (a+)+ can divide the same run of a's in exponentially many ways; when the final $ fails, the engine tries every division before giving up, freezing the main thread.\n\nDefences: avoid nested quantifiers and ambiguous alternation such as (a|aa)+; make repetitions unambiguous by using a single quantifier over a well-defined class; anchor patterns; cap input length before testing (for example reject values over 254 characters); avoid running user-supplied patterns, and if you must, run them in a Worker with a timeout or use a linear-time engine. For validation, prefer simple negated classes like /^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/ over clever nested patterns. A timeout cannot interrupt a synchronous regex on the main thread, which is why the length cap and input validation matter.",
+      "key_points": [
+        "Nested/ambiguous quantifiers cause exponential backtracking",
+        "/^(a+)+$/ on a long failing input is the classic",
+        "Anchor, cap length, avoid nested quantifiers",
+        "A Worker or linear-time engine contains untrusted patterns"
+      ]
+    }
+  ]
+}

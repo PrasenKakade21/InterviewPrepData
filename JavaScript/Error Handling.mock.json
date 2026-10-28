@@ -1,0 +1,105 @@
+{
+  "topic": "Error Handling",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Explain try, catch and finally. What happens if try returns a value and finally also returns one?",
+      "answer": "try contains code that may throw. If it throws, the nearest catch receives the thrown value and runs. finally runs in every outcome: normal completion, throw, return, break, or continue. It is meant for cleanup such as closing a connection, clearing a timer, or hiding a spinner.\n\nIf both try and finally return, the finally return wins — the value from try is discarded. The same override happens with break and continue inside finally. That is why returning from finally is considered a bug: it silently hides errors and makes the function's result depend on cleanup code. Use finally only for side effects that must always happen, and let try or catch produce the return value.",
+      "key_points": [
+        "catch handles a thrown value; finally always runs",
+        "finally runs before the caller receives the return value",
+        "A return in finally overrides the try/catch result",
+        "Keep finally for cleanup, not control flow"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "When should a function throw an error, and when should it return a validation result instead? Give a rule you could apply in code review.",
+      "answer": "Throw for broken invariants and unexpected failures: a required dependency is missing, a database is unreachable, an impossible switch branch was reached, or a precondition that the caller must fix was violated. These are exceptional and should stop the current operation.\n\nReturn a result for expected, user-driven outcomes: an empty form field, a malformed email typed by a user, a search with no matches, a file of the wrong type. These are normal branches of the product, not bugs, and callers usually want to display them rather than crash. A practical rule: if the caller can reasonably continue and show the problem to the user, return data; if continuing would corrupt state or hide a bug, throw. Never use exceptions for ordinary loop control or for values you expect every other call.",
+      "key_points": [
+        "Throw for broken invariants and unexpected failures",
+        "Return results for expected user input problems",
+        "Callers should not need try/catch for normal flow",
+        "Throwing has a cost and hides intent when overused"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Write safeJsonParse(raw, fallback) that returns the parsed value, or the fallback when the JSON is invalid. It must never throw for bad input.",
+      "starter_code": "const safeJsonParse = (raw, fallback = null) => {\n  // your code\n};\n\nconsole.log(safeJsonParse('{\"id\":1}'));\nconsole.log(safeJsonParse(\"{bad\", { error: true }));",
+      "answer": "const safeJsonParse = (raw, fallback = null) => {\n  try {\n    return JSON.parse(raw);\n  } catch {\n    return fallback;\n  }\n};\n\nconsole.log(safeJsonParse('{\"id\":1}'));            // { id: 1 }\nconsole.log(safeJsonParse(\"{bad\", { error: true })); // { error: true }\n\nOptional catch binding (catch {}) is ES2019 and is appropriate when the error value is not needed. Return the fallback explicitly so the function has one predictable return type. If you need to report the failure, log it or return a result object such as { ok: false, error } instead of silently swallowing it — the point is that parsing bad input is expected, not that failures should be invisible.",
+      "key_points": [
+        "Wrap JSON.parse in try/catch",
+        "Return the fallback from catch",
+        "Optional catch binding avoids an unused variable",
+        "Do not swallow silently if the caller needs to know"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Create a ValidationError class with a field property, then write parseUser(input) that throws it when name is missing or age is not a positive number. Return a clean user object on success.",
+      "starter_code": "class ValidationError extends Error {\n  // your code\n}\n\nconst parseUser = (input) => {\n  // your code\n};\n\nconsole.log(parseUser({ name: \"Kakade\", age: 25 }));\ntry {\n  parseUser({ name: \"Kakade\", age: -1 });\n} catch (err) {\n  console.log(err.name, err.field, err.message);\n}",
+      "answer": "class ValidationError extends Error {\n  constructor(field, message) {\n    super(message);\n    this.name = \"ValidationError\";\n    this.field = field;\n  }\n}\n\nconst parseUser = (input) => {\n  if (!input || typeof input.name !== \"string\" || input.name.trim() === \"\") {\n    throw new ValidationError(\"name\", \"Name is required\");\n  }\n  if (!Number.isFinite(input.age) || input.age <= 0) {\n    throw new ValidationError(\"age\", \"Age must be a positive number\");\n  }\n  return { name: input.name.trim(), age: input.age };\n};\n\nconsole.log(parseUser({ name: \"Kakade\", age: 25 })); // { name: 'Kakade', age: 25 }\n\ntry {\n  parseUser({ name: \"Kakade\", age: -1 });\n} catch (err) {\n  console.log(err.name, err.field, err.message);\n}\n// ValidationError age Age must be a positive number\n\nThe subclass must call super(message) before using this. Setting this.name makes logs and serialisation readable; without it the name inherits \"Error\". Number.isFinite rejects NaN, Infinity, and non-numbers in one check. Throwing on the first invalid field is fine for this exercise; a form validator would usually collect all field errors and return them together.",
+      "key_points": [
+        "extends Error + super(message) + this.name",
+        "Add a field property for the caller",
+        "Number.isFinite rejects NaN and Infinity",
+        "ValidationError instanceof Error is true"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "What does this print, and why?\n\nfunction pick() {\n  try {\n    return \"try\";\n  } finally {\n    return \"finally\";\n  }\n}\nconsole.log(pick());",
+      "answer": "It prints finally.\n\nA return in finally overrides any completion from the try block, including a return value or a thrown error. The engine evaluates the try return, then runs finally before actually returning, and the finally return replaces the pending result. This is rarely intentional and is a common source of swallowed exceptions: if try throws and finally returns a value, the error disappears.\n\nThe fix is to remove the return from finally and keep cleanup there: finally { clearTimer(); } with the return in try or after the try/catch/finally. If you need to both clean up and return, store the result in a variable, clean up in finally, then return after the block.",
+      "key_points": [
+        "finally runs before the pending return completes",
+        "A return in finally overrides try/catch",
+        "It can also swallow a thrown error",
+        "Keep returns out of finally"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "Why is the rejection not caught here, and what is the output?\n\nprocess.on(\"unhandledRejection\", (e) => console.log(\"unhandled:\", e.message));\n\nasync function main() {\n  try {\n    Promise.reject(new Error(\"boom\"));\n    console.log(\"try finished\");\n  } catch (err) {\n    console.log(\"caught:\", err.message);\n  }\n}\n\nmain();",
+      "answer": "Output: try finished, then unhandled: boom.\n\nThe promise is created and rejected, but it is never awaited or returned. try/catch only sees errors that are thrown synchronously inside the block or rejections from an awaited expression. An un-awaited rejected promise escapes the try block, so the catch never runs; the rejection is reported later through the unhandledRejection event.\n\nThe fix is await Promise.reject(new Error(\"boom\")) (or return it), which makes the rejection part of the async function's flow and lets catch handle it. A related trap is calling an async function without await: the call returns a promise immediately, so the surrounding try finishes successfully while the rejection surfaces elsewhere.",
+      "key_points": [
+        "try/catch does not observe un-awaited promises",
+        "await or return the promise inside try",
+        "Unhandled rejections are reported asynchronously",
+        "Missing await is the usual cause in async code"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "coding",
+      "question": "Write retry(fn, attempts) that calls an async function up to attempts times, returns its result on success, and throws the last error if every attempt fails.",
+      "starter_code": "const retry = async (fn, attempts = 3) => {\n  // your code\n};\n\nlet calls = 0;\nconst flaky = async () => {\n  calls++;\n  if (calls < 3) throw new Error(`fail ${calls}`);\n  return \"success\";\n};\n\nretry(flaky).then(console.log);",
+      "answer": "const retry = async (fn, attempts = 3) => {\n  let lastError;\n  for (let i = 1; i <= attempts; i++) {\n    try {\n      return await fn();\n    } catch (err) {\n      lastError = err;\n    }\n  }\n  throw lastError;\n};\n\nlet calls = 0;\nconst flaky = async () => {\n  calls++;\n  if (calls < 3) throw new Error(`fail ${calls}`);\n  return \"success\";\n};\n\nretry(flaky).then(console.log); // success\n\nawait inside try is essential: without it, the rejection escapes and the catch never runs. The loop returns immediately on success; after the final failure, throw lastError preserves the original error and stack. In production you would add a delay between attempts and only retry transient errors (network, 5xx), not validation failures. attempts should be validated as a positive integer to avoid returning undefined.",
+      "key_points": [
+        "await fn() inside try so catch sees rejections",
+        "Return on the first success",
+        "Throw the last error after exhausting attempts",
+        "Retry only transient failures, usually with backoff"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Predict both lines.\n\nclass AppError extends Error {}\nconst e = new AppError(\"bad\");\nconsole.log(e.name, e instanceof AppError, e instanceof Error);\n\ntry {\n  throw \"oops\";\n} catch (err) {\n  console.log(err instanceof Error, typeof err);\n}",
+      "answer": "It prints Error true true, then false string.\n\nAppError extends Error, so instanceof works for both the subclass and Error. But the name is inherited from Error.prototype.name, which is \"Error\"; a subclass does not automatically adopt its class name. Set this.name = \"AppError\" in the constructor when you want readable logs and error reporting.\n\nThe second line throws a primitive string. catch receives exactly what was thrown, so err is a string with no message, name, or stack, and instanceof Error is false. Always throw Error instances so handlers can rely on a consistent shape.",
+      "key_points": [
+        "Subclass instanceof works through the prototype chain",
+        "name defaults to \"Error\" unless set in the constructor",
+        "throw a string gives the catcher a string",
+        "Always throw Error objects"
+      ]
+    }
+  ]
+}

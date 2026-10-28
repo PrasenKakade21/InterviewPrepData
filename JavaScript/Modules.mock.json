@@ -1,0 +1,105 @@
+{
+  "topic": "Modules",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Compare ES modules and CommonJS. What do importers actually receive in each system, and why does that matter?",
+      "answer": "ESM uses static import/export declarations, builds an asynchronous module graph, and gives importers live read-only bindings. If the exporting module changes an exported let, every importer sees the new value. ESM also supports top-level await, has top-level this === undefined, is always strict, and can be tree-shaken because imports are static.\n\nCommonJS uses synchronous require and module.exports. require returns the exported object, and destructuring copies values at require time, so a later change to a primitive export is not visible to the importer. Modules are cached by resolved filename, so repeated requires return the same object and the module body runs once. CommonJS has no top-level await and top-level this is module.exports. Use ESM for new code and browser output; expect CommonJS in older Node packages and config files.",
+      "key_points": [
+        "ESM exports live bindings; CJS copies values at require time",
+        "ESM is async/static; CJS is synchronous and cached",
+        "ESM has top-level await and strict mode by default",
+        "CJS module body runs once per resolved filename"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What changes when you add type=\"module\" to a script tag? Mention scope, timing, strict mode, and top-level this.",
+      "answer": "A classic script runs in the global scope, so its top-level var and function declarations become properties of window, and it blocks HTML parsing while it loads and executes. Its top-level this is window, and strict mode is opt-in.\n\nWith type=\"module\", the file gets its own module scope: top-level declarations are private unless exported, so two modules can reuse the same names. Modules are strict by default, deferred until parsing finishes, and evaluated once even if included multiple times. Top-level this is undefined. Imports must come from a server with a JavaScript MIME type; file:// pages are usually blocked by CORS. A module can import other modules, use import.meta, and use top-level await.",
+      "key_points": [
+        "Classic scripts share global scope; modules are file-scoped",
+        "Modules are strict and deferred by default",
+        "Module top-level this is undefined, not window",
+        "Modules evaluate once and require a proper MIME type"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Write a counter module with module-scoped state and named exports increment, reset, and getCount. Show how another file imports and uses them.",
+      "starter_code": "// counter.js\n// your exports here\n\n// app.js\nimport { increment, reset, getCount } from \"./counter.js\";\nconsole.log(increment(), increment(), getCount());\nreset();\nconsole.log(getCount());",
+      "answer": "// counter.js\nlet count = 0;\n\nexport function increment() {\n  return ++count;\n}\n\nexport function reset() {\n  count = 0;\n}\n\nexport function getCount() {\n  return count;\n}\n\n// app.js\nimport { increment, reset, getCount } from \"./counter.js\";\n\nconsole.log(increment(), increment(), getCount()); // 1 2 2\nreset();\nconsole.log(getCount()); // 0\n\ncount is not exported, so it is private to counter.js. The functions close over the same module-scoped variable, which is why increment and getCount see the same state. Module state is shared by every importer because a module is evaluated once and cached. If you exported count directly, importers would get a live but read-only binding and could not assign to it.",
+      "key_points": [
+        "Module top-level variables are private unless exported",
+        "Functions share the module's single instance of state",
+        "Export behavior (functions), not mutable bindings",
+        "A module evaluates once and is cached"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write loadGreeting() that dynamically imports ./greet.js, uses its default export if present (otherwise a named greet export), and returns the greeting for \"Kakade\". Handle a failed load with a fallback message.",
+      "starter_code": "const loadGreeting = async () => {\n  // your code\n};\n\nloadGreeting().then(console.log);",
+      "answer": "const loadGreeting = async () => {\n  try {\n    const mod = await import(\"./greet.js\");\n    const greet = mod.default ?? mod.greet;\n    return greet(\"Kakade\");\n  } catch (err) {\n    console.log(\"load failed:\", err.message);\n    return \"Hello Kakade\";\n  }\n};\n\nloadGreeting().then(console.log);\n// Hello Kakade\n\ndynamic import() returns a promise for the module namespace, so await works inside an async function. The default export is mod.default; if a module uses a named export instead, mod.greet covers it. The catch handles network failures, a bad path, or a syntax error in the loaded module. Unlike static import, this call only happens when loadGreeting runs, which is what enables lazy loading and code splitting.",
+      "key_points": [
+        "import() returns a promise for the namespace object",
+        "Default export is mod.default; named exports are properties",
+        "try/catch handles load failures",
+        "The import runs only when the function is called"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "What does this print?\n\n// counter.js\nexport let count = 0;\nexport function increment() {\n  count++;\n}\n\n// app.js\nimport { count, increment } from \"./counter.js\";\nconst snapshot = count;\nincrement();\nconsole.log(count, snapshot);",
+      "answer": "It prints 1 0.\n\nThe imported count is a live binding: the module namespace points at the exporting module's variable, so after increment() runs, reading count gives 1. snapshot is a separate const initialised with the value at that moment, so it stays 0. This is not destructuring of an object — ESM imports are references to bindings.\n\nCommonJS behaves differently: const { count } = require(\"./counter\") copies the number at require time, so the same code would print 0 0. Imported bindings are also read-only: assigning count = 5 from the importer throws a TypeError. To mutate module state, export a function that does it.",
+      "key_points": [
+        "ESM imports are live read-only bindings",
+        "A local const snapshot is copied once",
+        "CJS destructuring copies the value at require time",
+        "Mutate state through exported functions"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "What is logged, and how many times does config.cjs run?\n\n// config.cjs\nconsole.log(\"loaded\");\nmodule.exports = { mode: \"dev\" };\n\n// app.cjs\nconst a = require(\"./config.cjs\");\nconst b = require(\"./config.cjs\");\nb.mode = \"prod\";\nconsole.log(a === b, a.mode);",
+      "answer": "It logs loaded once, then true prod.\n\nrequire caches modules by resolved filename. The first call evaluates config.cjs and stores its module.exports; the second call returns the same object without running the file again. a and b are therefore the same reference (true), and mutating b.mode is visible through a. This is why singletons and shared config work in CommonJS — and why tests must clear the require cache (or use dependency injection) when they need a fresh module.\n\nDeleting require.cache[require.resolve(\"./config.cjs\")] would force the next require to re-evaluate. ESM has the same one-instance rule, but the cache is not exposed for manual clearing.",
+      "key_points": [
+        "require caches by resolved filename",
+        "The module body runs once",
+        "Repeated requires return the same object",
+        "Mutating the export is visible to all holders"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "coding",
+      "question": "Given src/math.js (named add, subtract; default multiply), write src/index.js that re-exports all three under named exports, then show an app.js import.",
+      "starter_code": "// src/index.js\n// your re-exports here\n\n// src/app.js\nimport { add, subtract, multiply } from \"./index.js\";\nconsole.log(add(2, 3), subtract(5, 2), multiply(2, 3));",
+      "answer": "// src/index.js\nexport { add, subtract, default as multiply } from \"./math.js\";\n\n// src/app.js\nimport { add, subtract, multiply } from \"./index.js\";\n\nconsole.log(add(2, 3), subtract(5, 2), multiply(2, 3));\n// 5 3 6\n\nA default export must be renamed explicitly when re-exported as a named binding: default as multiply. export * from \"./math.js\" would forward add and subtract but not the default. The barrel keeps the public path stable (./index.js) while the implementation can move. Avoid long barrel chains and cycles; they slow builds and make it harder to see where a binding comes from.",
+      "key_points": [
+        "export { name } from re-exports without a local import",
+        "default as multiply renames a default export",
+        "export * skips the default export",
+        "Barrels stabilise public paths but can hurt build performance"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why does this fail, and what error do you get?\n\n// a.js\nimport { bName } from \"./b.js\";\nexport const aName = \"A\";\nconsole.log(bName);\n\n// b.js\nimport { aName } from \"./a.js\";\nexport const bName = \"B\";\nconsole.log(aName);\n\n// entry: node a.js",
+      "answer": "It throws ReferenceError: Cannot access 'aName' before initialization.\n\nNode starts evaluating a.js, which imports b.js. b.js imports a.js, which is already in progress, so the module graph does not loop forever and b.js gets a live binding to aName. But a.js has not executed its const aName = \"A\" line yet, so the binding is still in its temporal dead zone. b.js reads it at the top level in console.log(aName), which throws.\n\nIf b.js only read aName later inside a function that runs after both modules finish, the cycle would work — the binding would be initialized by then. The same cycle is less obvious in CommonJS because require returns a partial module.exports instead of throwing, often yielding undefined. Fix cycles by extracting shared values into a third module or inverting the dependency.",
+      "key_points": [
+        "ESM handles cycles through live bindings, not by duplicating modules",
+        "Uninitialized const/let bindings are in the TDZ",
+        "Reading the binding at top level during the cycle throws ReferenceError",
+        "Reading it later inside a function can work"
+      ]
+    }
+  ]
+}

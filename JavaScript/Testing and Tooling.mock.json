@@ -1,0 +1,104 @@
+{
+  "topic": "Testing and Tooling",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is the difference between a unit test and an integration test, and what should a beginner test first?",
+      "answer": "A unit test exercises one small piece of behaviour in isolation — a pure function, a reducer, a validator — with every outside dependency (network, clock, storage, DOM) removed or replaced by a mock. It is fast, deterministic and tells you exactly which function broke. An integration test wires several real pieces together, for example a form component with its validation and submit handler, or a route handler with a real database. It catches contract and wiring mistakes that unit tests cannot see, but a failure is harder to localise.\n\nStart with unit tests for the logic that has branches and edge cases: totals, date formatting, validation rules, permission checks. Then add a few integration tests for the critical user journeys (login, checkout) and DOM tests for rendering behaviour. The usual pyramid is many unit tests, fewer integration tests, and a small number of end-to-end browser tests.",
+      "key_points": [
+        "Unit tests: one behaviour, dependencies mocked, fast and precise",
+        "Integration tests: several real pieces together, catch wiring bugs",
+        "Test logic with branches and edge cases first",
+        "Keep a small number of slow end-to-end tests for critical journeys"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Why do CI pipelines use npm ci instead of npm install, and what role does package-lock.json play?",
+      "answer": "package-lock.json records the exact resolved version and integrity hash of every package in the tree, including transitive dependencies. npm install reads package.json, may update the lockfile, and can install newer versions that still satisfy the semver ranges (for example ^3.0.0 can move from 3.1.0 to 3.4.2). That is useful locally but dangerous in CI, because a build can change without any commit to your code.\n\nnpm ci is the reproducible install: it deletes node_modules, installs exactly what the lockfile specifies, and fails if package.json and the lockfile disagree. It is also faster in a clean environment. The rule of thumb is npm install locally when you intentionally change dependencies, commit the updated lockfile, and let CI use npm ci so every run and every teammate gets the same tree.",
+      "key_points": [
+        "Lockfile pins exact versions plus integrity hashes, including transitives",
+        "npm install may update the lockfile and pick newer compatible versions",
+        "npm ci installs strictly from the lockfile and fails on mismatch",
+        "Commit the lockfile; use npm ci on CI"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Compare Vitest and Jest. How do you create a mock function in each, and when would you choose one?",
+      "answer": "Both runners use the same core API: describe groups, it/test cases, and expect with matchers such as toBe, toEqual, toHaveBeenCalledWith. Vitest runs on the Vite pipeline, so ESM, path aliases and transforms work without extra configuration, and it exposes vi.fn(), vi.spyOn() and vi.mock(). Jest is the older and more widely deployed runner; it uses jest.fn(), jest.spyOn() and jest.mock(), injects globals by default, and needs a transform for ESM or TypeScript.\n\nChoose Vitest for a new Vite project: shared config, native ESM, fast watch mode and a Jest-compatible API. Choose Jest when the project already uses it, when a plugin or team standard depends on it, or when you need its mature ecosystem. The concepts transfer directly; only the mock namespace and configuration file change.",
+      "key_points": [
+        "Same vocabulary: describe, it/test, expect, matchers",
+        "Vitest: Vite pipeline, native ESM, vi.fn/vi.spyOn/vi.mock",
+        "Jest: mature ecosystem, jest.fn/jest.spyOn/jest.mock, globals injected",
+        "Pick Vitest for new Vite apps; keep Jest when already established"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write a Vitest suite for formatPrice(cents, currency) that returns a string such as \"₹1,299.00\". Cover the normal case, zero, and an invalid input that should throw.",
+      "starter_code": "// price.js\nexport function formatPrice(cents, currency = \"INR\") {\n  // your code\n}\n\n// price.test.js\nimport { describe, it, expect } from \"vitest\";\nimport { formatPrice } from \"./price.js\";\n\ndescribe(\"formatPrice\", () => {\n  // your tests\n});",
+      "answer": "// price.js\nexport function formatPrice(cents, currency = \"INR\") {\n  if (!Number.isInteger(cents) || cents < 0) {\n    throw new RangeError(\"cents must be a non-negative integer\");\n  }\n  return new Intl.NumberFormat(\"en-IN\", {\n    style: \"currency\",\n    currency,\n  }).format(cents / 100);\n}\n\n// price.test.js\nimport { describe, it, expect } from \"vitest\";\nimport { formatPrice } from \"./price.js\";\n\ndescribe(\"formatPrice\", () => {\n  it(\"formats rupees\", () => {\n    expect(formatPrice(129900)).toBe(\"₹1,299.00\");\n  });\n\n  it(\"formats zero\", () => {\n    expect(formatPrice(0)).toBe(\"₹0.00\");\n  });\n\n  it(\"rejects negative or fractional cents\", () => {\n    expect(() => formatPrice(-1)).toThrow(RangeError);\n    expect(() => formatPrice(10.5)).toThrow(\"non-negative integer\");\n  });\n});\n\nThe key points are the guard before formatting, dividing by 100 because Intl works in major units, and testing the throw with expect(fn).toThrow rather than calling the function directly (which would fail the test before the assertion). Intl output can vary slightly by ICU version, so assert the exact string only when the runtime is pinned; otherwise assert with toContain(\"1,299\").",
+      "key_points": [
+        "Guard input before formatting and throw a specific error",
+        "Intl.NumberFormat expects major units, so divide cents by 100",
+        "Wrap throwing calls: expect(() => fn()).toThrow(...)",
+        "Exact Intl strings can vary by ICU; pin the runtime or assert loosely"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write a jsdom test for a counter: clicking #inc increments the displayed count, and clicking #reset returns it to 0. Use Vitest and plain DOM APIs.",
+      "starter_code": "// counter.js\nexport function mountCounter(root) {\n  // render #count, #inc, #reset and wire the clicks\n}\n\n// counter.test.js\nimport { beforeEach, it, expect } from \"vitest\";\nimport { mountCounter } from \"./counter.js\";\n\nbeforeEach(() => {\n  document.body.innerHTML = \"\";\n  mountCounter(document.body);\n});",
+      "answer": "// counter.js\nexport function mountCounter(root) {\n  root.innerHTML = `\n    <p id=\"count\">0</p>\n    <button id=\"inc\">+1</button>\n    <button id=\"reset\">Reset</button>\n  `;\n  let count = 0;\n  const out = root.querySelector(\"#count\");\n\n  root.querySelector(\"#inc\").addEventListener(\"click\", () => {\n    count += 1;\n    out.textContent = String(count);\n  });\n\n  root.querySelector(\"#reset\").addEventListener(\"click\", () => {\n    count = 0;\n    out.textContent = \"0\";\n  });\n}\n\n// counter.test.js\nit(\"increments and resets\", () => {\n  const inc = document.querySelector(\"#inc\");\n  inc.click();\n  inc.click();\n  expect(document.querySelector(\"#count\").textContent).toBe(\"2\");\n\n  document.querySelector(\"#reset\").click();\n  expect(document.querySelector(\"#count\").textContent).toBe(\"0\");\n});\n\nThe test clicks the real buttons and reads the rendered text, so it survives a refactor from let to a data object. Reset the DOM in beforeEach so tests do not leak nodes into each other. Avoid asserting internal variables; assert what the user sees.",
+      "key_points": [
+        "Render the smallest DOM and wire real listeners",
+        "Use element.click() to exercise the handler",
+        "Assert textContent, the user-visible result",
+        "Reset document.body in beforeEach to isolate tests"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "This test passes even when the code is wrong. Why?\n\nit(\"loads Kakade\", () => {\n  fetchUser(1).then((user) => {\n    expect(user.name).toBe(\"Asha\");\n  });\n});",
+      "answer": "The test function returns undefined, so Vitest/Jest considers the test finished as soon as the synchronous part returns. The .then callback runs later, after the test has already been marked passed; if its assertion throws, the rejection is unhandled and the suite may still be green. This is the classic false positive in async testing.\n\nThe fix is to return the promise or make the test async and await it:\n\nit(\"loads Kakade\", async () => {\n  const user = await fetchUser(1);\n  expect(user.name).toBe(\"Kakade\");\n});\n\nA second safe form is to return the chain: return fetchUser(1).then((user) => expect(user.name).toBe(\"Kakade\")). Both tell the runner to wait. For rejections use await expect(fetchUser(999)).rejects.toThrow(\"Not found\") so the rejection is observed, not left unhandled.",
+      "key_points": [
+        "A non-returned promise makes the test finish immediately",
+        "Late assertion failures can become unhandled rejections",
+        "Use async/await or return the promise chain",
+        "Assert rejections with await expect(...).rejects"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "What happens here, and which matcher should be used?\n\nconst user = { name: \"Kakade\", skills: [\"js\"] };\nexpect(user).toBe({ name: \"Kakade\", skills: [\"js\"] });\nexpect([1, 2]).toBe([1, 2]);",
+      "answer": "Both assertions fail. toBe uses Object.is, which compares references for objects and arrays. The literal on the right is a different object in memory even though its contents look identical, so the check is false. The same applies to two arrays with the same numbers.\n\nUse toEqual for a recursive value comparison:\n\nexpect(user).toEqual({ name: \"Kakade\", skills: [\"js\"] });\nexpect([1, 2]).toEqual([1, 2]);\n\ntoStrictEqual is the stricter sibling: it also checks prototypes and undefined properties, so toEqual({ a: undefined }) matches {}, while toStrictEqual({ a: undefined }) does not match {}. Use toBe only for primitives and for checking identity (expect(result).toBe(user) when the function should return the same reference).",
+      "key_points": [
+        "toBe is Object.is / reference equality",
+        "Object and array literals are always new references",
+        "toEqual deep-compares values recursively",
+        "toStrictEqual also checks prototypes and undefined keys"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "A file reports 100% coverage but still has a bug. Is coverage broken? What does it actually measure?",
+      "answer": "Coverage is not broken; it measures execution, not correctness. A line can be executed without its result being asserted, so a function that returns the wrong value or mutates state incorrectly still counts as covered. The classic example is expect(total(cart)).toBeTruthy() — every line runs, but the test would pass for 42 as well. Branches can also be covered by tests that only exercise the happy path while asserting nothing.\n\nCoverage tells you where to look: uncovered lines are definitely untested, while covered lines may be poorly tested. Use it as a gap finder, not a quality score. Pair it with assertions on exact values and edge cases (empty input, zero, invalid input), and review the uncovered lines report rather than only the percentage. Thresholds such as 80% are useful to stop regressions, but 100% is not a proof of correctness.",
+      "key_points": [
+        "Coverage measures executed code, not asserted behaviour",
+        "A covered line can still return the wrong value",
+        "Use coverage to find gaps, not as a quality score",
+        "Assert exact values and edge cases; keep a threshold to prevent regressions"
+      ]
+    }
+  ]
+}

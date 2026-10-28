@@ -1,0 +1,105 @@
+{
+  "topic": "Functional JavaScript",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What makes a function pure, and why does purity matter in a codebase? Give one pure and one impure example.",
+      "answer": "A pure function has two properties: it returns the same output for the same inputs, and it has no observable side effects. It does not read or write variables outside its scope, does not use Math.random or Date.now, does not log, fetch, mutate arguments, or touch the DOM. Its result depends only on its parameters. const add = (a, b) => a + b is pure. let total = 0; const addToTotal = (n) => (total += n) is impure because the result depends on and changes external state, so addToTotal(5) returns 5 the first time and 10 the second.\n\nPurity matters because pure functions are deterministic, trivially testable without mocks, safe to memoize, safe to run in parallel, and easy to move or reuse. It also makes bugs local: if a pure function is wrong, the inputs and body are the whole story. Real programs still need effects, so the practical pattern is a pure core that computes a result and an impure shell at the edge that logs, renders or saves it. Mutation of a local variable inside the function is fine — the rule is no observable effect outside.",
+      "key_points": [
+        "Same input → same output, no observable side effects",
+        "Impure: external state, random, clock, I/O, argument mutation",
+        "Pure functions are easy to test, memoize and reuse",
+        "Keep a pure core and push effects to the edges"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "coding",
+      "question": "Write pipe(...fns) and use it to turn \"  Hello World  \" into \"hello-world\" with three small reusable stages.",
+      "starter_code": "const pipe = (...fns) => {\n  // your code\n};\n\nconst slugify = pipe(\n  // stages\n);\n\nconsole.log(slugify(\"  Hello World  \"));",
+      "answer": "const pipe = (...fns) => (input) =>\n  fns.reduce((acc, fn) => fn(acc), input);\n\nconst trim = (s) => s.trim();\nconst lower = (s) => s.toLowerCase();\nconst slug = (s) => s.replace(/\\s+/g, \"-\");\n\nconst slugify = pipe(trim, lower, slug);\nconsole.log(slugify(\"  Hello World  \"));\n// hello-world\n\npipe applies left to right: trim removes the spaces, lower lowercases, slug replaces whitespace runs with a hyphen. Each stage is unary (one input, one output), which is what makes them composable. compose is the same reduce with reduceRight, so compose(slug, lower, trim) gives the same result. The empty-array case returns the input unchanged, which is a reasonable identity pipeline. If you need to debug, insert a tap stage: const tap = (label) => (value) => (console.log(label, value), value);.",
+      "key_points": [
+        "pipe = reduce left-to-right; compose = reduceRight",
+        "Each stage should be unary and pure",
+        "Same input flows through every function",
+        "A tap stage can log without changing the value"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "trap",
+      "question": "The spread prevents the original array from being reordered, yet this still changes an object inside it. Why?\n\nconst original = [{ n: 2 }, { n: 1 }];\nconst copy = [...original].sort((a, b) => a.n - b.n);\nconsole.log(original);\ncopy[1].n = 99;\nconsole.log(original[0].n);",
+      "answer": "The spread [...original] creates a new outer array, so sort reorders the copy, not the original. The first console.log therefore shows the original order unchanged: [ { n: 2 }, { n: 1 } ]. After sorting, copy is [ { n: 1 }, { n: 2 } ]; copy[1] is the same { n: 2 } object as original[0], because the spread copied object references, not the objects. Setting copy[1].n = 99 therefore makes the second log print 99.\n\nThis is a shallow copy. To avoid it, copy the elements too: original.map((item) => ({ ...item })).sort(...), or structuredClone(original) for a deep copy. Use toSorted() (ES2023) to avoid the outer mutation entirely, but remember it is still shallow. The same issue affects objects: { ...user } shares user.address. Functional code needs immutability at every level you intend to change, not just the top.",
+      "key_points": [
+        "Spread copies the array, not the elements",
+        "sort mutates the array it is called on",
+        "Nested objects remain shared after a shallow copy",
+        "Map-copy elements or structuredClone; toSorted avoids outer mutation"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write groupBy(keyFn) as a curried function that returns a function taking items and producing an object of arrays. Group users by role.",
+      "starter_code": "const users = [\n  { name: \"Kakade\", role: \"admin\" },\n  { name: \"Asha\", role: \"editor\" },\n  { name: \"Rohan\", role: \"admin\" },\n];\n\nconst groupBy = (keyFn) => (items) => {\n  // your code\n};\n\nconst byRole = groupBy((u) => u.role);\nconsole.log(byRole(users));",
+      "answer": "const groupBy = (keyFn) => (items) =>\n  items.reduce((acc, item) => {\n    const key = keyFn(item);\n    (acc[key] ??= []).push(item);\n    return acc;\n  }, {});\n\nconst byRole = groupBy((u) => u.role);\nconsole.log(byRole(users));\n// {\n//   admin: [ { name: 'Kakade', role: 'admin' }, { name: 'Rohan', role: 'admin' } ],\n//   editor: [ { name: 'Asha', role: 'editor' } ]\n// }\n\nThe curried shape lets you create byRole once and reuse it on any array. reduce starts with {} so an empty input returns {}, not undefined. `acc[key] ??= []` initializes the bucket on first use; push mutates only the local accumulator, which is normal inside reduce, not the input. Object keys are strings, so a numeric keyFn would collapse 1 and \"1\"; use a Map if key identity matters. For untrusted keys, Object.create(null) avoids collisions with __proto__.",
+      "key_points": [
+        "Curried: groupBy(keyFn) returns (items) => result",
+        "reduce with {} initial value",
+        "acc[key] ??= [] initializes buckets",
+        "Object keys stringify; Map preserves key type"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "What does [\"1\", \"2\", \"3\"].map(parseInt) return, and why? How do you fix it?",
+      "answer": "It returns [1, NaN, NaN].\n\nArray.prototype.map calls its callback with three arguments: (value, index, array). parseInt accepts (string, radix), so the index is passed as the radix. For index 0, radix 0 is treated as 10, so \"1\" parses as 1. For index 1, radix 1 is invalid, so parseInt returns NaN. For index 2, radix 2 is valid but \"3\" is not a binary digit, so NaN. The array argument is ignored. This is a general higher-order-function hazard: a function designed for one signature receives extra arguments it did not expect.\n\nFix: wrap it in an arrow that takes only the value — [\"1\", \"2\", \"3\"].map((s) => parseInt(s, 10)) — or use Number, which ignores extra arguments: map(Number) gives [1, 2, 3]. The same trap affects map(parseFloat) and any callback whose second parameter means something different from an index. When passing a named function to map, check its arity and meaning.",
+      "key_points": [
+        "map passes (value, index, array)",
+        "parseInt's second argument is the radix, so index becomes radix",
+        "Index 0 → radix 10; index 1 → invalid radix → NaN",
+        "Wrap it: map((s) => parseInt(s, 10)) or use Number"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "theory",
+      "question": "Explain the difference between currying and partial application, with one example of each.",
+      "answer": "Currying transforms a function of n arguments into n nested unary functions: f(a, b, c) becomes f(a)(b)(c). Every call takes exactly one argument and returns another function until the last one produces the result. const volume = (l) => (w) => (h) => l * w * h; volume(2)(3)(4) returns 24. A generic curry helper can automate this by comparing the collected argument count with fn.length, though default and rest parameters make fn.length unreliable.\n\nPartial application fixes some arguments now and returns a function that accepts the rest, without requiring one-at-a-time calls. const greet = (greeting, name, mark) => `${greeting}, ${name}${mark}`; const hi = greet.bind(null, \"Hi\"); hi(\"Kakade\", \"!\") returns \"Hi, Kakade!\". A closure does the same: const hi = (name, mark) => greet(\"Hi\", name, mark). Currying is a transformation of the function's shape; partial application is supplying a subset of arguments. Currying always implies partial application, but partial application does not require currying.",
+      "key_points": [
+        "Currying: n args → n unary calls",
+        "Partial application: fix some args, supply the rest later",
+        "Currying is a shape change; partial application is argument binding",
+        "bind and closures both do partial application"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "coding",
+      "question": "Write a generic curry(fn) that supports calling with one or more arguments at a time, and demonstrate it with a three-argument formatter.",
+      "starter_code": "function curry(fn) {\n  // your code\n}\n\nconst format = curry((greeting, name, mark) => `${greeting}, ${name}${mark}`);\nconsole.log(format(\"Hi\")(\"Kakade\")(\"!\"));\nconsole.log(format(\"Hello\", \"Asha\")(\"?\"));",
+      "answer": "function curry(fn) {\n  return function curried(...args) {\n    return args.length >= fn.length\n      ? fn(...args)\n      : (...next) => curried(...args, ...next);\n  };\n}\n\nconst format = curry((greeting, name, mark) => `${greeting}, ${name}${mark}`);\nconsole.log(format(\"Hi\")(\"Kakade\")(\"!\"));\nconsole.log(format(\"Hello\", \"Asha\")(\"?\"));\n// Hi, Kakade!\n// Hello, Asha?\n\nThe inner function accumulates arguments. When enough have arrived (args.length >= fn.length), it calls the original; otherwise it returns a function that appends the next batch and recurses. This supports both fully unary calls and grouped calls, which is more flexible than a hard-coded a => b => c chain. Limitations: fn.length stops at the first default or rest parameter, so a function like (a, b = 1, c) has length 1 and curries incorrectly. Arrow functions cannot be constructed with new, and `this` is not forwarded — use fn.apply(this, args) if the curried function is a method.",
+      "key_points": [
+        "Accumulate args, compare with fn.length",
+        "Call when enough args arrive; otherwise return a collector",
+        "Supports grouped calls, not just one at a time",
+        "fn.length ignores default/rest params; `this` needs apply"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "theory",
+      "question": "Compare declarative and imperative code. What performance cost does a chain of map/filter have, and when would you use a single reduce or a loop instead?",
+      "answer": "Imperative code describes the steps: create an accumulator, loop with an index, check a condition, push a value. Declarative code describes the result: filter the evens, map to squares. The declarative version hides index management and mutation, so intent is clearer and each stage is independently testable and reusable. It also avoids mutating the input, which prevents a large class of bugs.\n\nThe cost is that each chained method walks the array and allocates a new one. filter().map() makes two passes and two intermediate arrays; on a million-element array that is real memory traffic and GC pressure. A single reduce can filter and transform in one pass and one output array. A plain for loop can be faster still because it avoids callback overhead, though modern engines optimize array methods well. The practical rule: prefer the readable chain by default, measure before optimizing, and switch to reduce or a loop in a proven hot path or when the input is very large. Do not sacrifice clarity for an unmeasured micro-optimization, but do know why the chain costs more.",
+      "key_points": [
+        "Imperative = how; declarative = what",
+        "Each chained method allocates an intermediate array",
+        "reduce can filter and map in one pass",
+        "Measure first; loops win in hot numeric paths"
+      ]
+    }
+  ]
+}

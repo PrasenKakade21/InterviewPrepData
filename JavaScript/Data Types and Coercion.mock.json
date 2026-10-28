@@ -1,0 +1,106 @@
+{
+  "topic": "Data Types and Coercion",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What are the primitive types in JavaScript, and how does copying a primitive differ from copying an object?",
+      "answer": "The seven primitives are string, number, boolean, null, undefined, symbol, and bigint. Everything else is an object, including arrays and functions. Primitives are copied by value, so changing the copy leaves the original alone. Objects are copied by reference, so two names can point at the same object and a mutation through one is visible through the other. `typeof []` is `\"object\"` and `typeof null` is also `\"object\"`, so use `Array.isArray` and `=== null` instead.",
+      "key_points": [
+        "7 primitives + object",
+        "Primitives copy by value, objects by reference",
+        "Arrays and functions are objects",
+        "typeof null is \"object\""
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Explain the difference between `null` and `undefined`, including how each behaves in `typeof`, `==`, and `JSON.stringify`.",
+      "answer": "`undefined` means a value was never assigned — an uninitialized variable, a missing argument, or a missing property. `null` is an intentional empty value that you assign. `typeof undefined` is `\"undefined\"`; `typeof null` is `\"object\"` because of a historic bug. `null == undefined` is true but `null === undefined` is false. In JSON, `JSON.stringify` drops properties whose value is `undefined` but keeps `null`.",
+      "key_points": [
+        "undefined = missing, null = intentional empty",
+        "typeof null === \"object\"",
+        "null == undefined but not ===",
+        "JSON drops undefined, keeps null"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "A form gives you `\"42px\"` and `\"3.14kg\"`. Write the conversions that produce `42` and `3.14`, then show why `Number` is the wrong tool here.",
+      "starter_code": "const width = \"42px\";\nconst weight = \"3.14kg\";\n// convert both",
+      "answer": "const width = \"42px\";\nconst weight = \"3.14kg\";\n\nconst px = parseInt(width, 10);\nconst kg = parseFloat(weight);\n\nconsole.log(px, kg);       // 42 3.14\nconsole.log(Number(width)); // NaN\n\n`Number()` requires the whole string to be numeric, so `Number(\"42px\")` is `NaN`. `parseInt`/`parseFloat` read the leading number and stop at the first invalid character. Always pass radix `10` to `parseInt`.",
+      "key_points": [
+        "parseInt reads the leading integer",
+        "parseFloat allows a decimal",
+        "Number requires a fully numeric string",
+        "Pass radix 10 to parseInt"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Kakade clones a config with spread and then edits `copy.db.host`, but the original changes too. Write a fix that copies nested data.",
+      "starter_code": "const config = { db: { host: \"localhost\", port: 5432 } };\nconst copy = { ...config };\ncopy.db.host = \"prod.db\";\nconsole.log(config.db.host); // \"prod.db\" — wrong",
+      "answer": "Use `structuredClone` for a real deep copy:\n\nconst config = { db: { host: \"localhost\", port: 5432 } };\nconst copy = structuredClone(config);\ncopy.db.host = \"prod.db\";\n\nconsole.log(config.db.host); // \"localhost\"\nconsole.log(copy.db.host);   // \"prod.db\"\n\nSpread only copies the top level, so `copy.db` is the same nested object. `structuredClone` handles nested objects and arrays (but not functions or DOM nodes).",
+      "key_points": [
+        "Spread is a shallow copy",
+        "Nested objects stay shared",
+        "structuredClone makes a deep copy",
+        "JSON.parse(JSON.stringify()) loses dates, undefined, and functions"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "Predict the output: `console.log([1] + 1); console.log([1] - 1);`",
+      "answer": "It prints `\"11\"` then `0`. The `+` operator sees an object and a number; the array becomes the string `\"1\"`, so the result is string concatenation. The `-` operator has no string meaning, so both sides convert to numbers: `Number([1])` is `1`, and `1 - 1` is `0`.",
+      "key_points": [
+        "+ with a string-like operand concatenates",
+        "- always converts to number",
+        "Array to primitive goes through toString",
+        "Same value, different operators, different types"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "Why is `Boolean([])` true while `[] == false` is also true?",
+      "answer": "They use different algorithms. `Boolean([])` checks object identity: every object is truthy, including an empty array. Loose equality converts the array to a primitive (`\"\"`) and then compares `\"\" == false`, which converts both to numbers (`0 == 0`) and yields true. Truthiness is not the same rule as `==` coercion.",
+      "key_points": [
+        "All objects are truthy",
+        "== converts arrays via toString",
+        "[] -> \"\" -> 0",
+        "Never use == for boolean checks"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "theory",
+      "question": "List the falsy values and explain the difference between `isNaN` and `Number.isNaN`.",
+      "answer": "The falsy values are `false`, `0`, `-0`, `0n`, `\"\"`, `null`, `undefined`, and `NaN`. Everything else is truthy, including `\"0\"`, `\" \"`, `[]`, and `{}`. The global `isNaN(x)` first coerces `x` to a number, so `isNaN(\"abc\")` is true. `Number.isNaN(x)` does not coerce, so it is true only when the value is actually the number `NaN`; `Number.isNaN(\"abc\")` is false.",
+      "key_points": [
+        "8 falsy values",
+        "\"0\" and [] are truthy",
+        "isNaN coerces first",
+        "Number.isNaN checks the actual value",
+        "NaN !== NaN"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "coding",
+      "question": "Write `isEqual(a, b)` that returns true when two flat objects have the same keys and strictly equal values.",
+      "starter_code": "function isEqual(a, b) {\n  // compare keys and values\n}\n\nconsole.log(isEqual({ name: \"Kakade\" }, { name: \"Kakade\" })); // true\nconsole.log(isEqual({ name: \"Kakade\" }, { name: \"Asha\" }));   // false",
+      "answer": "function isEqual(a, b) {\n  const keysA = Object.keys(a);\n  const keysB = Object.keys(b);\n\n  if (keysA.length !== keysB.length) return false;\n\n  return keysA.every(\n    (key) => Object.hasOwn(b, key) && a[key] === b[key]\n  );\n}\n\nconsole.log(isEqual({ name: \"Kakade\" }, { name: \"Kakade\" })); // true\nconsole.log(isEqual({ name: \"Kakade\" }, { name: \"Asha\" }));   // false\n\n`===` on two objects compares references, so `{ name: \"Kakade\" } === { name: \"Kakade\" }` is false. Compare keys and primitive values instead. Nested objects would need a recursive comparison.",
+      "key_points": [
+        "Object equality is reference equality",
+        "Compare key counts first",
+        "Use Object.hasOwn for own keys",
+        "This is shallow; nested objects need recursion"
+      ]
+    }
+  ]
+}

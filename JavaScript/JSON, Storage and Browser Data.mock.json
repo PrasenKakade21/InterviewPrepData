@@ -1,0 +1,104 @@
+{
+  "topic": "JSON, Storage and Browser Data",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What does JSON.stringify do to undefined, functions, NaN, Date, Map and BigInt? Why is JSON called a lossy format?",
+      "answer": "JSON supports only objects, arrays, strings, finite numbers, booleans and null. In an object, keys whose value is undefined, a function or a symbol are dropped entirely; in an array those same values become null so positions are preserved. NaN and Infinity are not valid JSON numbers, so they are written as null. Date has a toJSON method, so it becomes an ISO string and is not revived as a Date. Map and Set have no enumerable own properties, so they serialize as {}. BigInt throws TypeError: Do not know how to serialize a BigInt, and a circular reference throws TypeError: Converting circular structure to JSON.\n\nIt is lossy because the round trip JSON.parse(JSON.stringify(value)) does not return an equivalent value: types change, keys disappear, and special numbers collapse to null. That is acceptable for sending plain API data, but wrong for cloning application state that contains Dates, Maps, Sets, undefined or class instances. Use structuredClone for a real deep clone, and an explicit serializer when the type matters.",
+      "key_points": [
+        "undefined/functions/symbols are dropped from objects, null in arrays",
+        "NaN and Infinity become null; Date becomes an ISO string",
+        "Map/Set become {}; BigInt and cycles throw TypeError",
+        "JSON round-trips only plain data, not live JavaScript types"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "trap",
+      "question": "What is stored and what is printed here?\n\nlocalStorage.setItem(\"count\", 42);\nlocalStorage.setItem(\"user\", { name: \"Kakade\" });\nconsole.log(typeof localStorage.getItem(\"count\"));\nconsole.log(localStorage.getItem(\"user\"));",
+      "answer": "It prints \"string\" and \"[object Object]\".\n\nWeb Storage stores only strings. setItem coerces its value with String(), so the number 42 becomes \"42\", and the object becomes \"[object Object]\" because that is what Object.prototype.toString returns. The name Kakade is lost; reading it back gives you a useless string, not an object. localStorage.getItem returns null for a missing key, not undefined.\n\nFix: localStorage.setItem(\"user\", JSON.stringify(user)) and const user = JSON.parse(localStorage.getItem(\"user\") ?? \"null\"). The ?? \"null\" guard matters: JSON.parse(null) returns null, but JSON.parse(undefined) throws SyntaxError. Also store numbers as strings deliberately and convert with Number() on read if arithmetic is needed.",
+      "key_points": [
+        "localStorage and sessionStorage store strings only",
+        "Objects become \"[object Object]\"; numbers become numeric strings",
+        "Serialize with JSON.stringify and parse on read",
+        "Missing keys return null; guard JSON.parse input"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Write a small storage helper with setJSON(key, value) and getJSON(key, fallback) that survives corrupt data and quota errors.",
+      "starter_code": "const storage = {\n  setJSON(key, value) {\n    // your code\n  },\n  getJSON(key, fallback = null) {\n    // your code\n  },\n};\n\nstorage.setJSON(\"user\", { name: \"Kakade\" });\nconsole.log(storage.getJSON(\"user\").name);\nconsole.log(storage.getJSON(\"missing\", { name: \"guest\" }).name);",
+      "answer": "const storage = {\n  setJSON(key, value) {\n    try {\n      localStorage.setItem(key, JSON.stringify(value));\n      return true;\n    } catch (err) {\n      console.error(\"storage write failed\", err.name);\n      return false;\n    }\n  },\n  getJSON(key, fallback = null) {\n    try {\n      const raw = localStorage.getItem(key);\n      return raw === null ? fallback : JSON.parse(raw);\n    } catch (err) {\n      console.error(\"storage read failed\", err.name);\n      return fallback;\n    }\n  },\n};\n\nstorage.setJSON(\"user\", { name: \"Kakade\" });\nconsole.log(storage.getJSON(\"user\").name);\nconsole.log(storage.getJSON(\"missing\", { name: \"guest\" }).name);\n// Kakade\n// guest\n\nBoth methods catch because localStorage can throw SecurityError (storage disabled) and QuotaExceededError, and JSON.parse throws SyntaxError on corrupt text left by another version of the app. setJSON returns a boolean so callers can degrade gracefully instead of crashing. getJSON distinguishes a missing key (null) from stored JSON null, which JSON.parse would also return. Neither method stores the raw object, so no type information is lost silently beyond what JSON already loses.",
+      "key_points": [
+        "Wrap setItem and JSON.parse in try/catch",
+        "QuotaExceededError and SecurityError are real write failures",
+        "getItem returns null for missing keys; check before parsing",
+        "Return a fallback instead of throwing to the UI"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write a reviver that turns any ISO date string under a key ending in \"At\" back into a Date, and prove the result works with getFullYear(). Show the matching JSON.",
+      "starter_code": "const text = JSON.stringify({\n  id: 7,\n  createdAt: new Date(\"2026-03-01T10:00:00Z\"),\n  name: \"Kakade\",\n});\n\nconst revive = (key, value) => {\n  // your code\n};\n\nconst obj = JSON.parse(text, revive);\nconsole.log(obj.createdAt instanceof Date, obj.createdAt.getUTCFullYear());",
+      "answer": "const text = JSON.stringify({\n  id: 7,\n  createdAt: new Date(\"2026-03-01T10:00:00Z\"),\n  name: \"Kakade\",\n});\n\nconst revive = (key, value) =>\n  key.endsWith(\"At\") && typeof value === \"string\" ? new Date(value) : value;\n\nconst obj = JSON.parse(text, revive);\nconsole.log(obj.createdAt instanceof Date, obj.createdAt.getUTCFullYear());\n// true 2026\n\ntext is {\"id\":7,\"createdAt\":\"2026-03-01T10:00:00.000Z\",\"name\":\"Kakade\"}. The reviver runs for every key, bottom-up, and its return value replaces that property. The typeof check prevents double-converting an already-parsed value and avoids treating a non-date string as a date. key.endsWith(\"At\") is a naming convention, not proof: validate with Number.isNaN(date.getTime()) before trusting it. Returning undefined from a reviver deletes the key. A replacer can perform the reverse transform, but it cannot make JSON preserve a Date type by itself.",
+      "key_points": [
+        "Reviver signature is (key, value) and runs for every key",
+        "Return the replacement value; return undefined to delete",
+        "Check typeof value === \"string\" and validate the parsed date",
+        "Revivers run bottom-up; the root key is \"\""
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "Why does this code throw, and what are two correct fixes?\n\nconst original = { id: 1, when: new Date() };\nconst copy = JSON.parse(JSON.stringify(original));\nconsole.log(copy.when.getFullYear());",
+      "answer": "It throws TypeError: copy.when.getFullYear is not a function. JSON.stringify calls Date.prototype.toJSON, so when is stored as an ISO string. JSON.parse has no type metadata, so it returns that string. The value looks similar in a console but is not a Date, and only Dates have getFullYear.\n\nFix 1: use structuredClone(original), which preserves Date, Map, Set, ArrayBuffer and cycles (but throws on functions and DOM nodes). Fix 2: revive explicitly — JSON.parse(text, (key, value) => key === \"when\" ? new Date(value) : value). Fix 3, if JSON is required: convert at the boundary with new Date(copy.when) before calling date methods, and treat the field as a string everywhere else. The same class of bug affects Map and Set, which JSON turns into {} with no warning.",
+      "key_points": [
+        "Date serializes to an ISO string, not a Date",
+        "The clone has no type information; methods disappear",
+        "structuredClone preserves Dates and Maps",
+        "Or revive with JSON.parse(text, reviver)"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "theory",
+      "question": "Explain the cookie flags HttpOnly, Secure and SameSite. Can JavaScript read an HttpOnly cookie, and which flag protects against CSRF?",
+      "answer": "HttpOnly means the cookie is only accessible to the server: document.cookie does not list it and JavaScript cannot read or modify it. It is the main defence against token theft through XSS, but it does not stop the browser from sending the cookie, so it does not stop CSRF. Secure means the cookie is only sent over HTTPS, preventing it from leaking on plain HTTP. SameSite controls cross-site sending: Strict sends only for same-site requests, Lax sends on top-level GET navigations but not cross-site POST/fetch, and None sends everywhere but requires Secure.\n\nSameSite=Lax is the usual CSRF baseline; Strict is stronger but can break links from other sites. None is needed for legitimate third-party contexts such as an embedded checkout. None of these replace server-side CSRF tokens for high-risk actions. Also remember that JavaScript cannot set HttpOnly — it must be added by the server in Set-Cookie. Reading document.cookie returns only the non-HttpOnly cookies as one semicolon-separated string.",
+      "key_points": [
+        "HttpOnly hides the cookie from JS; server sets it",
+        "Secure restricts it to HTTPS",
+        "SameSite=Lax/Strict/None controls cross-site sending",
+        "SameSite is the CSRF defence; HttpOnly is the XSS defence"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "What happens on each line, and how do you serialize this object safely?\n\nconst account = { id: 10n, name: \"Asha\" };\naccount.self = account;\nJSON.stringify(account);",
+      "answer": "The first statement is fine: a BigInt value can exist in memory. JSON.stringify(account) throws TypeError: Do not know how to serialize a BigInt before it even reaches the circular reference. BigInt is not a JSON type, and there is no automatic conversion because converting a large integer to a Number could lose precision.\n\nIf the cycle is removed, stringify still throws TypeError: Converting circular structure to JSON, naming the property that closes the loop. Safe options: convert BigInt deliberately with id: account.id.toString() (or Number(id) only if it is within the safe integer range); drop the cycle with a replacer that returns undefined for key === \"self\"; or use a WeakSet in a custom serializer to skip already-seen objects. structuredClone handles cycles but still throws DataCloneError on functions, and it does not make the value JSON-serializable. Decide the wire format explicitly rather than relying on JSON to guess.",
+      "key_points": [
+        "BigInt always throws on JSON.stringify",
+        "Circular references throw TypeError",
+        "Convert BigInt to string deliberately",
+        "A replacer or WeakSet can skip cycles, but define the wire format"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "theory",
+      "question": "Compare localStorage, sessionStorage, cookies and IndexedDB. Which would you choose for a theme preference, a session token, a per-tab draft and 20,000 records?",
+      "answer": "localStorage is a synchronous string-only map per origin, about 5 MB, persisting until cleared. sessionStorage has the same API but is scoped to one tab and dies when that tab closes. Cookies are ~4 KB, sent with every matching HTTP request, and can be HttpOnly/Secure/SameSite; they are the right place for a server-managed session because JS does not need to read them. IndexedDB is an asynchronous transactional database that stores structured-cloned values, handles large data and indexes, and does not block the main thread.\n\nChoices: theme preference → localStorage (tiny, persists, read at startup). Session token → HttpOnly Secure SameSite cookie, not localStorage, because XSS cannot read it. Per-tab draft → sessionStorage, so two tabs do not overwrite each other. 20,000 records → IndexedDB, because localStorage would require serializing everything on every write and would block the UI. Add the Cache API when the data is HTTP responses/assets for offline use. The decision axes are size, lifetime, whether the server must receive it, and whether JavaScript should be able to read it.",
+      "key_points": [
+        "localStorage: persistent, sync, strings, ~5 MB",
+        "sessionStorage: same but per tab",
+        "Cookie: small, auto-sent, HttpOnly/SameSite for sessions",
+        "IndexedDB: async, large, structured data"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "topic": "Event Loop",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "JavaScript is single-threaded. How can it handle a timer, a click and a network response at the same time without freezing?",
+      "answer": "It does not run them at the same time on the JavaScript thread. The engine runs one call stack, and slow work such as timers, network I/O and input is handled by the host environment (browser or Node). When that work completes, its callback is placed in a queue. The event loop takes one task from the queue, runs it to completion, drains the microtask queue, and then repeats.\n\nThe single thread is why a long synchronous loop blocks clicks and rendering: the loop cannot pick up the next task until the stack is empty. Concurrency comes from the host's ability to wait on many operations and queue their callbacks, not from running JavaScript in parallel. True parallelism needs a Web Worker or a Node worker thread, which have their own stacks and event loops.",
+      "key_points": [
+        "One call stack, one task at a time",
+        "Host handles timers, I/O and input",
+        "Callbacks wait in task/microtask queues",
+        "Long sync work blocks everything"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What is the difference between the task queue and the microtask queue, and why does the distinction matter?",
+      "answer": "The task queue (macrotask queue) holds timers, I/O completions and user events. The event loop runs exactly one task per turn. The microtask queue holds Promise reactions, queueMicrotask callbacks and MutationObserver callbacks, and it is drained completely after every task and after every callback during that drain — including microtasks added while draining.\n\nThe distinction matters because microtasks always run before the next task, before rendering, and before any timer. That is why a Promise chain resolves before a setTimeout(..., 0), and why an unbounded recursive microtask can starve timers and paint forever. The loop never moves on until the microtask queue is empty.",
+      "key_points": [
+        "One macrotask per turn, all microtasks after it",
+        "Microtasks include newly queued microtasks",
+        "Microtasks run before rendering and timers",
+        "Microtask starvation can freeze the page"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "trap",
+      "question": "Predict the output order.\n\nconsole.log('A');\nsetTimeout(() => {\n  console.log('B');\n  Promise.resolve().then(() => console.log('C'));\n}, 0);\nPromise.resolve().then(() => {\n  console.log('D');\n  setTimeout(() => console.log('E'), 0);\n});\nconsole.log('F');",
+      "answer": "The order is A, F, D, B, C, E.\n\nA and F are synchronous, so they run first. The script ends, and the microtask queue contains the first then callback, which prints D and schedules a new timer E. The queue is now empty, so the loop takes the first timer: it prints B and queues a microtask C. After that task, microtasks drain and C prints. Finally the timer queued from D runs and prints E.\n\nThe trap is assuming all timers run before microtasks, or that C waits for another turn. C is queued during a task, so it runs before the next task (E). This pattern — a microtask scheduled inside a task — is exactly why promise callbacks feel immediate compared with timers.",
+      "key_points": [
+        "Sync first: A, F",
+        "Microtasks before timers: D",
+        "Microtask queued inside a task runs before the next task: C before E",
+        "Timers keep FIFO order: B before E"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "trap",
+      "question": "Explain the output and why the nested microtask runs before the timer.\n\nPromise.resolve().then(() => {\n  console.log('then 1');\n  queueMicrotask(() => console.log('inner micro'));\n  setTimeout(() => console.log('timer'), 0);\n});\nPromise.resolve().then(() => console.log('then 2'));",
+      "answer": "It prints then 1, then 2, inner micro, timer.\n\nBoth then callbacks are queued before the script ends. The queue is [then 1, then 2]. Running then 1 queues inner micro at the back and schedules a timer; the queue is now [then 2, inner micro]. Running then 2 leaves [inner micro], which still drains before the event loop moves to the timer. Only when the microtask queue is empty does the timer task run.\n\nThe timer is a macrotask, so it cannot jump ahead of any microtask, even one created after it. Replacing queueMicrotask with setTimeout would put 'inner micro' behind 'timer' and change the order.",
+      "key_points": [
+        "New microtasks go to the back but still drain this turn",
+        "then 2 was already queued, so it runs before inner micro",
+        "Timers wait until the microtask queue is empty",
+        "queueMicrotask vs setTimeout changes the order"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Implement debounce(fn, wait) using timers. It should run fn once after the calls stop for wait ms, forward the latest arguments and this, and expose cancel().",
+      "starter_code": "function debounce(fn, wait) {\n  // your code\n}\n\nconst search = debounce((term) => console.log(\"search:\", term), 100);\nsearch(\"Kak\");\nsearch(\"Kakade\");",
+      "answer": "function debounce(fn, wait) {\n  let timer = null;\n\n  function debounced(...args) {\n    clearTimeout(timer);\n    timer = setTimeout(() => {\n      timer = null;\n      fn.apply(this, args);\n    }, wait);\n  }\n\n  debounced.cancel = () => {\n    clearTimeout(timer);\n    timer = null;\n  };\n\n  return debounced;\n}\n\nconst search = debounce((term) => console.log(\"search:\", term), 100);\nsearch(\"Kak\");\nsearch(\"Kakade\");\n// after ~100 ms: search: Kakade\n\nEach call cancels the pending timer and schedules a new one, so only the last call in a burst survives. The closure keeps the timer id private. fn.apply(this, args) preserves the caller's this and the latest arguments — important when the debounced function is an object method or an event handler. cancel() is useful on unmount or when a new query supersedes the old one. Debounce is for 'wait until quiet'; throttle is for 'at most once per interval'.",
+      "key_points": [
+        "clearTimeout on every call resets the window",
+        "Closure stores the timer id privately",
+        "apply preserves this and forwards latest args",
+        "cancel clears the pending call"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Write chunkedMap(items, fn, size) that processes a large array in chunks and yields to the event loop between chunks so the UI can paint.",
+      "starter_code": "async function chunkedMap(items, fn, size = 100) {\n  // your code\n}\n\nchunkedMap([1, 2, 3, 4, 5], (n) => n * 2, 2).then((r) => console.log(r));",
+      "answer": "async function chunkedMap(items, fn, size = 100) {\n  const out = [];\n\n  for (let i = 0; i < items.length; i += size) {\n    const chunk = items.slice(i, i + size);\n    out.push(...chunk.map(fn));\n    await new Promise((resolve) => setTimeout(resolve, 0));\n  }\n\n  return out;\n}\n\nchunkedMap([1, 2, 3, 4, 5], (n) => n * 2, 2).then((r) => console.log(r));\n// [ 2, 4, 6, 8, 10 ]\n\nThe loop does synchronous work for one chunk, then awaits a timer. That await returns control to the event loop, which can run input handlers and render a frame before the next chunk. Without the yield, the whole array is one long task and the page stays frozen until it finishes. The final await adds one unnecessary tick; guard it if the timing matters. For CPU-heavy per-item work, a Worker is better than chunking because chunking still uses the main thread.",
+      "key_points": [
+        "Process a slice synchronously, then yield",
+        "await setTimeout(0) lets the browser paint",
+        "Preserve order with out.push(...chunk.map(fn))",
+        "Workers beat chunking for CPU-heavy work"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "theory",
+      "question": "How does a Web Worker keep the UI responsive, and what can and cannot cross the worker boundary?",
+      "answer": "A Web Worker runs on a separate thread with its own call stack and event loop, so CPU-heavy work there does not block the main thread's tasks or rendering. You create it with new Worker(url) (or a Blob URL), send data with worker.postMessage(value), and receive results through worker.onmessage or addEventListener('message').\n\nData crosses by structured clone: plain objects, arrays, Map, Set, ArrayBuffer and typed arrays are copied. Functions, DOM nodes, class instances with methods and the window object cannot be sent. Transferable objects such as ArrayBuffer can be moved instead of copied by passing them in the transfer list, which is fast but detaches them on the sending side. The worker cannot touch the DOM, so it returns data and the main thread renders it. Terminate with worker.terminate() to free the thread.",
+      "key_points": [
+        "Separate thread and event loop — main thread stays free",
+        "postMessage + message event is the only channel",
+        "Structured clone copies data; no DOM or functions",
+        "Transferables move buffers without copying"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "theory",
+      "question": "In Node.js, what is the difference between process.nextTick, Promise microtasks and setImmediate?",
+      "answer": "process.nextTick callbacks go into the nextTick queue, which Node drains before the Promise microtask queue and between every phase of the event loop. Promise reactions (and queueMicrotask) go into the V8 microtask queue, drained right after the nextTick queue. setImmediate schedules a callback for the check phase, which runs after the poll phase — so it is a macrotask, not a microtask.\n\nInside an I/O callback, setImmediate always runs before setTimeout(..., 0): the loop is in poll, then moves to check, while timers are only revisited on the next iteration. At the top level, setTimeout vs setImmediate is nondeterministic and should not be asserted. In browsers there is no setImmediate or process.nextTick; queueMicrotask is the portable microtask API.",
+      "key_points": [
+        "nextTick queue drains before Promise microtasks",
+        "Both drain between event-loop phases",
+        "setImmediate runs in the check phase, after poll",
+        "Inside I/O: setImmediate before setTimeout; top level is nondeterministic"
+      ]
+    }
+  ]
+}

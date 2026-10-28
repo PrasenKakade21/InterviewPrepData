@@ -1,0 +1,104 @@
+{
+  "topic": "Async Await",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What exactly does the async keyword change about a function? Does it make the function run asynchronously on another thread?",
+      "answer": "async does three things. First, it makes the function always return a Promise: a returned value becomes a resolved Promise, and a returned Promise is adopted rather than nested. Second, a thrown error becomes a rejected Promise instead of a synchronous exception. Third, it allows await inside the body.\n\nIt does not create a thread and it does not move work off the main thread. The body starts running synchronously as soon as you call the function, up to the first await. Only at the await does the function suspend and return a pending Promise to its caller; the JavaScript thread continues with other work. Real parallelism requires something like a Web Worker or a Node worker thread. This is why an async function that does a long CPU loop still blocks the page.",
+      "key_points": [
+        "Always returns a Promise; return values are wrapped",
+        "Thrown errors become rejections",
+        "Body runs synchronously until the first await",
+        "No new thread — CPU work still blocks"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "When should you await calls one by one, and when should you use Promise.all? Give the latency difference for three independent 100 ms calls.",
+      "answer": "Await one by one when each call depends on the previous result, when the API enforces ordering or rate limits, or when you want to stop early after a failure. In that case the total time is the sum of the calls.\n\nUse Promise.all when the calls are independent and you need all results. Start all the Promises first, then await them together, so the waits overlap. Three independent 100 ms calls take about 300 ms sequentially and about 100 ms with Promise.all. Promise.all preserves input order in the result array even when the calls finish in a different order.\n\nThe trade-off is pressure: all requests hit the network at once. For hundreds of items, run them in limited batches or with a concurrency-limited helper rather than firing everything together.",
+      "key_points": [
+        "Sequential when calls depend on each other or must be throttled",
+        "Promise.all for independent calls — about 100 ms vs 300 ms",
+        "Result order follows the input array",
+        "Cap concurrency for large batches"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "coding",
+      "question": "Write mapLimit(items, limit, fn) that runs an async fn over every item with at most limit tasks in flight, and returns results in input order.",
+      "starter_code": "async function mapLimit(items, limit, fn) {\n  // your code\n}\n\nconst ids = [1, 2, 3, 4, 5];\nmapLimit(ids, 2, async (id) => {\n  await new Promise((r) => setTimeout(r, 20));\n  return id * 10;\n}).then((values) => console.log(values));",
+      "answer": "async function mapLimit(items, limit, fn) {\n  const results = new Array(items.length);\n  let next = 0;\n\n  async function worker() {\n    while (next < items.length) {\n      const index = next++;\n      results[index] = await fn(items[index], index);\n    }\n  }\n\n  const workers = Array.from(\n    { length: Math.min(limit, items.length) },\n    () => worker()\n  );\n  await Promise.all(workers);\n  return results;\n}\n\nconst ids = [1, 2, 3, 4, 5];\nmapLimit(ids, 2, async (id) => {\n  await new Promise((r) => setTimeout(r, 20));\n  return id * 10;\n}).then((values) => console.log(values));\n// [ 10, 20, 30, 40, 50 ]\n\nA fixed pool of workers pulls indexes from a shared counter, so at most limit fn calls are active. Writing into results[index] keeps the output aligned with the input even though completion order varies. Promise.all waits for the workers to drain. The Math.min guard handles an empty list or a limit larger than the input. If fn rejects, Promise.all rejects and remaining workers stop pulling new items — catch inside fn if you want per-item failure handling.",
+      "key_points": [
+        "Fixed worker pool sharing a next index counter",
+        "results[index] preserves input order",
+        "Math.min(limit, items.length) handles small inputs",
+        "One rejection rejects the whole pool"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "coding",
+      "question": "Write retry(fn, attempts, delay) that awaits an async fn, retries on rejection with a delay, and throws the last error after all attempts fail.",
+      "starter_code": "async function retry(fn, attempts = 3, delay = 100) {\n  // your code\n}\n\nlet calls = 0;\nretry(async () => {\n  calls++;\n  if (calls < 3) throw new Error(\"flaky \" + calls);\n  return \"Kakade\";\n}, 3, 50).then((value) => console.log(value, calls));",
+      "answer": "async function retry(fn, attempts = 3, delay = 100) {\n  let lastError;\n  for (let i = 0; i < attempts; i++) {\n    try {\n      return await fn();\n    } catch (err) {\n      lastError = err;\n      if (i < attempts - 1) {\n        await new Promise((resolve) => setTimeout(resolve, delay));\n      }\n    }\n  }\n  throw lastError;\n}\n\nlet calls = 0;\nretry(async () => {\n  calls++;\n  if (calls < 3) throw new Error(\"flaky \" + calls);\n  return \"Kakade\";\n}, 3, 50).then((value) => console.log(value, calls));\n// Kakade 3\n\nThe loop counts attempts, not retries: three attempts means at most two waits. await fn() inside try catches both a synchronous throw and a rejected Promise. Returning immediately on success skips the remaining attempts. After the final failure the loop exits and throws lastError, so the caller still sees a rejection. A production version adds exponential backoff and only retries transient errors such as 429 or 503, never a 400.",
+      "key_points": [
+        "attempts counts total tries; wait only between tries",
+        "await fn() inside try catches async rejections",
+        "Return on success to stop early",
+        "Throw lastError after the loop"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "Why does 'done' log before the user names, and why does the code not wait for the async callbacks?\n\nids.forEach(async (id) => console.log(await fetchName(id)));\nconsole.log('done');",
+      "answer": "forEach calls the callback for each item and ignores its return value. An async callback returns a Promise immediately, at its first await, and forEach never awaits or collects those Promises. So the loop finishes, 'done' prints, and the callbacks resume later when their timers or requests settle.\n\nThe same bug appears as const names = ids.map(fetchName), which produces an array of Promises rather than names. Use Promise.all(ids.map(fetchName)) to await all results, or for...of with await when the calls must run in sequence. If you only need side effects and do not care about order, Promise.all still matters for error handling: an unawaited rejection becomes an unhandled rejection.",
+      "key_points": [
+        "forEach ignores returned Promises",
+        "async callback returns at its first await",
+        "Use Promise.all(map) or for...of with await",
+        "Unawaited rejections become unhandled"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "Predict the output order.\n\nasync function task() {\n  console.log('1');\n  await null;\n  console.log('2');\n}\nconsole.log('3');\ntask();\nconsole.log('4');",
+      "answer": "It prints 3, 1, 4, 2.\n\nCalling task() runs the body synchronously until the first await, so '1' prints immediately. await null still suspends the function for one microtask, even though null is not a Promise, because the value is wrapped in Promise.resolve. Control returns to the caller, which prints '4'. After the current synchronous script finishes, the microtask queue runs and task resumes at '2'.\n\nThe common wrong answer is 3, 4, 1, 2, which assumes the whole async body is deferred. It is not: only the part after await is deferred. Replacing await null with await Promise.resolve() gives the same order, and adding a setTimeout would still run after the microtask.",
+      "key_points": [
+        "Async body runs synchronously until the first await",
+        "await on a non-Promise still yields a microtask",
+        "Caller continues before the function resumes",
+        "Microtasks run before timers"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "theory",
+      "question": "Where is top-level await allowed, and what are its costs?",
+      "answer": "Top-level await is allowed only in ES modules: a .mjs file, a package.json with type module, or a script tag with type=module. In a classic script or CommonJS file it is a SyntaxError. It pauses evaluation of that module until the awaited Promise settles; any module importing it also waits, because the import graph must finish before dependents run.\n\nThe cost is startup latency and ordering surprises: a slow database connection at the top of a shared module delays every importer. It also makes the module async, so require() cannot load it synchronously — Node throws ERR_REQUIRE_ASYNC_MODULE. Use it for genuine one-time setup, and prefer an explicit init() function when callers need control over when the work happens.",
+      "key_points": [
+        "ES modules only: .mjs, type module, type=module",
+        "Pauses the module and its importers",
+        "require() of such a module fails",
+        "Prefer explicit init for controllable startup"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "theory",
+      "question": "Compare Promise.all, Promise.allSettled and Promise.any for error handling, and explain what happens to the other Promises when one fails.",
+      "answer": "Promise.all rejects on the first rejection and discards the other results. The other Promises are not cancelled — they keep running, and their later rejections are handled by the aggregate Promise, so they do not become unhandled. You simply never see their values. Promise.allSettled never rejects: it resolves with one object per input, either { status: 'fulfilled', value } or { status: 'rejected', reason }, in input order. Promise.any resolves with the first success and rejects with an AggregateError only if every input rejects.\n\nChoose all when every result is required, allSettled when partial success is acceptable, and any when you only need one working source. None of them cancels work; cancellation requires passing an AbortSignal into fetch or the underlying task.",
+      "key_points": [
+        "all: fail-fast, discards other values",
+        "allSettled: never rejects, reports each status",
+        "any: first success, AggregateError if all fail",
+        "No cancellation — use AbortSignal"
+      ]
+    }
+  ]
+}
