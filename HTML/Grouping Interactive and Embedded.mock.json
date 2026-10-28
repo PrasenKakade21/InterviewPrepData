@@ -1,0 +1,64 @@
+{
+  "topic": "Grouping, Interactive and Embedded Content",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "When are div and span the right choice?",
+      "answer": "When there is no semantic element that fits: div for block-level layout grouping and span for inline styling fragments. They carry no meaning, so use them for structure/styling, not for content roles.",
+      "key_points": ["generic containers", "block vs inline", "no semantics"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "How do details and summary provide an accessible accordion?",
+      "answer": "details is a native disclosure widget with built-in keyboard support, and summary is its label and must be the first child. The open attribute expands it by default; no JavaScript is required.",
+      "key_points": ["native disclosure", "summary first child", "keyboard free"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What does dialog showModal() give you over a plain open attribute?",
+      "answer": "showModal() opens a modal with a backdrop, focus trapping, inert background, and Escape handling. The open attribute alone shows a non-modal dialog without those behaviors.",
+      "key_points": ["modal semantics", "focus trap + backdrop", "Escape close"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Compare canvas and inline SVG.",
+      "answer": "Canvas is a bitmap surface drawn by JavaScript, fast for many pixels but not in the accessibility tree. SVG is vector DOM: scalable, styleable with CSS, focusable, and easy to label with role/aria-label.",
+      "key_points": ["canvas = pixels", "svg = vector DOM", "a11y difference"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Build a native FAQ accordion for Kakade with two questions.",
+      "starter_code": "<details>\n  <!-- TODO -->\n</details>",
+      "answer": "<details>\n  <summary>Is HTML a programming language?</summary>\n  <p>No — it is a markup language.</p>\n</details>\n\n<details>\n  <summary>Do I need JavaScript for accordions?</summary>\n  <p>No — details and summary handle it.</p>\n</details>",
+      "key_points": ["summary first child", "no JS", "native toggle"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Create a modal settings dialog with a form that closes on submit.",
+      "starter_code": "<dialog id=\"settings\">\n  <!-- TODO -->\n</dialog>",
+      "answer": "<dialog id=\"settings\">\n  <form method=\"dialog\">\n    <h2>Kakade's settings</h2>\n    <label for=\"theme\">Theme</label>\n    <select id=\"theme\" name=\"theme\">\n      <option>Light</option>\n      <option>Dark</option>\n    </select>\n    <button value=\"save\">Save</button>\n    <button value=\"cancel\">Cancel</button>\n  </form>\n</dialog>",
+      "key_points": ["method=dialog", "labeled control", "returnValue"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is a canvas chart invisible to screen readers, and what should you add?",
+      "answer": "Canvas draws pixels into a bitmap with no DOM nodes, so nothing is exposed to the accessibility tree. Add aria-label/role, nearby text alternatives, or a data table with the same values.",
+      "key_points": ["bitmap not DOM", "no a11y tree", "alt data/table"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "What is the difference between popover and dialog?",
+      "answer": "popover is a lightweight, usually non-modal top-layer popup with light dismiss. dialog is for modal experiences with backdrop and focus trapping. Use dialog for anything that must block the page.",
+      "key_points": ["popover non-modal", "dialog modal", "focus trapping"]
+    }
+  ]
+}

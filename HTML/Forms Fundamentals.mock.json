@@ -1,0 +1,64 @@
+{
+  "topic": "Forms Fundamentals",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What does the action attribute do, and what happens if it is omitted?",
+      "answer": "action is the URL that receives the submission. If omitted, the browser submits to the current document URL. The method decides whether data goes in the query string or body.",
+      "key_points": ["target URL", "defaults to current page", "method pairs with it"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Compare GET and POST for forms.",
+      "answer": "GET puts data in the URL query string, is bookmarkable and idempotent, and fits retrieval like search. POST puts data in the body, is not bookmarkable and not idempotent, and fits creates/updates. Neither is encryption — use HTTPS.",
+      "key_points": ["URL vs body", "idempotent vs not", "HTTPS for both"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Why does a control without a name never reach the server?",
+      "answer": "Form submission serializes successful controls as name=value pairs. A control with no name has no key, so the browser excludes it. Disabled controls and unchecked checkboxes are also excluded.",
+      "key_points": ["name=value serialization", "no name excluded", "disabled excluded"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "How does a label connect to an input, and why does it matter?",
+      "answer": "label's for attribute must match the input's id (or the input is nested inside the label). This gives the control an accessible name and makes the label text clickable to focus/toggle the control.",
+      "key_points": ["for = id", "accessible name", "larger click target"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Build a labeled login form for Kakade posting to /login with email and password.",
+      "starter_code": "<form>\n  <!-- TODO -->\n</form>",
+      "answer": "<form action=\"/login\" method=\"post\">\n  <label for=\"email\">Email</label>\n  <input id=\"email\" name=\"email\" type=\"email\" autocomplete=\"email\" required />\n\n  <label for=\"password\">Password</label>\n  <input id=\"password\" name=\"password\" type=\"password\" autocomplete=\"current-password\" required />\n\n  <button type=\"submit\">Log in</button>\n</form>",
+      "key_points": ["action + method", "for/id labels", "autocomplete tokens", "submit button"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Create a file upload form for Kakade's resume that accepts PDFs only.",
+      "starter_code": "<form><!-- TODO: upload --></form>",
+      "answer": "<form action=\"/upload\" method=\"post\" enctype=\"multipart/form-data\">\n  <label for=\"resume\">Resume (PDF)</label>\n  <input id=\"resume\" name=\"resume\" type=\"file\" accept=\".pdf\" required />\n  <button type=\"submit\">Upload</button>\n</form>",
+      "key_points": ["multipart enctype", "accept filter", "label + name"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Is POST enough to protect a password?",
+      "answer": "No. POST only moves data from the URL to the request body; it is still plaintext over HTTP. Passwords require HTTPS, and server-side hashing/storage rules apply.",
+      "key_points": ["POST is not encryption", "HTTPS required", "server-side hashing"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "A form works with placeholder-only fields but fails an accessibility audit. Why?",
+      "answer": "Placeholders are hints, not labels: they vanish on input, have poor contrast, and are not reliably announced. Each field needs a real label connected by for/id.",
+      "key_points": ["placeholder is not label", "disappears on typing", "screen-reader name missing"]
+    }
+  ]
+}

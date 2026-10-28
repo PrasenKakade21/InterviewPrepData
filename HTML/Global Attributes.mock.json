@@ -1,0 +1,63 @@
+{
+  "topic": "Global Attributes",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is the difference between id and class?",
+      "answer": "id must be unique in the document and is used for fragment links, label for, aria-labelledby, and getElementById. class is reusable across many elements for CSS and JS grouping. Duplicate ids break references.",
+      "key_points": ["id unique", "class reusable", "reference targets"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Why is the style attribute discouraged for production styling?",
+      "answer": "Inline styles have very high specificity, cannot be reused, are hard to override and theme, and mix presentation into markup. Prefer classes and stylesheets; use style only for dynamic one-off values.",
+      "key_points": ["high specificity", "not reusable", "mix concerns"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What are hidden and inert, and how do they differ?",
+      "answer": "hidden removes the element from rendering and the accessibility tree. inert makes a subtree non-interactive and hidden from assistive tech while still occupying layout. inert is used to freeze background content behind a modal.",
+      "key_points": ["hidden not rendered", "inert non-interactive", "modal background"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Explain tabindex values 0, -1, and positive.",
+      "answer": "tabindex=0 puts the element in natural tab order. tabindex=-1 makes it programmatically focusable but not tab-reachable. Positive values force an explicit order and should be avoided because they override natural flow.",
+      "key_points": ["0 natural", "-1 programmatic", "positive avoid"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "What does contenteditable do, and why is it not a form control?",
+      "answer": "It makes an element editable in the browser. It has no name, no native validation, and no automatic submission, so its value must be synced to a hidden input or JS state.",
+      "key_points": ["editable", "no name/value submission", "sync manually"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Add machine-readable user data and a hidden note to Kakade's profile card.",
+      "starter_code": "<article>\n  <!-- TODO -->\n</article>",
+      "answer": "<article\n  id=\"profile-kakade\"\n  class=\"card\"\n  data-user-id=\"42\"\n  data-plan=\"pro\"\n>\n  <h2 class=\"card__title\">Kakade</h2>\n  <p class=\"card__note\" hidden>Already following</p>\n</article>",
+      "key_points": ["data-* attributes", "unique id", "hidden boolean"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why does <input required=\"false\"> still require a value?",
+      "answer": "Boolean attributes are true when present, regardless of value. required=\"false\" is still present, so the input is required. Remove the attribute entirely to disable it.",
+      "key_points": ["presence = true", "value ignored", "remove to disable"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "A hidden paragraph still shows because a stylesheet sets display:block. Why?",
+      "answer": "The hidden attribute's default styling (display:none) can be overridden by author CSS. Use a class with display:none or manage visibility explicitly; hidden is not an unoverridable guarantee.",
+      "key_points": ["CSS overrides hidden", "author styles win", "utility class"]
+    }
+  ]
+}

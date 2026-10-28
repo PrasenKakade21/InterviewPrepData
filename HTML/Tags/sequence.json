@@ -1,0 +1,19 @@
+{
+  "sequence": [
+    "Document and Metadata Tags.md",
+    "Text and Inline Tags.md",
+    "List Tags.md",
+    "Table Tags.md",
+    "Form Tags.md",
+    "Media and Embedded Tags.md",
+    "Semantic Layout Tags.md",
+    "Interactive and Scripting Tags.md",
+    "Global Attributes Reference.md",
+    "Obsolete and Deprecated Tags.md"
+  ],
+  "ignore": [
+    "sequence.json",
+    "roadmap.json",
+    "README.md"
+  ]
+}

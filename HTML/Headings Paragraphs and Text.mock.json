@@ -1,0 +1,64 @@
+{
+  "topic": "Headings, Paragraphs and Text",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "How many heading levels are there, and what is the rule for heading order?",
+      "answer": "h1 through h6. Use them to build a logical outline without skipping levels; h1 is the page topic, h2 sections, h3 subsections. Never pick a level for its default size — style with CSS.",
+      "key_points": ["h1-h6", "no skipped levels", "not for size"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What is the difference between strong/b and em/i?",
+      "answer": "strong marks importance and em marks stress emphasis, both meaningful to assistive tech. b and i apply bold/italic styling without extra semantic meaning, for brand names or alternate tone.",
+      "key_points": ["strong = importance", "em = emphasis", "b/i = style only"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "When should you use pre, blockquote, q, and hr?",
+      "answer": "pre preserves whitespace and line breaks for code or ASCII art. blockquote is a long quotation from another source, q a short inline quote with automatic quotes, and hr a thematic break between sections.",
+      "key_points": ["pre preserves whitespace", "blockquote vs q", "hr thematic break"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "What do time, data, address, and dfn represent?",
+      "answer": "time marks a machine-readable date/time via datetime, data pairs visible text with a machine value, address holds contact details for the nearest article or page, and dfn marks the defining instance of a term.",
+      "key_points": ["datetime attribute", "data value", "contact info", "term definition"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write a blog intro with an h1, a timestamp, a strong author, and an emphasized term.",
+      "starter_code": "<article>\n  <h1>TODO</h1>\n  <p>TODO</p>\n</article>",
+      "answer": "<article>\n  <h1>Why Semantic HTML Matters</h1>\n  <p>\n    Published <time datetime=\"2026-10-28\">28 Oct 2026</time> by\n    <strong>Kakade</strong>.\n  </p>\n  <p><dfn>Semantic HTML</dfn> chooses elements by <em>meaning</em>.</p>\n</article>",
+      "key_points": ["h1 topic", "time datetime", "strong author", "dfn + em"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Render a keyboard shortcut and a code snippet for Kakade using the correct inline elements.",
+      "starter_code": "<p>Run npm run dev and press Ctrl + C.</p>",
+      "answer": "<p>\n  Run <code>npm run dev</code>, then press\n  <kbd>Ctrl</kbd> + <kbd>C</kbd>.\n</p>\n<pre><code>npm run dev</code></pre>",
+      "key_points": ["code for code", "kbd for keys", "pre for blocks"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is using h4 right after h1 a problem even if it looks right?",
+      "answer": "It breaks the document outline that screen readers and search engines use to navigate. Visual size should come from CSS; heading level should reflect structural depth, so use h2 next.",
+      "key_points": ["outline broken", "screen-reader navigation", "CSS handles size"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why should you not use <br><br> or empty <p> tags for spacing?",
+      "answer": "They inject meaningless nodes and styling into the content, break responsive spacing, and are announced oddly by assistive tech. Use CSS margins or layout containers instead.",
+      "key_points": ["no layout with br", "empty p noise", "CSS spacing"]
+    }
+  ]
+}

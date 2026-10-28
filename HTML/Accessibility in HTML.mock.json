@@ -1,0 +1,64 @@
+{
+  "topic": "Accessibility in HTML",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is the first rule of ARIA, and why?",
+      "answer": "Do not use ARIA if a native HTML element already provides the semantics. Native elements expose role, state, and keyboard behavior automatically; ARIA only changes the accessibility tree and adds no behavior.",
+      "key_points": ["native first", "ARIA adds no behavior", "role/state only"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What are the rules for alt text?",
+      "answer": "Describe the purpose or information of the image. Use alt=\"\" for decorative images, describe the action for functional images in links/buttons, and repeat text for text-in-image. Never use filenames.",
+      "key_points": ["purpose not pixels", "empty for decorative", "action for controls"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "How do aria-label, aria-labelledby, and aria-describedby differ?",
+      "answer": "aria-label sets the accessible name directly. aria-labelledby references one or more element ids to build the name (and wins over aria-label). aria-describedby adds supplemental description without replacing the name.",
+      "key_points": ["label = direct name", "labelledby = referenced name", "describedby = description"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Why is aria-hidden dangerous on focusable elements?",
+      "answer": "It removes the element from the accessibility tree but not from keyboard focus, creating a ghost control that keyboard users can reach but screen readers cannot announce. Remove it from the DOM or add tabindex=-1.",
+      "key_points": ["hidden from AT only", "still focusable", "ghost control"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write an accessible icon button that closes a dialog.",
+      "starter_code": "<button>\n  <svg>...</svg>\n</button>",
+      "answer": "<button aria-label=\"Close settings\">\n  <svg aria-hidden=\"true\" width=\"16\" height=\"16\">...</svg>\n</button>",
+      "key_points": ["aria-label on button", "aria-hidden on icon", "real button element"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Associate a password field with helper text and an error message.",
+      "starter_code": "<input id=\"password\" type=\"password\" />",
+      "answer": "<label for=\"password\">Password</label>\n<input\n  id=\"password\"\n  name=\"password\"\n  type=\"password\"\n  aria-describedby=\"password-help password-error\"\n  required\n/>\n<p id=\"password-help\">Use at least 8 characters.</p>\n<p id=\"password-error\" role=\"alert\">Password is too short.</p>",
+      "key_points": ["label for", "aria-describedby multiple ids", "role=alert"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is <div role=\"button\" onclick=\"save()\">Save</div> incomplete?",
+      "answer": "A div is not focusable or keyboard-operable by default. It needs tabindex=0, Enter/Space handlers, and visible focus styles. Using a real button gives all of that for free.",
+      "key_points": ["no keyboard access", "needs role + tabindex + keys", "use button"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "What contrast and zoom requirements does WCAG set for text?",
+      "answer": "4.5:1 for normal text and 3:1 for large text under AA, with visible focus indicators, and content must remain usable at 200% zoom without blocked pinch-zoom.",
+      "key_points": ["4.5:1 normal", "3:1 large", "200% zoom"]
+    }
+  ]
+}

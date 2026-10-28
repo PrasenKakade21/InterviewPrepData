@@ -1,0 +1,63 @@
+{
+  "topic": "Entities, Encoding and Validation",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is character encoding, and why is UTF-8 the default?",
+      "answer": "Encoding maps bytes to characters. UTF-8 covers all Unicode, is backward-compatible with ASCII, and is the modern required choice. Declare it with meta charset in the first bytes of head and save the file as UTF-8.",
+      "key_points": ["bytes to characters", "all Unicode", "declare early"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "When do you need named or numeric entities?",
+      "answer": "When a character collides with HTML syntax (&, <, >), is invisible (nbsp), or is hard to type. Named entities use names (&copy;), numeric use code points (&#169; or &#xA9;).",
+      "key_points": ["reserved chars", "named vs numeric", "invisible chars"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Why is chaining &nbsp; for layout a bad idea?",
+      "answer": "It creates non-breaking spaces that prevent wrapping, break responsive layout and copy-paste, and can be announced oddly by screen readers. Use CSS margins/padding for spacing.",
+      "key_points": ["no wrapping", "responsive breakage", "CSS for spacing"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "What does the W3C validator catch that browsers do not show?",
+      "answer": "Browsers silently repair many errors, so the page looks fine while the markup is invalid. The validator reports misnested tags, duplicate ids, missing alt, invalid attribute values, and disallowed children.",
+      "key_points": ["silent browser repair", "spec violations", "a11y-related errors"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "What is the difference between quirks mode and standards mode?",
+      "answer": "The doctype selects the mode. Standards mode follows modern CSS/HTML rules; quirks mode emulates legacy behavior, changing box sizing, line heights, and table layout. Missing doctype triggers quirks mode.",
+      "key_points": ["doctype controls mode", "legacy box model", "document.compatMode"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Write a paragraph that literally displays <div> and shows ₹499 with a copyright symbol.",
+      "starter_code": "<p>Use <div> for ₹499</p>",
+      "answer": "<p>Use &lt;div&gt; for &#8377;499 &copy; 2026 Kakade</p>",
+      "key_points": ["escape angle brackets", "numeric rupee", "named copyright"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "A page shows cafÃ© instead of café. What happened and how do you fix it?",
+      "answer": "UTF-8 bytes were decoded as Windows-1252 or another legacy charset, producing mojibake. Add meta charset=UTF-8 early in head and re-save the file as UTF-8; do not patch with entities.",
+      "key_points": ["mojibake", "wrong decode", "charset + file save"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why can a missing doctype make a layout look different even with identical CSS?",
+      "answer": "Without the doctype the browser uses quirks mode, which emulates legacy box-model and layout behavior. Widths and spacing can differ from standards mode, so the same CSS renders differently.",
+      "key_points": ["quirks mode", "legacy box model", "doctype required"]
+    }
+  ]
+}

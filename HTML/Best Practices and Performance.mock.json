@@ -1,0 +1,63 @@
+{
+  "topic": "Best Practices and Performance",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "How do you avoid div soup, and why does it matter?",
+      "answer": "Start with the semantic element that describes the content and use div only when nothing fits. Div soup strips landmarks and semantic roles, makes CSS brittle, and deepens the DOM.",
+      "key_points": ["semantic element first", "div only as fallback", "a11y + maintainability"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Which image-loading choices protect CLS and LCP?",
+      "answer": "Always set width/height to reserve space (CLS). Keep the hero/LCP image eager with fetchpriority=high, lazy-load only offscreen images, and use decoding=async. Use srcset for responsive sizes.",
+      "key_points": ["dimensions", "hero eager", "lazy offscreen", "fetchpriority"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What is the correct script and preload strategy for first paint?",
+      "answer": "Defer app scripts, async independent third-party widgets, and preload only critical fonts/CSS/LCP images. Avoid synchronous scripts in head and avoid preloading non-critical assets.",
+      "key_points": ["defer app", "async widgets", "selective preload"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Why does DOM depth matter and what does a good document outline look like?",
+      "answer": "Every wrapper costs parse, style, layout, and traversal time and complicates CSS specificity. A good outline is one h1, ordered h2 sections, and h3 subsections without skipping levels.",
+      "key_points": ["fewer nodes", "CSS simplicity", "logical heading outline"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "What is progressive enhancement in HTML terms?",
+      "answer": "Build a working baseline in HTML — real links, form action/method, content — then add CSS/JS enhancements. The page remains usable if scripts fail or are blocked, with noscript for key fallbacks.",
+      "key_points": ["baseline works", "enhance on top", "noscript fallback"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Write a hero image and a below-the-fold image with correct performance attributes.",
+      "starter_code": "<img src=\"/hero.jpg\" />\n<img src=\"/thumb.jpg\" />",
+      "answer": "<img\n  src=\"/img/hero.jpg\"\n  alt=\"Kakade's desk setup\"\n  width=\"1200\"\n  height=\"675\"\n  fetchpriority=\"high\"\n/>\n\n<img\n  src=\"/img/thumbnail.jpg\"\n  alt=\"HTML notes preview\"\n  width=\"320\"\n  height=\"180\"\n  loading=\"lazy\"\n  decoding=\"async\"\n/>",
+      "key_points": ["dimensions", "hero fetchpriority", "lazy offscreen", "alt"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is preloading every script and image a performance regression?",
+      "answer": "Preload raises priority, so non-critical assets compete with the ones blocking first paint. Preload only the hero font/CSS/LCP image and let the rest load naturally.",
+      "key_points": ["priority competition", "delays LCP", "be selective"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "What breaks when navigation is built from divs with click handlers?",
+      "answer": "Crawlers get no href to follow, keyboard users cannot focus it, middle-click/new-tab is lost, and screen readers do not announce links. Use real anchors; enhance behavior on top.",
+      "key_points": ["no href", "keyboard loss", "crawlability", "use anchors"]
+    }
+  ]
+}

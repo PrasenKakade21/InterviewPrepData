@@ -1,0 +1,64 @@
+{
+  "topic": "HTML Fundamentals",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is HTML and why is it not a programming language?",
+      "answer": "HTML (HyperText Markup Language) describes the structure and meaning of content with elements like h1, p, and a. It has no variables, loops, or logic, and the browser parses it rather than compiling it, so it is a markup language, not a programming language.",
+      "key_points": ["markup language", "no logic", "parsed not compiled"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What does HTML5 add over older HTML, and what is the doctype for?",
+      "answer": "HTML5 is the living standard that added semantic elements, native audio/video, form validation, and browser APIs. The short doctype <!DOCTYPE html> puts the browser in standards mode; without it pages render in quirks mode.",
+      "key_points": ["living standard", "semantics + media + validation", "standards vs quirks mode"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Explain the difference between head and body, and name what belongs in each.",
+      "answer": "head holds metadata about the document: title, meta charset, viewport, description, stylesheet and script links. body holds the visible content: headings, paragraphs, images, forms, and semantic layout elements. Each may appear only once.",
+      "key_points": ["head = metadata", "body = visible content", "one each"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Walk through what happens from HTML source to painted pixels.",
+      "answer": "The browser parses HTML into a DOM tree and CSS into a CSSOM, combines them into a render tree, computes layout boxes and sizes, then paints pixels. Synchronous scripts can block parsing, and missing image dimensions cause layout shift.",
+      "key_points": ["DOM + CSSOM", "render tree", "layout then paint", "blocking scripts"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write a complete minimal HTML5 document for Kakade's profile page.",
+      "starter_code": "<!-- TODO: doctype, html lang, head metadata, body heading -->",
+      "answer": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n    <title>Kakade Profile</title>\n  </head>\n  <body>\n    <main>\n      <h1>Kakade</h1>\n      <p>Frontend learner</p>\n    </main>\n  </body>\n</html>",
+      "key_points": ["doctype first", "lang on html", "charset + viewport", "single head/body"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Fix this markup: a comment, a mis-cased tag, and an unclosed image.",
+      "starter_code": "<!-- profile -->\n<Section>\n  <H2>Kakade</H2>\n  <img src=\"/kakade.png\" alt=\"Kakade\">\n</Section>",
+      "answer": "<!-- profile -->\n<section>\n  <h2>Kakade</h2>\n  <img src=\"/kakade.png\" alt=\"Kakade\" width=\"120\" height=\"120\" />\n</section>",
+      "key_points": ["lowercase convention", "self-close void img", "width/height prevent shift"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why can a page with a missing doctype look different even when the CSS is identical?",
+      "answer": "Without <!DOCTYPE html> the browser falls back to quirks mode, which emulates legacy box-model and layout behavior. The same CSS can therefore produce different sizing and spacing than in standards mode.",
+      "key_points": ["quirks mode", "legacy box model", "doctype controls mode"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Is <img src=\"kakade.png\" alt=\"Kakade\" /> valid HTML5, and what does the slash mean?",
+      "answer": "It is accepted, but the trailing slash is ignored by the HTML parser because img is a void element that cannot have children. The slash is only meaningful in XHTML or foreign content such as inline SVG.",
+      "key_points": ["void element", "slash ignored in HTML5", "meaningful in SVG/XHTML"]
+    }
+  ]
+}

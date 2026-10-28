@@ -1,0 +1,64 @@
+{
+  "topic": "Images and Media",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What makes a good alt attribute, and when should it be empty?",
+      "answer": "Alt should describe the image's purpose or information, not its filename or appearance. Decorative images use alt=\"\" so screen readers skip them; functional images inside links/buttons describe the action.",
+      "key_points": ["purpose not pixels", "alt=\"\" decorative", "functional action"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Why set width and height on img, and how does CSS still make it responsive?",
+      "answer": "The attributes give the browser an aspect ratio to reserve space before loading, preventing layout shift (CLS). CSS such as width:100%; height:auto can still scale the image while the ratio is preserved.",
+      "key_points": ["reserve space", "prevent CLS", "CSS keeps ratio"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Explain srcset/sizes versus picture/source.",
+      "answer": "srcset with sizes lets the browser choose an image resolution based on viewport and device pixel ratio. picture with source is for art direction or format fallback (AVIF/WebP), and must end with a fallback img.",
+      "key_points": ["srcset = resolution", "picture = format/art direction", "fallback img required"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "What are the requirements for accessible audio and video?",
+      "answer": "Show controls, provide captions via track for speech, include transcript/fallback content, avoid autoplaying sound, and add a poster for video. Keep media keyboard operable through native controls.",
+      "key_points": ["controls", "captions/track", "no autoplay sound", "fallback"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write a responsive, lazy-loaded figure for Kakade's desk photo with a caption.",
+      "starter_code": "<figure>\n  <!-- TODO: responsive image + caption -->\n</figure>",
+      "answer": "<figure>\n  <img\n    src=\"/img/setup-800.jpg\"\n    srcset=\"/img/setup-400.jpg 400w, /img/setup-800.jpg 800w, /img/setup-1600.jpg 1600w\"\n    sizes=\"(max-width: 600px) 100vw, 50vw\"\n    alt=\"Kakade's desk with two monitors\"\n    width=\"800\"\n    height=\"450\"\n    loading=\"lazy\"\n    decoding=\"async\"\n  />\n  <figcaption>Kakade's interview prep setup, 2026.</figcaption>\n</figure>",
+      "key_points": ["srcset + sizes", "alt", "width/height", "figcaption"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Embed Kakade's talk video with captions and a fallback message.",
+      "starter_code": "<video controls>\n  <!-- TODO -->\n</video>",
+      "answer": "<video controls width=\"640\" height=\"360\" poster=\"/img/kakade-poster.jpg\">\n  <source src=\"/media/kakade-talk.mp4\" type=\"video/mp4\" />\n  <track kind=\"captions\" src=\"/media/kakade-talk.vtt\" srclang=\"en\" label=\"English\" default />\n  Your browser does not support video.\n</video>",
+      "key_points": ["controls + poster", "source type", "track captions", "fallback text"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is alt=\"kakade-photo.jpg\" considered harmful?",
+      "answer": "It repeats the filename rather than describing the content, so screen-reader users hear meaningless noise. Use a description of what the image conveys, or alt=\"\" if it is decorative.",
+      "key_points": ["filename is noise", "describe content", "decorative empty alt"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "An image causes the whole article to jump when it loads. What did the author forget?",
+      "answer": "Width and height attributes (or an aspect-ratio), so the browser could not reserve space and reflowed the page after the image loaded. Add intrinsic dimensions and let CSS scale responsively.",
+      "key_points": ["layout shift", "missing dimensions", "aspect ratio"]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "topic": "Semantic Layout",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What do semantic layout elements give you that div does not?",
+      "answer": "Meaning and landmarks. header, nav, main, aside, and footer expose roles that screen readers can jump between, and they help SEO and code readability. div carries no semantics.",
+      "key_points": ["landmarks", "assistive navigation", "SEO + maintainability"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "How many main elements should a page have, and where can main not be nested?",
+      "answer": "Exactly one visible main per page. It should not be inside header, nav, aside, or footer, because main represents the unique content of the document.",
+      "key_points": ["one visible main", "not inside header/nav/aside/footer", "unique content"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Explain section versus article with a test.",
+      "answer": "An article is self-contained and could be syndicated on its own, like a post or comment. A section is a thematic part of the page and usually has a heading. If it would make sense in an RSS feed alone, it is an article.",
+      "key_points": ["article = portable", "section = page part", "heading required for region"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Which elements create which landmarks?",
+      "answer": "header → banner, nav → navigation, main → main, aside → complementary, footer → contentinfo, search → search. A section becomes a region only when it has an accessible name.",
+      "key_points": ["banner/navigation/main", "complementary/contentinfo", "named section = region"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Build a semantic page shell for Kakade's notes with skip link, header nav, main, and footer.",
+      "starter_code": "<body>\n  <!-- TODO: page shell -->\n</body>",
+      "answer": "<body>\n  <a href=\"#main\" class=\"skip-link\">Skip to content</a>\n  <header>\n    <h1>Kakade.dev</h1>\n    <nav aria-label=\"Primary\">\n      <ul>\n        <li><a href=\"/notes\">Notes</a></li>\n        <li><a href=\"/about\">About</a></li>\n      </ul>\n    </nav>\n  </header>\n\n  <main id=\"main\">\n    <h2>Latest notes</h2>\n  </main>\n\n  <footer>\n    <p>© 2026 Kakade</p>\n  </footer>\n</body>",
+      "key_points": ["skip link", "header + nav", "one main", "footer"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Mark up a blog post with an article header, body section, aside, and article footer.",
+      "starter_code": "<article>\n  <!-- TODO -->\n</article>",
+      "answer": "<article>\n  <header>\n    <h1>Why Semantic HTML Matters</h1>\n    <p>By Kakade</p>\n  </header>\n\n  <section aria-labelledby=\"body-heading\">\n    <h2 id=\"body-heading\">The idea</h2>\n    <p>Structure is meaning.</p>\n  </section>\n\n  <aside>\n    <h2>Related</h2>\n    <a href=\"/notes\">HTML notes</a>\n  </aside>\n\n  <footer>\n    <p>Published <time datetime=\"2026-10-28\">28 Oct 2026</time></p>\n  </footer>\n</article>",
+      "key_points": ["article header", "named section", "aside", "article footer"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is a section without a heading usually the wrong choice?",
+      "answer": "An unnamed section is not exposed as a region landmark, so it adds no navigation value. Without a heading it is just a generic box — use a div unless the group has a real theme and name.",
+      "key_points": ["no region landmark", "needs accessible name", "div is honest"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Does using header and footer automatically style them?",
+      "answer": "No. Semantic elements have only default browser styles; you must style them with CSS. Semantics describe meaning, not appearance.",
+      "key_points": ["no automatic styling", "CSS still required", "meaning separate from look"]
+    }
+  ]
+}

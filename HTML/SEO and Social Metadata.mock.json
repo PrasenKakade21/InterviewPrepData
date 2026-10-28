@@ -1,0 +1,64 @@
+{
+  "topic": "SEO and Social Metadata",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What roles do title and meta description play in search results?",
+      "answer": "title is the strongest on-page signal and the default result heading; keep it unique and about 50–60 characters. meta description is a 120–160 character snippet suggestion — search engines may rewrite it from page content.",
+      "key_points": ["title = ranking + heading", "description = snippet", "unique per page"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "When and why do you use a canonical link?",
+      "answer": "When the same content is reachable at multiple URLs (params, trailing slash, http/https), canonical names the preferred URL so search engines consolidate ranking signals. It is a hint, not a redirect.",
+      "key_points": ["duplicate URLs", "consolidate signals", "hint not redirect"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What is the difference between Open Graph and Twitter card tags?",
+      "answer": "Open Graph (og:*) controls previews on Facebook, LinkedIn, Slack, and others and uses property attributes. Twitter/X uses twitter:* tags and falls back to Open Graph; twitter:card selects the layout.",
+      "key_points": ["og uses property", "twitter:* tags", "card layout"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "What is JSON-LD and what rule must it follow?",
+      "answer": "JSON-LD is structured data in a script type=application/ld+json block describing the page (Article, Person, FAQ, Product) for rich results. It must match visible page content; marking up absent ratings/FAQs is spam.",
+      "key_points": ["application/ld+json", "schema.org types", "must match visible content"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write the SEO head for Kakade's forms article with title, description, canonical, and robots.",
+      "starter_code": "<head>\n  <!-- TODO -->\n</head>",
+      "answer": "<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n  <title>HTML Forms for Interviews — Kakade.dev</title>\n  <meta name=\"description\" content=\"Labels, validation, GET vs POST, and accessible form controls.\" />\n  <link rel=\"canonical\" href=\"https://kakade.dev/html/forms\" />\n  <meta name=\"robots\" content=\"index, follow\" />\n</head>",
+      "key_points": ["unique title", "description length", "canonical", "robots"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Add Open Graph and Twitter card metadata for the same article.",
+      "starter_code": "<meta property=\"og:title\" content=\"\" />",
+      "answer": "<meta property=\"og:title\" content=\"HTML Forms for Interviews\" />\n<meta property=\"og:description\" content=\"Labels, validation, and accessible controls.\" />\n<meta property=\"og:image\" content=\"https://kakade.dev/img/forms-cover.png\" />\n<meta property=\"og:url\" content=\"https://kakade.dev/html/forms\" />\n<meta property=\"og:type\" content=\"article\" />\n\n<meta name=\"twitter:card\" content=\"summary_large_image\" />\n<meta name=\"twitter:title\" content=\"HTML Forms for Interviews\" />",
+      "key_points": ["og:title/description/image", "property not name", "twitter:card"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is JavaScript-only navigation like <div onclick=\"location.href='...'\"> bad for SEO?",
+      "answer": "Crawlers rely on real href values to discover and follow links. A div with a click handler exposes no link target, so pages may never be crawled and users lose middle-click/open-in-new-tab behavior.",
+      "key_points": ["no href", "crawl discovery", "use anchor"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Should you stuff keywords into alt text and headings?",
+      "answer": "No. Alt should describe the image and headings should structure the content. Keyword stuffing is a spam signal, degrades screen-reader experience, and search engines understand topical relevance without repetition.",
+      "key_points": ["spam signal", "a11y harm", "describe meaning"]
+    }
+  ]
+}

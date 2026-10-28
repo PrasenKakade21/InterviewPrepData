@@ -1,0 +1,63 @@
+{
+  "topic": "Scripts, Styles and Loading",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Why is CSS render-blocking, and how do you reduce its cost?",
+      "answer": "The browser will not paint until the CSSOM is ready, so stylesheets in head delay first paint. Inline the critical above-the-fold CSS and load non-critical CSS asynchronously or with a print-media swap.",
+      "key_points": ["CSSOM blocks paint", "inline critical CSS", "defer the rest"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Explain the difference between a plain script, defer, and async.",
+      "answer": "A plain script blocks parsing while downloading and executing. defer downloads in parallel and executes after parsing in document order. async downloads in parallel and executes whenever ready, so order is not guaranteed.",
+      "key_points": ["plain blocks parse", "defer ordered after parse", "async unpredictable order"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What does type=module change about execution?",
+      "answer": "Modules are deferred by default, run in strict mode, have their own scope, and support import/export. They execute in document order after parsing; they are not async unless explicitly marked.",
+      "key_points": ["deferred by default", "strict + scoped", "import/export"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "What are preload, prefetch, and preconnect for?",
+      "answer": "preload fetches a critical resource for the current page at high priority. prefetch fetches a likely future navigation at low priority. preconnect opens a connection to a third-party origin early.",
+      "key_points": ["preload = current critical", "prefetch = future page", "preconnect = origin warmup"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "What do integrity and crossorigin do on a CDN script?",
+      "answer": "integrity supplies a hash so the browser rejects a tampered or corrupted file. crossorigin is required for the integrity check and for CORS resources such as fonts; anonymous omits credentials.",
+      "key_points": ["hash verification", "CORS requirement", "anonymous mode"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Write a head that preloads a font, inlines critical CSS, defers app JS, and loads analytics async.",
+      "starter_code": "<head>\n  <!-- TODO -->\n</head>",
+      "answer": "<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n  <link rel=\"preload\" href=\"/fonts/inter.woff2\" as=\"font\" type=\"font/woff2\" crossorigin />\n  <style>\n    body { margin: 0; font-family: Inter, sans-serif; }\n  </style>\n  <link rel=\"stylesheet\" href=\"/css/app.css\" />\n  <script src=\"/js/analytics.js\" async></script>\n  <script src=\"/js/app.js\" defer></script>\n</head>",
+      "key_points": ["preload font", "inline critical CSS", "defer app", "async analytics"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why can a synchronous third-party script in head ruin first paint?",
+      "answer": "It blocks HTML parsing and often CSSOM work until it downloads and executes, which can take seconds on a slow network. Load third-party widgets async or defer them, or move them out of the critical path.",
+      "key_points": ["blocks parsing", "third-party latency", "async/defer"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why is preloading everything a performance mistake?",
+      "answer": "Preload raises priority, so preloading non-critical assets competes with the resources that actually block first paint. Preload only the hero font, critical CSS, or LCP image.",
+      "key_points": ["priority competition", "delays critical assets", "be selective"]
+    }
+  ]
+}

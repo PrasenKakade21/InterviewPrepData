@@ -1,0 +1,64 @@
+{
+  "topic": "Lists",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "When do you use ul versus ol?",
+      "answer": "ul is for an unordered set where sequence carries no meaning, like features or navigation. ol is for ordered content where position matters, like steps or rankings.",
+      "key_points": ["ul = unordered set", "ol = sequence matters", "semantics drive choice"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What do start, reversed, and type do on an ordered list?",
+      "answer": "start sets the first number, reversed counts down from the item count or start value, and type changes the marker style (1, A, a, I, i).",
+      "key_points": ["start value", "reversed countdown", "marker type"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Where must a nested list go, and what happens if you nest wrong?",
+      "answer": "A nested ul/ol must be inside an li, not a direct child of the outer list. Nesting directly under ul/ol is invalid and the browser reparses it unpredictably.",
+      "key_points": ["nested list inside li", "invalid direct nesting", "parser recovery"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "What is dl used for, and what are dt and dd?",
+      "answer": "dl is a description list for name-value pairs. dt is the term/name and dd is its description/value. It fits glossaries, metadata, and FAQ pairs — not tabular data.",
+      "key_points": ["description list", "dt term", "dd description"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Create a nested frontend list with HTML, CSS, and JavaScript under Frontend plus a Backend item.",
+      "starter_code": "<ul>\n  <!-- TODO: nested list -->\n</ul>",
+      "answer": "<ul>\n  <li>\n    Frontend\n    <ul>\n      <li>HTML</li>\n      <li>CSS</li>\n      <li>JavaScript</li>\n    </ul>\n  </li>\n  <li>Backend</li>\n</ul>",
+      "key_points": ["nested inside li", "direct li children", "valid structure"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Mark up API metadata with Status/Stable and Version/1.4.0 using the correct list type.",
+      "starter_code": "<dl>\n  <!-- TODO -->\n</dl>",
+      "answer": "<dl>\n  <dt>Status</dt>\n  <dd>Stable</dd>\n  <dt>Version</dt>\n  <dd>1.4.0</dd>\n</dl>",
+      "key_points": ["dl wrapper", "dt terms", "dd values"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is <ul><div>HTML</div></ul> a problem?",
+      "answer": "ul may only contain li children, so the browser reparses the invalid markup and list semantics break. Screen readers may no longer announce item counts. Wrap each item in li.",
+      "key_points": ["only li children", "invalid HTML", "broken list semantics"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Does list-style: none remove list semantics for screen readers?",
+      "answer": "In some browsers, notably Safari/VoiceOver, removing the marker can drop list semantics. Adding role=\"list\" to the ul restores them; the safest approach is to keep the list and style it carefully.",
+      "key_points": ["VoiceOver behavior", "role=list fix", "keep semantics"]
+    }
+  ]
+}

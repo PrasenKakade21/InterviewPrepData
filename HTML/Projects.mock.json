@@ -1,0 +1,64 @@
+{
+  "topic": "Projects",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What should every one of these projects include before styling?",
+      "answer": "A valid document shell (doctype, lang, charset, viewport, title), semantic landmarks, labeled controls, image alt and dimensions, and a logical heading outline. Verify with the validator, keyboard tabbing, and a no-CSS pass.",
+      "key_points": ["document shell", "semantics", "labels/alt", "verification"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Which elements make the profile page semantic rather than div soup?",
+      "answer": "header with h1 and nav, main with article and section, address for contact, and footer. Image has alt and dimensions; sections are named with aria-labelledby.",
+      "key_points": ["header/nav/main/article/footer", "address", "alt + dimensions"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What makes the signup form accessible?",
+      "answer": "Every control has a label tied by for/id, related fields sit in a fieldset with a legend, autocomplete tokens are set, validation attributes are native, helper text is linked with aria-describedby, and the button declares type=submit.",
+      "key_points": ["labels + fieldset", "autocomplete", "aria-describedby", "explicit button type"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Which table features does the pricing build demonstrate?",
+      "answer": "caption for the table name, thead/tbody/tfoot grouping, th with scope=col/row, colspan for the footer row, and a scroll wrapper for narrow screens without destroying table semantics.",
+      "key_points": ["caption", "row/col headers", "colspan", "scroll wrapper"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Build a media figure for Kakade's desk with srcset, caption, and lazy loading.",
+      "starter_code": "<figure>\n  <!-- TODO -->\n</figure>",
+      "answer": "<figure>\n  <img\n    src=\"/img/desk-800.jpg\"\n    srcset=\"/img/desk-400.jpg 400w, /img/desk-800.jpg 800w\"\n    sizes=\"(max-width: 600px) 100vw, 50vw\"\n    alt=\"Kakade's desk with two monitors\"\n    width=\"800\"\n    height=\"450\"\n    loading=\"lazy\"\n    decoding=\"async\"\n  />\n  <figcaption>The 2026 interview prep desk.</figcaption>\n</figure>",
+      "key_points": ["srcset/sizes", "alt", "dimensions", "figcaption"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Build a native FAQ and modal for Kakade without custom JavaScript.",
+      "starter_code": "<details><!-- TODO --></details>\n<button popovertarget=\"help\">Help</button>",
+      "answer": "<details>\n  <summary>Is HTML a programming language?</summary>\n  <p>No — it is a markup language.</p>\n</details>\n\n<button popovertarget=\"help\">Help</button>\n<div id=\"help\" popover>\n  <p>Email kakade@example.com</p>\n</div>\n\n<dialog id=\"contact\">\n  <form method=\"dialog\">\n    <p>Email kakade@example.com</p>\n    <button>Close</button>\n  </form>\n</dialog>",
+      "key_points": ["summary first", "popover target", "dialog method"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why should you test a project with CSS disabled before calling it done?",
+      "answer": "It exposes whether the document order, headings, labels, and links still make sense without visual layout. If the page is unusable without CSS, the HTML structure or semantics are incomplete.",
+      "key_points": ["structure check", "document order", "semantics over styling"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "A project looks perfect but fails keyboard testing. What are the usual causes?",
+      "answer": "Clickable divs instead of buttons/links, missing focus styles, positive tabindex, hidden focusable elements (aria-hidden), or custom widgets without keyboard handlers. Use native elements and verify tab order.",
+      "key_points": ["div click handlers", "focus visibility", "native elements"]
+    }
+  ]
+}

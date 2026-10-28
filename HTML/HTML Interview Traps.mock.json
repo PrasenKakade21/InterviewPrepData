@@ -1,0 +1,62 @@
+{
+  "topic": "HTML Interview Traps",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "trap",
+      "question": "div vs section vs article — what is the deciding factor?",
+      "answer": "Meaning. div is a generic container with no semantics. section is a named thematic part of the page, usually with a heading. article is self-contained and could be syndicated on its own.",
+      "key_points": ["div = generic", "section = named region", "article = standalone"]
+    },
+    {
+      "id": 2,
+      "type": "trap",
+      "question": "When do you use strong/em instead of b/i?",
+      "answer": "strong and em carry meaning (importance, stress emphasis) that assistive tech can convey. b and i apply visual bold/italic with no semantic weight, for brand names or alternate tone.",
+      "key_points": ["semantics vs style", "strong/em meaningful", "b/i visual"]
+    },
+    {
+      "id": 3,
+      "type": "trap",
+      "question": "Why can duplicate ids break a page even if it looks fine?",
+      "answer": "Fragment links jump to the first match, label for and aria-labelledby resolve unpredictably, and getElementById returns one element. The page renders but interactions and accessibility break.",
+      "key_points": ["first match wins", "labels/ARIA break", "id must be unique"]
+    },
+    {
+      "id": 4,
+      "type": "trap",
+      "question": "Can title replace alt on an image?",
+      "answer": "No. alt provides the accessible name and is required; title is advisory tooltip text, unreliable on touch and inconsistently announced. Use alt for meaning and title only as an optional hint.",
+      "key_points": ["alt = accessible name", "title = hint", "not a replacement"]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "Does POST make a login form secure?",
+      "answer": "No. POST moves data from the URL to the body but does not encrypt it. HTTPS is required, and credentials must be handled securely on the server.",
+      "key_points": ["POST not encryption", "HTTPS", "server-side handling"]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "label for=email but the input has name=email and no id. What happens?",
+      "answer": "The label is not associated with the input: clicking it does nothing and the accessible name is missing. for must match an id.",
+      "key_points": ["for matches id", "not name", "no accessible name"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Name the void elements and explain what makes an attribute boolean.",
+      "answer": "Void elements include img, br, hr, input, meta, link, source, track, wbr, area, base, col, embed, param. Boolean attributes are true when present regardless of value: required, disabled, checked, hidden, readonly, autofocus.",
+      "key_points": ["void = no children", "boolean = presence", "value ignored"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why is a table a bad layout tool, and what does a missing doctype change?",
+      "answer": "Tables encode data relationships; using them for layout confuses screen readers and fights responsive design — use CSS grid/flexbox. A missing doctype triggers quirks mode with legacy box sizing and layout behavior.",
+      "key_points": ["tables = data", "CSS for layout", "quirks mode"]
+    }
+  ]
+}

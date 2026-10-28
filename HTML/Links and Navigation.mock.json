@@ -1,0 +1,64 @@
+{
+  "topic": "Links and Navigation",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is the difference between absolute, root-relative, and document-relative URLs?",
+      "answer": "Absolute includes protocol and domain and is used as-is. Root-relative starts with / and resolves from the domain root. Document-relative resolves against the current page URL, so it changes meaning when the page moves.",
+      "key_points": ["absolute = full URL", "root-relative starts with /", "relative depends on page location"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Why add rel=noopener noreferrer to target=_blank links?",
+      "answer": "noopener prevents the new page from accessing window.opener and manipulating the original tab (reverse tabnabbing). noreferrer also hides the Referer header. Browsers imply noopener now, but explicit is safer and expected in review.",
+      "key_points": ["reverse tabnabbing", "window.opener", "referrer privacy"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What do the download, mailto, and tel link forms do?",
+      "answer": "download saves a same-origin URL instead of navigating, optionally renaming the file. mailto opens the mail client, and tel opens the dialer on mobile. All three are anchors, not forms.",
+      "key_points": ["download same-origin", "mailto", "tel"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "What is a skip link and why does it matter?",
+      "answer": "A skip link is a fragment link placed first in the tab order that jumps keyboard users to main content, bypassing repeated navigation. It is usually visually hidden until focused.",
+      "key_points": ["first focusable", "fragment to #main", "keyboard accessibility"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Build a header nav with a logo link, three links, and a safe external link.",
+      "starter_code": "<header>\n  <nav>\n    <!-- TODO -->\n  </nav>\n</header>",
+      "answer": "<header>\n  <a href=\"/\">\n    <img src=\"/logo.svg\" alt=\"Kakade.dev home\" width=\"120\" height=\"32\" />\n  </a>\n  <nav aria-label=\"Primary\">\n    <a href=\"/notes\">Notes</a>\n    <a href=\"/projects\">Projects</a>\n    <a href=\"https://github.com/Kakade\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub</a>\n  </nav>\n</header>",
+      "key_points": ["image link alt", "nav aria-label", "rel on blank"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Add a skip link and in-page navigation to an HTML/CSS notes page.",
+      "starter_code": "<body>\n  <nav>TODO</nav>\n  <main>TODO</main>\n</body>",
+      "answer": "<body>\n  <a href=\"#main\" class=\"skip-link\">Skip to content</a>\n  <nav>\n    <a href=\"#html\">HTML</a>\n    <a href=\"#css\">CSS</a>\n  </nav>\n  <main id=\"main\">\n    <h2 id=\"html\">HTML</h2>\n    <h2 id=\"css\">CSS</h2>\n  </main>\n</body>",
+      "key_points": ["skip link first", "fragment ids", "main id"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is <a href=\"/notes\">Click here</a> a problem, and what is the fix?",
+      "answer": "Screen-reader users often navigate by link list, where 'Click here' has no meaning out of context. Replace it with descriptive text such as 'Read Kakade's HTML notes'.",
+      "key_points": ["link list context", "descriptive text", "WCAG link purpose"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why does download=\"resume.pdf\" fail for a cross-origin URL?",
+      "answer": "The download attribute is honored only for same-origin resources. Cross-origin files ignore the suggested filename and may navigate or open in a viewer instead.",
+      "key_points": ["same-origin only", "filename ignored", "cross-origin restriction"]
+    }
+  ]
+}

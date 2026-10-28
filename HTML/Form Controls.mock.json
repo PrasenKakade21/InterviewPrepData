@@ -1,0 +1,64 @@
+{
+  "topic": "Form Controls",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "How do input types improve UX and accessibility?",
+      "answer": "The type controls the mobile keyboard, browser picker, and built-in validation — email shows @, tel shows a dial pad, date shows a calendar. Using text for everything loses those benefits.",
+      "key_points": ["mobile keyboard", "picker UI", "native validation"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "When do you use checkbox versus radio?",
+      "answer": "Checkboxes are independent booleans and allow zero or more selections. Radios are mutually exclusive within a shared name, so exactly one can be selected per group.",
+      "key_points": ["checkbox = many", "radio = one per name", "only checked submit"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What is the difference between select, datalist, progress, and meter?",
+      "answer": "select restricts the user to listed options; datalist suggests options but still allows free text. progress shows task completion, while meter shows a measurement within a known range.",
+      "key_points": ["select restricts", "datalist suggests", "progress vs meter"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Why must a button inside a form declare its type?",
+      "answer": "The default type is submit, so a Cancel button without type=button will submit the form. Always set submit, button, or reset explicitly.",
+      "key_points": ["default submit", "Cancel bug", "explicit type"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Build a radio group for experience level with a legend and a default selection.",
+      "starter_code": "<fieldset>\n  <!-- TODO -->\n</fieldset>",
+      "answer": "<fieldset>\n  <legend>Experience</legend>\n  <label><input type=\"radio\" name=\"level\" value=\"junior\" /> Junior</label>\n  <label><input type=\"radio\" name=\"level\" value=\"senior\" checked /> Senior</label>\n</fieldset>",
+      "key_points": ["fieldset + legend", "shared name", "checked default"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Create a country select grouped by region and a bio textarea.",
+      "starter_code": "<label for=\"country\">Country</label>\n<select id=\"country\"></select>",
+      "answer": "<label for=\"country\">Country</label>\n<select id=\"country\" name=\"country\">\n  <optgroup label=\"Asia\">\n    <option value=\"in\">India</option>\n    <option value=\"jp\">Japan</option>\n  </optgroup>\n  <optgroup label=\"Europe\">\n    <option value=\"de\">Germany</option>\n  </optgroup>\n</select>\n\n<label for=\"bio\">Bio</label>\n<textarea id=\"bio\" name=\"bio\" rows=\"4\" maxlength=\"500\"></textarea>",
+      "key_points": ["optgroup labels", "option values", "textarea rows/maxlength"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is type=number a poor choice for phone numbers and PINs?",
+      "answer": "Number inputs strip leading zeros, may show scientific notation, and allow spinner changes. Use type=tel or text with inputmode=numeric to keep the exact digits.",
+      "key_points": ["leading zeros lost", "not for IDs/PINs", "inputmode numeric"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "What is wrong with storing the user's role in a hidden input?",
+      "answer": "Hidden inputs are visible and editable in devtools, so users can tamper with them. Use them only for state, and always validate authorization on the server.",
+      "key_points": ["client tampering", "not security", "server-side authorization"]
+    }
+  ]
+}

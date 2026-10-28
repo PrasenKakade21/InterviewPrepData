@@ -1,0 +1,64 @@
+{
+  "topic": "Document Structure and Metadata",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What belongs in head versus body, and how many of each can a document have?",
+      "answer": "head holds metadata: title, charset, viewport, description, stylesheet and script links, base. body holds all visible content. A valid document has exactly one head and one body inside the html root.",
+      "key_points": ["head = metadata", "body = visible", "one each"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Why must meta charset appear early in the head?",
+      "answer": "The browser needs the encoding before it decodes the rest of the bytes. Charset must be declared within the first 1024 bytes, otherwise characters such as ₹ or é may render as mojibake.",
+      "key_points": ["decode before render", "first 1024 bytes", "UTF-8"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What does the viewport meta tag do, and which values hurt accessibility?",
+      "answer": "It tells mobile browsers to use the device width and initial scale instead of a virtual desktop width. user-scalable=no or maximum-scale=1 block pinch-zoom and should be avoided.",
+      "key_points": ["device-width", "initial-scale=1", "no zoom blocking"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "List four link rel values and what each does.",
+      "answer": "stylesheet loads CSS, icon sets the favicon, canonical names the preferred URL for SEO, and preload fetches a critical resource early. Other examples include alternate and manifest.",
+      "key_points": ["stylesheet", "icon", "canonical", "preload"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write a head for Kakade's blog with UTF-8, responsive viewport, title, description, canonical URL, and stylesheet.",
+      "starter_code": "<head>\n  <!-- TODO: metadata -->\n</head>",
+      "answer": "<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n  <title>Kakade — HTML Notes</title>\n  <meta name=\"description\" content=\"Beginner-friendly HTML interview notes.\" />\n  <link rel=\"canonical\" href=\"https://kakade.dev/html\" />\n  <link rel=\"stylesheet\" href=\"/css/style.css\" />\n</head>",
+      "key_points": ["charset first", "viewport", "title + description", "canonical + stylesheet"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Use base to make every relative link on Kakade's page resolve to https://kakade.dev/.",
+      "starter_code": "<head>\n  <!-- TODO: default URL -->\n</head>\n<body><a href=\"notes\">Notes</a></body>",
+      "answer": "<head>\n  <base href=\"https://kakade.dev/\" />\n</head>\n<body>\n  <a href=\"notes\">Notes</a>\n</body>",
+      "key_points": ["base href", "relative resolution", "applies page-wide"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "A page shows â‚¹499 instead of ₹499. What is the most likely cause?",
+      "answer": "A missing or late meta charset declaration, so the browser decoded UTF-8 bytes with a legacy encoding. Add <meta charset=\"UTF-8\" /> as the first element in head and save the file as UTF-8.",
+      "key_points": ["mojibake", "missing charset", "save as UTF-8"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why is <meta name=\"viewport\" content=\"width=device-width, user-scalable=no\"> a problem?",
+      "answer": "It disables pinch-zoom, which prevents low-vision users from enlarging content and fails WCAG expectations. Use width=device-width, initial-scale=1 and let users zoom.",
+      "key_points": ["zoom disabled", "accessibility failure", "keep user scaling"]
+    }
+  ]
+}

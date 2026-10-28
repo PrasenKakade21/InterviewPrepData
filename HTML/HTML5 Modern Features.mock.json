@@ -1,0 +1,63 @@
+{
+  "topic": "HTML5 Modern Features",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "How do data-* attributes work on the JavaScript side?",
+      "answer": "data-* values are readable via element.dataset with kebab-case converted to camelCase, e.g. data-user-id becomes dataset.userId. Values are always strings, so parse numbers, and never store secrets because HTML is public.",
+      "key_points": ["dataset camelCase", "strings only", "not for secrets"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What is special about template content?",
+      "answer": "template markup is parsed but inert: it is not rendered, and its images/scripts do not load. Access it via template.content, a DocumentFragment, and clone with cloneNode(true) before inserting.",
+      "key_points": ["inert", "assets not loaded", "clone content"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "When should you use picture instead of srcset on img?",
+      "answer": "picture with source is for art direction or format fallback (AVIF/WebP/JPEG) and must end with a fallback img. srcset on img alone is for resolution switching at different widths/DPRs.",
+      "key_points": ["picture = format/art", "srcset = resolution", "fallback img"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "What are the tradeoffs of contenteditable and native drag-and-drop?",
+      "answer": "contenteditable has no name, validation, or submission and needs ARIA plus syncing. Drag-and-drop needs dataTransfer handlers and has no keyboard equivalent by default, so provide buttons or menus as alternatives.",
+      "key_points": ["not a form control", "needs ARIA", "no keyboard DnD"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "What are custom elements and popover?",
+      "answer": "Custom elements are author-defined hyphenated tags with lifecycle callbacks (connectedCallback etc.) registered via customElements.define. popover is a native top-layer popup toggled by popovertarget, with light dismiss and Escape support.",
+      "key_points": ["hyphenated tag", "lifecycle callbacks", "native popup"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Create a reusable card template and clone it for Kakade with a name and role.",
+      "starter_code": "<template id=\"card-template\">\n  <!-- TODO -->\n</template>",
+      "answer": "<template id=\"card-template\">\n  <article class=\"card\">\n    <h2 class=\"card__name\"></h2>\n    <p class=\"card__role\"></p>\n  </article>\n</template>\n\n<div id=\"cards\"></div>\n\n<script>\n  const tpl = document.getElementById(\"card-template\");\n  const card = tpl.content.cloneNode(true);\n  card.querySelector(\".card__name\").textContent = \"Kakade\";\n  card.querySelector(\".card__role\").textContent = \"Frontend learner\";\n  document.getElementById(\"cards\").append(card);\n</script>",
+      "key_points": ["template content", "cloneNode(true)", "fill + append"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why should the hero image not use loading=lazy?",
+      "answer": "Lazy loading delays the largest contentful paint image until it nears the viewport, which can hurt LCP. Keep above-the-fold hero images eager and lazy-load only offscreen images.",
+      "key_points": ["LCP delayed", "hero eager", "lazy for offscreen"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why is a canvas-only chart inaccessible, and what is the fix?",
+      "answer": "Canvas draws pixels with no DOM nodes, so screen readers get nothing. Provide an aria-label, a text summary, or a data table with the same values; SVG is an alternative when the graphic should be DOM.",
+      "key_points": ["pixels not DOM", "no a11y tree", "data table/aria-label"]
+    }
+  ]
+}

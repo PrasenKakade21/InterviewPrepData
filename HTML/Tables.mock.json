@@ -1,0 +1,64 @@
+{
+  "topic": "Tables",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "When should you use a table, and when should you not?",
+      "answer": "Use a table only for tabular data where row-column relationships matter. Do not use tables for page layout — CSS grid/flexbox handle layout, and layout tables confuse screen readers.",
+      "key_points": ["data relationships", "not layout", "CSS for layout"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What is the purpose of caption, thead, tbody, and tfoot?",
+      "answer": "caption names the table and must be its first child. thead groups header rows, tbody groups data rows, and tfoot groups summary/total rows. They improve semantics, styling hooks, and screen-reader navigation.",
+      "key_points": ["caption name", "header/body/footer groups", "styling + semantics"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "How do colspan and rowspan affect the grid, and what is a common mistake?",
+      "answer": "colspan merges cells horizontally and rowspan vertically. A common mistake is forgetting that later rows then contain fewer cells, which shifts the grid and misaligns headers.",
+      "key_points": ["horizontal vs vertical merge", "fewer cells in later rows", "grid alignment"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Why use th with scope instead of a styled td?",
+      "answer": "th identifies a header cell and scope declares whether it heads a column or row. Screen readers then announce each data cell with its headers, which a bold td cannot do.",
+      "key_points": ["th = header", "scope col/row", "announced coordinates"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Build a two-column study table for Kakade with a caption and column headers.",
+      "starter_code": "<table>\n  <!-- TODO: caption, header, rows -->\n</table>",
+      "answer": "<table>\n  <caption>Kakade's study hours</caption>\n  <thead>\n    <tr>\n      <th scope=\"col\">Month</th>\n      <th scope=\"col\">Hours</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th scope=\"row\">January</th>\n      <td>42</td>\n    </tr>\n  </tbody>\n</table>",
+      "key_points": ["caption first", "thead + th scope", "row header"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Make a table scroll horizontally on mobile without losing table semantics.",
+      "starter_code": "<table>...</table>",
+      "answer": "<div class=\"table-scroll\">\n  <table>\n    <caption>Kakade.dev plans</caption>\n    <thead>\n      <tr><th scope=\"col\">Plan</th><th scope=\"col\">Price</th></tr>\n    </thead>\n    <tbody>\n      <tr><th scope=\"row\">Pro</th><td>₹499</td></tr>\n    </tbody>\n  </table>\n</div>\n\n<style>\n  .table-scroll { overflow-x: auto; }\n</style>",
+      "key_points": ["scroll wrapper", "keep display: table", "caption + scope"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is display:block on table, tr, td risky for accessibility?",
+      "answer": "It removes the native table roles in some browsers, so screen readers no longer announce rows, columns, or header associations. Prefer a scroll container and keep native table display.",
+      "key_points": ["roles removed", "header association lost", "scroll instead"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "A table has rowspan=2 on one cell and the next row has one cell too many. What breaks?",
+      "answer": "The grid shifts: the merged cell occupies a slot in the following row, so an extra cell pushes into a new implicit column. Headers no longer align with data and screen-reader coordinates become wrong.",
+      "key_points": ["grid shift", "implicit column", "misaligned headers"]
+    }
+  ]
+}

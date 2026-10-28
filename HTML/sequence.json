@@ -1,0 +1,30 @@
+{
+  "sequence": [
+    "HTML Fundamentals.md",
+    "Document Structure and Metadata.md",
+    "Headings Paragraphs and Text.md",
+    "Links and Navigation.md",
+    "Images and Media.md",
+    "Lists.md",
+    "Tables.md",
+    "Forms Fundamentals.md",
+    "Form Controls.md",
+    "Semantic Layout.md",
+    "Grouping Interactive and Embedded.md",
+    "Global Attributes.md",
+    "Accessibility in HTML.md",
+    "SEO and Social Metadata.md",
+    "Scripts Styles and Loading.md",
+    "HTML5 Modern Features.md",
+    "Entities Encoding and Validation.md",
+    "HTML Interview Traps.md",
+    "Best Practices and Performance.md",
+    "Projects.md",
+    "Tags"
+  ],
+  "ignore": [
+    "sequence.json",
+    "roadmap.json",
+    "README.md"
+  ]
+}
