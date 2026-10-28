@@ -1,0 +1,63 @@
+{
+  "topic": "CSS Architecture",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is BEM and why does it help?",
+      "answer": "BEM names blocks, elements, and modifiers (block, block__element, block--modifier). It makes ownership obvious, keeps selectors at one class of specificity, and avoids naming collisions in large codebases.",
+      "key_points": ["block/element/modifier", "flat specificity", "clear ownership"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What is the difference between OOCSS, SMACSS, and ITCSS?",
+      "answer": "OOCSS separates structure from skin and containers from content. SMACSS categorizes rules (base, layout, module, state, theme). ITCSS orders styles from generic to specific across layers such as settings, generic, objects, components, utilities.",
+      "key_points": ["OOCSS separation", "SMACSS categories", "ITCSS order"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What are the tradeoffs of utility-first CSS?",
+      "answer": "Pros: fast iteration, consistent tokens, fewer naming debates, easy responsive variants. Cons: noisy markup, harder reading at scale, build/purge requirements, and design constraints when the UI is bespoke.",
+      "key_points": ["speed/consistency", "markup noise", "build setup"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "How should design tokens be named?",
+      "answer": "By role and intent, not raw value: --color-danger, --color-surface, --space-4, --radius-md. This lets themes change values without renaming consumers and avoids --red meaning something else later.",
+      "key_points": ["semantic names", "themeable", "not value names"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "How do layers and flat specificity improve maintainability?",
+      "answer": "Layers define precedence once, so components do not need increasingly specific selectors or !important. Flat class selectors are easy to override and move, reducing regressions when features change.",
+      "key_points": ["precedence once", "no specificity wars", "easy overrides"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Rewrite a nested card selector using BEM.",
+      "starter_code": ".card .title { color: #0f172a; }\n.card.featured .title { color: #b91c1c; }",
+      "answer": ".card__title {\n  color: #0f172a;\n}\n\n.card--featured .card__title {\n  color: #b91c1c;\n}",
+      "key_points": ["block__element", "block--modifier", "flat-ish selectors"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why can utility-first markup become a maintenance problem?",
+      "answer": "Long class lists are hard to read, duplicate styling decisions across files, and make broad redesigns a search-and-replace exercise. Component abstractions or consistent tokens are needed at scale.",
+      "key_points": ["noisy markup", "duplication", "redesign cost"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why is creating a token for every value an anti-pattern?",
+      "answer": "It turns tokens into hardcoded values with extra indirection, producing an unmanageable list and no semantic meaning. Tokenize repeated, meaningful design decisions; use raw values for one-offs.",
+      "key_points": ["token sprawl", "no semantics", "tokenize decisions"]
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "topic": "CSS Interview Traps",
+  "level": "advanced",
+  "questions": [
+    {
+      "id": 1,
+      "type": "trap",
+      "question": "A 100%-wide element overflows its parent. What is the likely cause?",
+      "answer": "It is using content-box, so padding and border are added outside the 100% content width. Set box-sizing: border-box globally or subtract the padding.",
+      "key_points": ["content-box", "padding added", "border-box fix"]
+    },
+    {
+      "id": 2,
+      "type": "trap",
+      "question": "Two stacked blocks have margin-bottom:24px and margin-top:16px. What is the gap?",
+      "answer": "24px. Adjacent vertical margins collapse to the larger value, not the sum. Flex/grid gap does not collapse.",
+      "key_points": ["collapse", "larger wins", "gap alternative"]
+    },
+    {
+      "id": 3,
+      "type": "trap",
+      "question": "Why doesn't z-index:9999 bring an element to the front?",
+      "answer": "It is inside a stacking context with lower precedence than a sibling context. z-index only orders within its own context, so raise the ancestor context or move the element.",
+      "key_points": ["context isolation", "parent order", "restructure"]
+    },
+    {
+      "id": 4,
+      "type": "trap",
+      "question": "Why does position:sticky fail silently?",
+      "answer": "It needs an inset threshold (top/bottom/left/right), a scrolling ancestor, and room to move. An ancestor with overflow:hidden/auto or a fixed-height container prevents sticking.",
+      "key_points": ["threshold", "scroll ancestor", "overflow clipping"]
+    },
+    {
+      "id": 5,
+      "type": "trap",
+      "question": "Why did em padding grow more than expected?",
+      "answer": "em is relative to the element's current font size and compounds through nesting. Use rem for spacing and type scales that should stay predictable.",
+      "key_points": ["compounding", "context", "rem fix"]
+    },
+    {
+      "id": 6,
+      "type": "trap",
+      "question": "Difference between display:none and visibility:hidden?",
+      "answer": "display:none removes the box, layout space, accessibility, and interaction. visibility:hidden keeps layout space but removes paint, accessibility, and interaction.",
+      "key_points": ["layout removal", "space kept", "a11y"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why can't a span accept width and height?",
+      "answer": "Inline elements are sized by their content and line layout; width/height are ignored. Use inline-block, block, or make it a flex/grid item.",
+      "key_points": ["inline sizing", "ignored properties", "inline-block"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why is 100vh wrong on mobile?",
+      "answer": "100vh uses the large viewport height, which includes area hidden by browser chrome, so content can be cut off. Use 100dvh (dynamic) or 100svh (smallest).",
+      "key_points": ["large viewport", "browser chrome", "dvh/svh"]
+    }
+  ]
+}

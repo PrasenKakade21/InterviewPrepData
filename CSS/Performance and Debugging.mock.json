@@ -1,0 +1,63 @@
+{
+  "topic": "Performance and Debugging",
+  "level": "advanced",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Why does CSS block rendering, and what is critical CSS?",
+      "answer": "The browser must build the CSSOM before painting to avoid a flash of unstyled content, so stylesheets block render. Critical CSS inlines the above-the-fold styles and defers the rest to speed first paint.",
+      "key_points": ["CSSOM blocks paint", "inline above-the-fold", "defer rest"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "How do you find and reduce unused CSS?",
+      "answer": "Use DevTools Coverage to see unused rules, split CSS by route/component, remove dead selectors, and minify. Safelist dynamic class names before purging.",
+      "key_points": ["coverage", "split by route", "safelist dynamic classes"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What does will-change do, and why is permanent use bad?",
+      "answer": "It hints that a property will change, letting the browser promote/prepare the element. Permanent use consumes memory and GPU resources, so apply it before an interaction and remove it afterward.",
+      "key_points": ["promotion hint", "memory cost", "temporary use"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Why are transform and opacity cheaper to animate?",
+      "answer": "They can be handled in the composite stage without layout or paint. Animating width/height/top/left forces layout and often paint on every frame.",
+      "key_points": ["composite stage", "no layout/paint", "smooth frames"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "What is layout thrash and how do you avoid it?",
+      "answer": "Repeatedly reading layout (offsetHeight, getBoundingClientRect) then writing styles forces synchronous reflow. Batch all reads first, then all writes, or use requestAnimationFrame.",
+      "key_points": ["read/write interleaving", "forced reflow", "batch + rAF"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Defer a non-critical stylesheet without blocking render.",
+      "starter_code": "<link rel=\"stylesheet\" href=\"/css/app.css\" />",
+      "answer": "<link rel=\"stylesheet\" href=\"/css/app.css\" media=\"print\" onload=\"this.media='all'\" />\n<noscript><link rel=\"stylesheet\" href=\"/css/app.css\" /></noscript>",
+      "key_points": ["media print trick", "onload switch", "noscript fallback"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why can content-visibility:auto cause scrollbar jumps?",
+      "answer": "Offscreen elements are skipped and have no size until rendered, so the scroll height changes as they enter the viewport. Provide contain-intrinsic-size to reserve an estimated size.",
+      "key_points": ["size skipped", "scroll jump", "contain-intrinsic-size"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why can a purge tool break a working UI?",
+      "answer": "It removes classes it cannot see in source, including dynamically constructed names (e.g. `text-${color}`). Safelist dynamic patterns or avoid runtime string construction.",
+      "key_points": ["dynamic classes", "false removal", "safelist"]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "topic": "Flexbox",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is the main axis vs the cross axis in Flexbox?",
+      "answer": "The main axis is set by flex-direction (row = horizontal, column = vertical). The cross axis is perpendicular. justify-content works on the main axis; align-items/align-content work on the cross axis.",
+      "key_points": ["direction sets main", "cross perpendicular", "justify vs align"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Explain justify-content and align-content differences.",
+      "answer": "justify-content distributes items along the main axis. align-content distributes wrapped lines along the cross axis and has no effect on a single-line container. align-items aligns items within a line.",
+      "key_points": ["main distribution", "wrapped lines", "single-line no-op"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "How do flex-grow, flex-shrink, and flex-basis work together?",
+      "answer": "flex-basis is the starting size, flex-grow controls how extra free space is distributed, and flex-shrink controls how overflow is reduced. flex: 1 = 1 1 0%, flex: auto = 1 1 auto, flex: none = 0 0 auto.",
+      "key_points": ["basis start", "grow extra", "shrink overflow"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Why does a flex item refuse to shrink below its content?",
+      "answer": "The default min-width:auto on flex items prevents shrinking below the content's minimum size. Set min-width:0 (or overflow:hidden) on the item to allow truncation/shrinking.",
+      "key_points": ["min-width auto", "content floor", "min-width 0 fix"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "Does order change accessibility or keyboard order?",
+      "answer": "No. order changes visual order only; the DOM order still drives tab order and screen-reader reading order. Use it for minor visual adjustments, not meaningful reordering.",
+      "key_points": ["visual only", "DOM stays", "a11y risk"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Create a sidebar + content layout with a fixed 240px sidebar.",
+      "starter_code": ".layout { /* TODO */ }\n.sidebar { /* TODO */ }\n.content { /* TODO */ }",
+      "answer": ".layout {\n  display: flex;\n  gap: 1.5rem;\n  align-items: flex-start;\n}\n\n.sidebar {\n  flex: 0 0 240px;\n}\n\n.content {\n  flex: 1 1 auto;\n  min-width: 0;\n}",
+      "key_points": ["flex container", "fixed basis", "grow content", "min-width 0"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why does flex:1 behave differently from flex:auto?",
+      "answer": "flex:1 sets basis to 0%, so all flexible items start equal and split space evenly regardless of content. flex:auto uses basis auto, so items start from their content size before growing.",
+      "key_points": ["basis 0", "basis auto", "distribution difference"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why do margins not collapse between flex items?",
+      "answer": "Flex containers establish a flex formatting context, where margin collapsing does not apply. Use gap for spacing instead of relying on margin collapse.",
+      "key_points": ["flex formatting context", "no collapse", "use gap"]
+    }
+  ]
+}

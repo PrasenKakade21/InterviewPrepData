@@ -1,0 +1,63 @@
+{
+  "topic": "Typography",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "How do you write a robust font-family stack?",
+      "answer": "List preferred fonts first and end with a generic family, quoting multi-word names: Inter, \"Segoe UI\", system-ui, sans-serif. This guarantees a usable fallback if a font is missing.",
+      "key_points": ["priority list", "quote multi-word", "generic fallback"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Why is a unitless line-height preferred?",
+      "answer": "A unitless value multiplies each element's own font size, so children scale correctly. Fixed px or em line-heights can inherit a value that is too tight or too loose for the child's font size.",
+      "key_points": ["multiplies font size", "scales per element", "avoids odd inheritance"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What does font-display: swap do?",
+      "answer": "It shows fallback text immediately and swaps to the custom font when it loads, avoiding invisible text but causing a visible font swap. block delays text, fallback uses a short block, optional uses the font only if fast.",
+      "key_points": ["immediate fallback", "no invisible text", "font swap"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "What is the difference between text-transform and changing the actual text?",
+      "answer": "text-transform changes visual casing only; the DOM text and accessible name keep their original casing. Screen readers and copy-paste use the underlying text, so don't rely on it for meaningful changes.",
+      "key_points": ["visual only", "accessible name unchanged", "copy-paste original"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "How do you truncate a single line with an ellipsis?",
+      "answer": "Set white-space: nowrap, overflow: hidden, and text-overflow: ellipsis on a width-constrained element. All three are required; without nowrap the text wraps instead.",
+      "key_points": ["nowrap", "overflow hidden", "text-overflow ellipsis"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Create a fluid heading with balanced wrapping and a 1.15 line-height.",
+      "starter_code": "h1 { /* TODO */ }",
+      "answer": "h1 {\n  font-size: clamp(2rem, 5vw + 1rem, 4rem);\n  line-height: 1.15;\n  text-wrap: balance;\n  font-weight: 700;\n}",
+      "key_points": ["clamp", "unitless line-height", "text-wrap balance"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why does font: 600 1.25rem Inter reset other font properties?",
+      "answer": "The font shorthand sets all font longhands (style, variant, weight, size, line-height, family) and resets omitted ones to initial. Declare longhands after the shorthand if you need overrides.",
+      "key_points": ["shorthand resets", "omitted = initial", "order matters"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why can a px line-height look broken inside a larger heading?",
+      "answer": "A fixed line-height does not scale with font size, so it can be too tight for large type or too loose for small type. Use a unitless multiplier so each element computes leading from its own size.",
+      "key_points": ["fixed vs scalable", "inheritance", "unitless fix"]
+    }
+  ]
+}

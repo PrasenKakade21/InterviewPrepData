@@ -1,0 +1,63 @@
+{
+  "topic": "Custom Properties and Theming",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "How do custom properties differ from Sass variables?",
+      "answer": "Custom properties are live CSS values that participate in the cascade and inheritance, can be read/overridden at runtime, and work in DevTools. Sass variables are compile-time substitutions that disappear from the output.",
+      "key_points": ["runtime", "cascade/inheritance", "compile-time vs live"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "How do var() fallbacks work?",
+      "answer": "var(--name, fallback) uses the fallback when the custom property is missing or invalid. The fallback can itself be another var() or any valid value.",
+      "key_points": ["second argument", "missing/invalid", "nested fallbacks"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "How does inheritance make theming possible?",
+      "answer": "Custom properties inherit, so a variable declared on :root reaches every element. Overriding it on a subtree (e.g. [data-theme=dark]) re-themes only that subtree without touching component rules.",
+      "key_points": ["inheritance", "subtree override", "token swap"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "How do you support OS dark mode and an explicit toggle?",
+      "answer": "Set default tokens on :root, override them in @media (prefers-color-scheme: dark), and add an explicit [data-theme=dark]/[data-theme=light] override for user choice. Also set color-scheme for native controls.",
+      "key_points": ["prefers-color-scheme", "data-theme override", "color-scheme"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "What does @property add to a custom property?",
+      "answer": "It registers a type via syntax, sets inheritance, and gives an initial value. Typed properties can be validated and smoothly animated/interpolated (e.g. angles, colors).",
+      "key_points": ["syntax type", "inherits", "initial-value"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Create semantic light/dark tokens and apply them to a card.",
+      "starter_code": ":root { /* TODO */ }\n.card { /* TODO */ }",
+      "answer": ":root {\n  --color-bg: #ffffff;\n  --color-surface: #f8fafc;\n  --color-text: #0f172a;\n}\n\n@media (prefers-color-scheme: dark) {\n  :root {\n    --color-bg: #0f172a;\n    --color-surface: #1e293b;\n    --color-text: #e2e8f0;\n  }\n}\n\n.card {\n  background: var(--color-surface);\n  color: var(--color-text);\n}",
+      "key_points": ["semantic tokens", "dark override", "var() usage"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why does a custom property with an invalid value break the declaration?",
+      "answer": "Custom properties are substituted before validation; if the resulting value is invalid for the property, the declaration becomes invalid at computed-value time and falls back to inherited/initial behavior. A var() fallback only helps if the property is missing, not if it is present but invalid.",
+      "key_points": ["invalid at computed-value time", "fallback limits", "whole declaration fails"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why can't an unregistered custom property animate smoothly?",
+      "answer": "Without @property it is an untyped string, so the browser does not know how to interpolate it. Registering a syntax (e.g. <angle>) enables typed interpolation and animation.",
+      "key_points": ["untyped string", "no interpolation", "@property fix"]
+    }
+  ]
+}

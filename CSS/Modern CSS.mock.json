@@ -1,0 +1,63 @@
+{
+  "topic": "Modern CSS",
+  "level": "advanced",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "How does native CSS nesting differ from Sass nesting?",
+      "answer": "Native nesting runs in the browser with the same cascade and specificity rules, using & for the parent. Sass compiles nesting away at build time and adds extra features. Native nesting still increases specificity like descendant selectors.",
+      "key_points": ["native vs compile-time", "& parent", "specificity cost"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What problem does :has() solve?",
+      "answer": "It selects an element based on its descendants or siblings — a parent selector. Examples: styling a card with an image, a field with invalid input, or locking scroll when a dialog is open.",
+      "key_points": ["parent selection", "descendant/sibling condition", "state styling"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What is the difference between @layer and @container?",
+      "answer": "@layer controls cascade precedence across groups of rules, replacing specificity wars. @container makes styles respond to a container's size, enabling reusable responsive components. They solve different problems.",
+      "key_points": ["precedence vs responsiveness", "layers", "container size"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Why are logical properties important?",
+      "answer": "They express margins/padding/borders/insets in inline/block terms that follow writing direction, so RTL and vertical writing modes work without separate rules. They avoid physical left/right assumptions.",
+      "key_points": ["writing direction", "RTL support", "avoid left/right"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "What do dvh/svh solve and what is subgrid for?",
+      "answer": "dvh/svh account for mobile browser chrome when sizing to the viewport, avoiding 100vh overflow. Subgrid lets a nested grid inherit the parent's rows/columns so items align across components.",
+      "key_points": ["mobile viewport", "no vh overflow", "inherit tracks"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Use :has() to remove top padding from cards that contain an image.",
+      "starter_code": ".card { padding-top: 1.25rem; }",
+      "answer": ".card {\n  padding-top: 1.25rem;\n}\n\n.card:has(img) {\n  padding-top: 0;\n}",
+      "key_points": [":has()", "descendant condition", "padding override"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why can :has() hurt performance?",
+      "answer": "The browser must re-evaluate descendant/sibling conditions when the DOM changes. Broad :has() selectors on large or frequently changing trees can be expensive; keep them specific and avoid animating related state.",
+      "key_points": ["re-evaluation", "large DOM cost", "keep specific"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why can mixing logical and physical properties cause bugs?",
+      "answer": "They target overlapping sides with different resolution rules, so margin-left and margin-inline-start can conflict or double-apply in RTL. Choose one system per codebase and migrate deliberately.",
+      "key_points": ["overlap", "RTL conflicts", "pick one system"]
+    }
+  ]
+}

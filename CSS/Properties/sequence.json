@@ -1,0 +1,19 @@
+{
+  "sequence": [
+    "Layout Properties.md",
+    "Box Model Properties.md",
+    "Flexbox Properties.md",
+    "Grid Properties.md",
+    "Typography Properties.md",
+    "Color and Background Properties.md",
+    "Border Outline and Effects.md",
+    "Transform and Transition Properties.md",
+    "Animation Properties.md",
+    "Modern and Utility Properties.md"
+  ],
+  "ignore": [
+    "sequence.json",
+    "roadmap.json",
+    "README.md"
+  ]
+}

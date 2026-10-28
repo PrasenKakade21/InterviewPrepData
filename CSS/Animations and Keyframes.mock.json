@@ -1,0 +1,63 @@
+{
+  "topic": "Animations and Keyframes",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is the difference between a transition and a keyframe animation?",
+      "answer": "A transition interpolates between two states triggered by a change (hover/class). A keyframe animation defines multiple steps and can run automatically, loop, alternate, and persist its end state.",
+      "key_points": ["two states vs multi-step", "trigger vs automatic", "loop/alternate"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What does animation-fill-mode: both do?",
+      "answer": "It applies the first keyframe during the delay (backwards) and keeps the last keyframe after the animation ends (forwards), so the element does not snap back to its pre-animation state.",
+      "key_points": ["before start", "after end", "no snap-back"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Explain animation-direction values.",
+      "answer": "normal plays forward, reverse plays backward, alternate alternates forward/backward each cycle, and alternate-reverse starts backward then alternates.",
+      "key_points": ["normal/reverse", "alternate", "cycle direction"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "How do you run two animations on one element?",
+      "answer": "Comma-separate them in the animation shorthand (or longhands), each with its own name, duration, easing, and iteration count. Both run simultaneously.",
+      "key_points": ["comma-separated", "independent timing", "simultaneous"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "How should prefers-reduced-motion be handled for animations?",
+      "answer": "Disable or drastically shorten decorative animations and transitions, keep essential state changes, disable smooth scrolling, and avoid infinite/large motion for users who request reduced motion.",
+      "key_points": ["disable decoration", "keep function", "no infinite motion"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Create a fade-up entrance that keeps its final state.",
+      "starter_code": "@keyframes fade-up { /* TODO */ }\n.hero { /* TODO */ }",
+      "answer": "@keyframes fade-up {\n  from { opacity: 0; transform: translateY(12px); }\n  to   { opacity: 1; transform: translateY(0); }\n}\n\n.hero {\n  animation: fade-up 400ms ease-out both;\n}",
+      "key_points": ["from/to", "transform + opacity", "both fill"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why does an entrance animation snap back when it finishes?",
+      "answer": "The default fill-mode is none, so after the animation the element returns to its underlying styles. Use animation-fill-mode: forwards or both to retain the last keyframe.",
+      "key_points": ["fill-mode none", "snap back", "both/forwards"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why is an infinite animation on a full-page background a performance risk?",
+      "answer": "It forces continuous painting/compositing and can drain battery, especially on large areas or layout-affecting properties. Keep infinite motion small, transform/opacity-based, and pause when offscreen.",
+      "key_points": ["continuous paint", "battery", "small/composited"]
+    }
+  ]
+}

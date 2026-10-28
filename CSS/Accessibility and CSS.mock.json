@@ -1,0 +1,63 @@
+{
+  "topic": "Accessibility and CSS",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Why is outline:none a common accessibility failure?",
+      "answer": "It removes the only visible indication of keyboard focus, making navigation impossible for keyboard and switch users. Replace it with a visible custom focus style, typically via :focus-visible.",
+      "key_points": ["invisible focus", "keyboard users", "custom ring"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What contrast ratios does WCAG AA require?",
+      "answer": "4.5:1 for normal text and 3:1 for large text (≥24px, or ≥18.66px bold). UI component boundaries and focus indicators also need 3:1.",
+      "key_points": ["4.5:1 normal", "3:1 large/UI", "AA"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "When should you use display:none versus sr-only?",
+      "answer": "display:none when content is irrelevant to everyone and should be removed from layout and assistive tech. sr-only when content is meant for screen readers but not visually shown, such as labels or hints.",
+      "key_points": ["intent", "removed vs available", "sr-only pattern"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "What does prefers-reduced-motion require from CSS?",
+      "answer": "Disable or shorten non-essential animations/transitions, avoid large or infinite motion, and turn off smooth scrolling. Essential state changes should still occur instantly.",
+      "key_points": ["disable decoration", "no smooth scroll", "keep function"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "Why are logical properties an accessibility/RTL concern?",
+      "answer": "They express spacing and borders in inline/block terms that follow writing direction, so RTL and vertical writing modes lay out correctly without separate physical left/right overrides.",
+      "key_points": ["writing direction", "RTL", "inline/block"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Create a visible focus ring for all interactive elements.",
+      "starter_code": "/* TODO */",
+      "answer": ":where(a, button, input, select, textarea, [tabindex]):focus-visible {\n  outline: 3px solid #0f172a;\n  outline-offset: 2px;\n  border-radius: 4px;\n}",
+      "key_points": [":focus-visible", "outline + offset", "broad selector"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is text over a photo hard to keep accessible?",
+      "answer": "Contrast varies across the image, so parts of the text may fall below 4.5:1. Use a consistent overlay/panel and check the worst-case region, not the average.",
+      "key_points": ["variable contrast", "overlay", "worst-case check"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why is forced-color-adjust:none risky?",
+      "answer": "It opts the element out of the user's forced-colors palette, potentially making text or borders invisible. Reserve it for cases where author colors are essential and verify contrast manually.",
+      "key_points": ["opt-out", "user palette", "verify contrast"]
+    }
+  ]
+}

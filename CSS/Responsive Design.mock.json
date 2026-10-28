@@ -1,0 +1,63 @@
+{
+  "topic": "Responsive Design",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Why is the viewport meta tag required for responsive CSS?",
+      "answer": "Without it mobile browsers use a virtual desktop width and scale the page down, so media queries see a wide viewport. width=device-width, initial-scale=1 makes CSS pixels match the device width.",
+      "key_points": ["virtual viewport", "device-width", "media query accuracy"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What does mobile-first mean in practice?",
+      "answer": "Write base styles for small screens, then add enhancements with min-width media queries. This keeps base CSS simple, avoids overrides, and progressively adds complexity for larger viewports.",
+      "key_points": ["base = mobile", "min-width enhancements", "fewer overrides"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "How do container queries differ from media queries?",
+      "answer": "Media queries respond to the viewport/device features. Container queries respond to the size of a designated ancestor container, letting the same component adapt in different layout slots regardless of viewport.",
+      "key_points": ["viewport vs container", "component reusability", "container-type"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "How does clamp() reduce breakpoint count?",
+      "answer": "clamp(min, preferred, max) scales a value fluidly between bounds, so font sizes and spacing adjust continuously instead of jumping at breakpoints. Fewer media queries are needed for type and spacing.",
+      "key_points": ["fluid range", "fewer queries", "bounded"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "What should you test beyond resizing the window?",
+      "answer": "Test 200% zoom and text-only zoom, long words/titles, missing images, landscape orientation, real devices, print, prefers-reduced-motion, prefers-color-scheme, and forced-colors mode.",
+      "key_points": ["zoom", "edge content", "real devices", "user preferences"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Make a card grid 1 column on mobile, 2 at 640px, 3 at 1024px.",
+      "starter_code": ".cards { /* TODO */ }",
+      "answer": ".cards {\n  display: grid;\n  gap: 1rem;\n  grid-template-columns: 1fr;\n}\n\n@media (min-width: 640px) {\n  .cards { grid-template-columns: repeat(2, 1fr); }\n}\n\n@media (min-width: 1024px) {\n  .cards { grid-template-columns: repeat(3, 1fr); }\n}",
+      "key_points": ["mobile base", "min-width queries", "grid columns"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why can min-width and max-width media queries conflict at the same breakpoint?",
+      "answer": "Both conditions can be true at exactly that width (e.g. min-width:768px and max-width:768px), so later rules unexpectedly override. Use disjoint ranges or stick to min-width mobile-first queries.",
+      "key_points": ["overlap", "inclusive bounds", "mobile-first avoids"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why do container queries fail on a component with no container ancestor?",
+      "answer": "Container queries only respond to an ancestor with container-type set. Without that containment context, the query has no size to evaluate and the rules do not apply.",
+      "key_points": ["needs container-type", "ancestor context", "no viewport fallback"]
+    }
+  ]
+}

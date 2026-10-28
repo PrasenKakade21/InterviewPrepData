@@ -1,0 +1,63 @@
+{
+  "topic": "Display, Visibility and Overflow",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What does display actually control?",
+      "answer": "It sets the element's outer box type (block, inline, inline-block) and often its inner layout mode (flex, grid, contents, none). It determines whether a box exists and how children participate in layout.",
+      "key_points": ["box type", "layout mode", "box generation"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Why do width and height fail on inline elements?",
+      "answer": "Inline boxes are sized by their content and line layout, so width/height are ignored. Use inline-block or a flex/grid item when you need both inline flow and explicit sizing.",
+      "key_points": ["content-sized", "ignored properties", "inline-block fix"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Compare display:none, visibility:hidden, and opacity:0.",
+      "answer": "display:none removes the box, space, accessibility, and clicks. visibility:hidden keeps layout space but removes paint, accessibility, and clicks. opacity:0 keeps space and accessibility and remains clickable.",
+      "key_points": ["layout space", "paint", "a11y/interaction"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "What is the difference between overflow:auto, hidden, and clip?",
+      "answer": "auto adds scrollbars only when needed. hidden clips overflow and can scroll programmatically but shows no scrollbar. clip cuts off overflow and cannot scroll.",
+      "key_points": ["auto scrollbars", "hidden clip/scroll programmatic", "clip no scroll"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "What does object-fit do, and when do you use it?",
+      "answer": "It controls how replaced content (img/video) fills its box: cover crops to fill, contain fits entirely, fill stretches. Use it when fixed dimensions would otherwise distort media.",
+      "key_points": ["replaced elements", "cover vs contain", "no distortion"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Create a circular avatar that crops a non-square image without distortion.",
+      "starter_code": ".avatar { /* TODO */ }",
+      "answer": ".avatar {\n  width: 96px;\n  height: 96px;\n  object-fit: cover;\n  object-position: center;\n  border-radius: 50%;\n}",
+      "key_points": ["fixed dimensions", "object-fit cover", "border-radius"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is opacity:0 dangerous for a hidden menu?",
+      "answer": "The element still occupies space, is announced by screen readers, and remains clickable/focusable, so users can tab into invisible controls. Use visibility:hidden, display:none, or remove it from the DOM.",
+      "key_points": ["still interactive", "still announced", "ghost controls"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why does display:contents sometimes break accessibility?",
+      "answer": "It removes the element's box, so its own background/border disappear and certain elements (notably buttons) can lose their semantic role in some browsers. Use it only for pure wrappers and test with assistive tech.",
+      "key_points": ["box removed", "role loss", "test with AT"]
+    }
+  ]
+}

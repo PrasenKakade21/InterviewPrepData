@@ -1,0 +1,63 @@
+{
+  "topic": "Grid",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "When should you use Grid instead of Flexbox?",
+      "answer": "Use Grid for two-dimensional layout where rows and columns must align (page shells, dashboards, galleries). Use Flexbox for one-dimensional distribution or component internals. They compose freely.",
+      "key_points": ["two dimensions", "page layout", "compose with flex"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "How does the fr unit work?",
+      "answer": "fr distributes the remaining free space after fixed tracks and gaps. It is not a percentage; tracks with larger fr values take proportionally more of the leftover space.",
+      "key_points": ["free space", "not percent", "proportional"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Explain auto-fit vs auto-fill.",
+      "answer": "Both create as many tracks as fit. auto-fill leaves empty tracks, keeping widths consistent. auto-fit collapses empty tracks, so existing items stretch to fill the row.",
+      "key_points": ["empty tracks", "collapse", "stretch difference"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "How do grid-template-areas work?",
+      "answer": "You name regions in a row-by-row string map, then assign items with grid-area. Repeated names merge into a spanning area. It is the most readable way to build page shells.",
+      "key_points": ["named regions", "spanning repeats", "readable layout"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "What does grid-auto-flow: dense do, and what is the risk?",
+      "answer": "It fills earlier gaps with later items, producing a packed layout. The risk is visual order diverging from DOM/keyboard order, which harms accessibility.",
+      "key_points": ["gap filling", "visual order", "a11y risk"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Build a responsive card gallery with minimum 240px cards.",
+      "starter_code": ".gallery { /* TODO */ }",
+      "answer": ".gallery {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));\n  gap: 1.5rem;\n  align-content: start;\n}",
+      "key_points": ["auto-fit", "minmax", "gap"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why does grid-column: 1 / 3 span two tracks, not three?",
+      "answer": "Placement uses grid lines, not tracks. A 3-column grid has 4 lines; 1/3 starts at line 1 and ends at line 3, covering tracks 1 and 2.",
+      "key_points": ["lines not tracks", "exclusive end", "line count"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why can minmax(auto, 1fr) prevent a grid column from shrinking?",
+      "answer": "The auto minimum resolves to the content's min-content size, so the track cannot go below the widest unbreakable content. Use minmax(0, 1fr) when you need true shrinking/truncation.",
+      "key_points": ["auto min = content", "no shrink", "minmax(0,1fr)"]
+    }
+  ]
+}

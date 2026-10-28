@@ -1,0 +1,64 @@
+{
+  "topic": "Box Model",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "List the four layers of the CSS box model from inside out.",
+      "answer": "Content, padding, border, margin. Padding is inside the border and takes the background; border is the edge; margin is outside and does not take the background.",
+      "key_points": ["content", "padding", "border", "margin"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What does width mean under content-box versus border-box?",
+      "answer": "Under content-box, width sets only the content area; padding and border are added. Under border-box, width includes content + padding + border, so the rendered width matches the declared width.",
+      "key_points": ["content-box adds", "border-box includes", "predictable sizing"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "When do vertical margins collapse, and when do they not?",
+      "answer": "Adjacent siblings, parent/first-last child without padding/border/overflow separation, and empty blocks collapse to the larger margin. They do not collapse in flex/grid, floats, absolutely positioned elements, or elements with non-visible overflow.",
+      "key_points": ["adjacent siblings", "larger margin wins", "flex/grid exempt"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Why is a global box-sizing reset standard practice?",
+      "answer": "It makes width and height include padding and border, so percentage widths and padding no longer overflow containers and layouts are predictable. Applying it to pseudo-elements too keeps components consistent.",
+      "key_points": ["predictable widths", "no overflow", "apply to pseudo-elements"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write a card that is 300px wide including padding and border.",
+      "starter_code": ".card { width: 300px; padding: 20px; border: 2px solid #0f172a; }",
+      "answer": "*,\n*::before,\n*::after {\n  box-sizing: border-box;\n}\n\n.card {\n  width: 300px;\n  padding: 20px;\n  border: 2px solid #0f172a;\n}",
+      "key_points": ["border-box", "300px total", "pseudo-elements included"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Create a 16:9 media box that never exceeds its container.",
+      "starter_code": ".media { /* TODO */ }",
+      "answer": ".media {\n  width: 100%;\n  max-width: 800px;\n  aspect-ratio: 16 / 9;\n  overflow: hidden;\n  border-radius: 12px;\n}",
+      "key_points": ["width 100%", "max-width", "aspect-ratio", "overflow"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "A 100%-wide div with 20px padding overflows its parent. Why?",
+      "answer": "Under the default content-box, width:100% sets the content width and padding is added outside it. Set box-sizing: border-box globally or subtract padding.",
+      "key_points": ["content-box", "padding added", "border-box fix"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why does overflow:hidden sometimes change spacing between elements?",
+      "answer": "It creates a new block formatting context, which prevents margin collapse through the element and clips overflowing children. That can remove or change the effective margins around it.",
+      "key_points": ["new BFC", "stops margin collapse", "clips children"]
+    }
+  ]
+}

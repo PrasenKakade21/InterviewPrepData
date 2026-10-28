@@ -1,0 +1,63 @@
+{
+  "topic": "Projects",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "Why build projects without a framework first?",
+      "answer": "Frameworks hide layout and cascade behavior. Building raw CSS forces you to understand box sizing, grid/flex, specificity, and responsive units, which makes framework debugging much easier.",
+      "key_points": ["fundamentals", "debugging skill", "no abstraction"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What should a responsive landing page demonstrate?",
+      "answer": "A mobile-first layout, a grid/flex header, fluid typography with clamp(), a readable hero, and accessible buttons/focus states. It should reflow at 320px without horizontal scroll.",
+      "key_points": ["mobile-first", "clamp", "reflow", "focus"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "How do you make pricing cards equal height with a bottom CTA?",
+      "answer": "Make the card a flex column, let content grow, and give the CTA margin-top:auto. In a grid, align-items:stretch makes cards equal height by default.",
+      "key_points": ["flex column", "margin-top auto", "grid stretch"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Why use dialog for a modal project?",
+      "answer": "dialog + showModal() provides a native top layer, backdrop, focus trapping, Escape handling, and background inertness, avoiding fragile manual implementations.",
+      "key_points": ["native modal", "focus trap", "Escape/backdrop"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "What makes a theme easy to maintain?",
+      "answer": "Semantic design tokens declared at :root, overridden by [data-theme] and prefers-color-scheme. Components consume tokens only, so theme changes never touch component CSS.",
+      "key_points": ["semantic tokens", "data-theme", "component isolation"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Create the dashboard shell with named grid areas.",
+      "starter_code": ".dashboard { /* TODO */ }",
+      "answer": ".dashboard {\n  display: grid;\n  grid-template-columns: 220px 1fr;\n  grid-template-rows: auto 1fr;\n  grid-template-areas:\n    \"sidebar header\"\n    \"sidebar main\";\n  min-height: 100dvh;\n  gap: 1rem;\n}\n.dashboard__header { grid-area: header; }\n.dashboard__sidebar { grid-area: sidebar; }\n.dashboard__main { grid-area: main; }",
+      "key_points": ["grid areas", "sidebar span", "dvh"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why does a modal animation ignore prefers-reduced-motion?",
+      "answer": "The animation is declared without a reduced-motion override. Add a media query that sets animation:none (or a very short duration) so users who request reduced motion do not get the entrance animation.",
+      "key_points": ["media query", "animation none", "user preference"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why can a design system page drift from production?",
+      "answer": "If tokens/components are copied rather than imported from the same source, documentation and production diverge. Generate the page from the actual CSS/tokens or keep a single shared stylesheet.",
+      "key_points": ["single source", "generated docs", "drift risk"]
+    }
+  ]
+}

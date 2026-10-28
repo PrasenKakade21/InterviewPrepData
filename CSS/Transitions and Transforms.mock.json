@@ -1,0 +1,63 @@
+{
+  "topic": "Transitions and Transforms",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What ingredients does a CSS transition need?",
+      "answer": "A start value, an end value, a transitionable property, a duration, and a trigger (hover, focus, class change). Optional timing function and delay shape the motion.",
+      "key_points": ["start/end state", "animatable property", "duration + trigger"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Why prefer transform and opacity for animation?",
+      "answer": "They can be handled by the compositor without triggering layout or paint, so they stay smooth. Animating width, height, top, or left forces layout/paint on each frame.",
+      "key_points": ["compositor", "no layout", "smooth frames"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What does transform-origin change?",
+      "answer": "It sets the pivot point for rotation and scaling (default center). Changing it makes an element scale or rotate from a corner or edge.",
+      "key_points": ["pivot point", "default center", "scale/rotate anchor"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Where do perspective and transform-style belong for a 3D flip?",
+      "answer": "perspective goes on the parent to define viewing depth. transform-style: preserve-3d goes on the element whose children should keep their 3D positions, usually the inner flipping element.",
+      "key_points": ["perspective on parent", "preserve-3d on inner", "3D context"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "How do you respect prefers-reduced-motion?",
+      "answer": "Wrap non-essential animations/transitions in @media (prefers-reduced-motion: reduce) and disable or shorten them. Keep essential state changes instant and avoid large motion.",
+      "key_points": ["media query", "disable motion", "keep function"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Create a card that lifts 4px and scales 2% on hover with a 180ms ease transition.",
+      "starter_code": ".card { /* TODO */ }",
+      "answer": ".card {\n  transition: transform 180ms ease, box-shadow 180ms ease;\n}\n\n.card:hover,\n.card:focus-visible {\n  transform: translateY(-4px) scale(1.02);\n  box-shadow: 0 12px 24px rgb(15 23 42 / 0.12);\n}",
+      "key_points": ["transform compose", "explicit transition", "focus-visible"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is transition: all risky?",
+      "answer": "It animates every changing property, including expensive layout properties and ones you did not intend, causing jank and surprising effects. List the properties explicitly.",
+      "key_points": ["unexpected properties", "layout cost", "be explicit"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why does a transform sometimes blur text or create unexpected stacking?",
+      "answer": "Scale can rasterize text at fractional sizes, and any transform creates a stacking context and containing block. That changes z-index ordering and fixed/absolute positioning inside it.",
+      "key_points": ["rasterization", "stacking context", "containing block"]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "topic": "CSS Fundamentals",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What does CSS stand for, and what does 'cascading' mean?",
+      "answer": "Cascading Style Sheets. Multiple rules can target the same element, and the browser resolves conflicts using origin/importance, specificity, and source order to produce one computed style.",
+      "key_points": ["declarative styles", "conflict resolution", "origin + specificity + order"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Describe the anatomy of a CSS rule and an at-rule.",
+      "answer": "A rule has a selector and a declaration block of property: value pairs. At-rules start with @ (e.g. @media, @supports, @font-face) and wrap or define conditional/global behavior.",
+      "key_points": ["selector + declarations", "property: value", "at-rules"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Compare external, internal, and inline CSS.",
+      "answer": "External files via link are cached and reusable, best for production. Internal style blocks apply to one document with no extra request. Inline style attributes apply to one element and have very high specificity.",
+      "key_points": ["external cached", "internal per document", "inline per element"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Why is @import generally slower than a link tag?",
+      "answer": "@import creates an additional request discovered only after the parent stylesheet loads, delaying the CSSOM and first paint. A link in HTML is discovered during parsing and can be preloaded.",
+      "key_points": ["extra request", "late discovery", "render blocking"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Write a card rule with padding, border, and brand color using custom properties.",
+      "starter_code": ":root {\n  /* TODO */\n}\n.card {\n  /* TODO */\n}",
+      "answer": ":root {\n  --brand: #0f172a;\n  --space: 1rem;\n}\n\n.card {\n  padding: var(--space);\n  color: var(--brand);\n  border: 1px solid #e2e8f0;\n}",
+      "key_points": ["custom properties", "var()", "shorthand border"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Make the card padding double at 768px and above.",
+      "starter_code": ".card { padding: 1rem; }",
+      "answer": ".card {\n  padding: 1rem;\n}\n\n@media (min-width: 768px) {\n  .card {\n    padding: 2rem;\n  }\n}",
+      "key_points": ["media query", "min-width", "mobile-first override"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why does an inline style usually beat a class rule?",
+      "answer": "Inline declarations participate in the cascade at author-origin with higher precedence than normal author selectors, regardless of selector specificity. Only !important author rules or higher-priority origins override them.",
+      "key_points": ["inline specificity", "author origin", "hard to override"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why is display:none different from visibility:hidden for rendering?",
+      "answer": "display:none removes the element and its subtree from the render tree, so it takes no space. visibility:hidden keeps the box and layout but does not paint the element; children can be made visible again.",
+      "key_points": ["render tree removal", "layout preserved", "paint vs layout"]
+    }
+  ]
+}

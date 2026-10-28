@@ -1,0 +1,64 @@
+{
+  "topic": "Selectors",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is the specificity difference between a type, class, and id selector?",
+      "answer": "Specificity is (ids, classes/attributes/pseudo-classes, elements/pseudo-elements). Type = 0,0,1; class = 0,1,0; id = 1,0,0; universal = 0,0,0.",
+      "key_points": ["tuple format", "id beats class", "class beats type"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "List the four combinators and what each matches.",
+      "answer": "Descendant (space) matches any descendant; child (>) matches direct children; adjacent sibling (+) matches the next sibling; general sibling (~) matches all later siblings under the same parent.",
+      "key_points": ["descendant", "child", "adjacent", "general sibling"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "What do :is(), :where(), and :not() do?",
+      "answer": ":is() matches any selector in a list at the highest specificity among them. :where() matches similarly but contributes zero specificity. :not() excludes elements matching its argument.",
+      "key_points": ["is = matching", "where = zero specificity", "not = exclusion"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Why should pseudo-elements not carry essential content?",
+      "answer": "::before/::after generate boxes that are not in the DOM; some screen readers ignore them, they cannot be selected/copied reliably, and they need a content value. Use real markup for meaningful text.",
+      "key_points": ["not in DOM", "a11y gaps", "content required"]
+    },
+    {
+      "id": 5,
+      "type": "coding",
+      "question": "Style external links and PDF links differently for Kakade's docs.",
+      "starter_code": "a { /* TODO */ }",
+      "answer": "a[target=\"_blank\"] {\n  color: #b91c1c;\n}\n\na[href$=\".pdf\"]::after {\n  content: \" (PDF)\";\n}",
+      "key_points": ["attribute selector", "ends-with operator", "generated content"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Give cards a 3px accent bar and zero-margin headings using low-specificity selectors.",
+      "starter_code": ".card { /* TODO */ }",
+      "answer": ".card::before {\n  content: \"\";\n  display: block;\n  height: 3px;\n  background: #0f172a;\n  border-radius: 999px;\n}\n\n.card :where(h2, p) {\n  margin: 0;\n}",
+      "key_points": ["::before + content", "where zero specificity", "accent bar"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is #hero .title harder to override than .hero .title?",
+      "answer": "The id adds a full id-specificity point (1,0,0 plus class), so only another id selector, an inline style, or !important can beat it. Classes keep specificity low and overridable.",
+      "key_points": ["id specificity", "override difficulty", "prefer classes"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "What is the difference between :nth-child(2) and :nth-of-type(2)?",
+      "answer": ":nth-child(2) matches an element that is the second child of its parent regardless of type. :nth-of-type(2) matches the second sibling of that specific element type.",
+      "key_points": ["child position", "type position", "mixed siblings"]
+    }
+  ]
+}

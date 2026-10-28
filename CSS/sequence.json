@@ -1,0 +1,32 @@
+{
+  "sequence": [
+    "CSS Fundamentals.md",
+    "Selectors.md",
+    "Cascade Specificity and Inheritance.md",
+    "Box Model.md",
+    "Units Values and Functions.md",
+    "Colors Backgrounds and Gradients.md",
+    "Typography.md",
+    "Display Visibility and Overflow.md",
+    "Positioning and Stacking.md",
+    "Flexbox.md",
+    "Grid.md",
+    "Responsive Design.md",
+    "Transitions and Transforms.md",
+    "Animations and Keyframes.md",
+    "Pseudo-classes and Pseudo-elements.md",
+    "Custom Properties and Theming.md",
+    "Modern CSS.md",
+    "CSS Architecture.md",
+    "Accessibility and CSS.md",
+    "Performance and Debugging.md",
+    "CSS Interview Traps.md",
+    "Projects.md",
+    "Properties"
+  ],
+  "ignore": [
+    "sequence.json",
+    "roadmap.json",
+    "README.md"
+  ]
+}

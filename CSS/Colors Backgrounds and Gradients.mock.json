@@ -1,0 +1,63 @@
+{
+  "topic": "Colors, Backgrounds and Gradients",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is the difference between color and background-color inheritance?",
+      "answer": "color is inherited, so children use the parent's text color unless overridden. background-color is not inherited, so children are transparent and show the parent's background through.",
+      "key_points": ["color inherits", "background transparent", "children show parent"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "How do linear, radial, and conic gradients differ?",
+      "answer": "linear-gradient follows a straight angle, radial-gradient radiates from a center point, and conic-gradient sweeps around a center angle. All accept color stops, including hard stops for bands.",
+      "key_points": ["straight", "radial", "angular sweep"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "How do multiple background layers stack?",
+      "answer": "Comma-separated layers are painted with the first layer on top and later layers beneath. This is how a gradient overlay is placed over a photo without an extra element.",
+      "key_points": ["first on top", "comma-separated", "overlay technique"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "What does background-size: cover do compared to contain?",
+      "answer": "cover scales the image to fill the element, cropping overflow. contain scales it to fit entirely inside the element, possibly leaving empty space.",
+      "key_points": ["cover fills/crops", "contain fits", "no distortion"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "Why use an alpha color instead of opacity for a background?",
+      "answer": "opacity fades the entire element including text and children and creates a stacking context. An alpha color affects only that color, so text stays fully opaque.",
+      "key_points": ["whole element", "alpha color only", "stacking context"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Create a hero background with a photo and a dark gradient overlay for readable white text.",
+      "starter_code": ".hero { /* TODO */ }",
+      "answer": ".hero {\n  min-height: 60dvh;\n  color: #fff;\n  background-image:\n    linear-gradient(to bottom, rgb(15 23 42 / 0.55), rgb(15 23 42 / 0.9)),\n    url(\"/img/kakade-hero.jpg\");\n  background-size: cover;\n  background-position: center;\n  background-repeat: no-repeat;\n}",
+      "key_points": ["multiple layers", "rgba overlay", "cover + center"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is background-attachment: fixed risky?",
+      "answer": "It causes repaint/jank on scroll, performs poorly on mobile, and is often disabled by mobile browsers. Prefer normal scrolling or a fixed-position decorative layer.",
+      "key_points": ["scroll jank", "mobile support", "performance"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why can white text over a photo fail accessibility even when it looks fine?",
+      "answer": "Contrast varies across the image, so parts of the text may fall below 4.5:1. Add a consistent overlay or panel and verify contrast at the worst spot, not just the average.",
+      "key_points": ["variable contrast", "4.5:1 AA", "overlay/panel"]
+    }
+  ]
+}

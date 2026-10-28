@@ -1,0 +1,63 @@
+{
+  "topic": "Positioning and Stacking",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "How do static, relative, absolute, fixed, and sticky differ?",
+      "answer": "static is normal flow. relative keeps space and shifts visually. absolute leaves flow and positions to the nearest positioned ancestor. fixed positions to the viewport. sticky stays in flow until a threshold, then sticks within its scroll container.",
+      "key_points": ["flow vs out of flow", "containing block", "viewport vs scroll container"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "What is the containing block for an absolutely positioned element?",
+      "answer": "The padding box of the nearest ancestor with position other than static, or with transform/filter/contain/will-change. If none exists, the initial containing block (viewport-sized) is used.",
+      "key_points": ["nearest positioned ancestor", "padding box", "initial containing block"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Why does position:sticky sometimes not stick?",
+      "answer": "It needs an inset threshold (top/bottom/left/right), a scrolling ancestor, and room to move. An ancestor with overflow:hidden/auto, a fixed height, or no scroll range prevents sticking.",
+      "key_points": ["threshold required", "scroll ancestor", "overflow clipping"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "What creates a stacking context?",
+      "answer": "Positioned elements with z-index, opacity < 1, transform, filter, backdrop-filter, will-change, isolation:isolate, contain, and root elements. A stacking context isolates children's z-index ordering.",
+      "key_points": ["z-index + position", "transform/opacity/filter", "isolation"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "Why can z-index:9999 fail to bring an element to the front?",
+      "answer": "The element is inside a stacking context with a lower stacking order than a sibling context. Its z-index only competes within its own context, so the parent context must be raised or restructured.",
+      "key_points": ["context isolation", "parent order", "restructure"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Center a 480px modal in the viewport with a full-screen backdrop.",
+      "starter_code": ".backdrop { /* TODO */ }\n.modal { /* TODO */ }",
+      "answer": ".backdrop {\n  position: fixed;\n  inset: 0;\n  background: rgb(15 23 42 / 0.5);\n  z-index: 90;\n}\n\n.modal {\n  position: fixed;\n  inset: 0;\n  margin: auto;\n  width: min(90vw, 480px);\n  height: fit-content;\n  z-index: 100;\n}",
+      "key_points": ["fixed + inset 0", "margin auto centering", "z-index order"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is position:absolute not 'relative to the page' by default?",
+      "answer": "It positions against the nearest positioned ancestor, not the viewport. Without such an ancestor it falls back to the initial containing block, which often looks like the page but is not the intended reference.",
+      "key_points": ["nearest positioned ancestor", "initial containing block", "parent relative"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why should a real modal use dialog instead of a positioned div?",
+      "answer": "dialog + showModal() provides a top layer, backdrop, focus trapping, Escape handling, and inert background. A positioned div requires manual focus management and is easy to get wrong.",
+      "key_points": ["native top layer", "focus trap", "Escape/backdrop"]
+    }
+  ]
+}

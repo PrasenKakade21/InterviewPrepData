@@ -1,0 +1,63 @@
+{
+  "topic": "Units, Values and Functions",
+  "level": "beginner",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is the practical difference between absolute and relative units?",
+      "answer": "Absolute units (px, in, cm) do not depend on context, so they render at a fixed CSS size. Relative units (em, rem, %, vw, ch) derive from font size, parent, or viewport, so they scale with context.",
+      "key_points": ["fixed vs contextual", "px practical", "relative scales"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Explain em versus rem with an example of compounding.",
+      "answer": "em is relative to the element's current font size (or parent for font-size), so nesting compounds: 1.2em inside 1.2em inside 1.2em multiplies. rem is always relative to the root font size, so it does not compound.",
+      "key_points": ["em contextual", "rem root-based", "nested compounding"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Why can 100vh overflow on mobile, and what should you use instead?",
+      "answer": "100vh uses the large viewport height, which can include area hidden by browser chrome, causing content to be cut off. Use 100dvh (dynamic) or 100svh (smallest) for the visible viewport.",
+      "key_points": ["large viewport", "browser chrome", "dvh/svh"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "How does clamp() work, and what is it good for?",
+      "answer": "clamp(min, preferred, max) returns the preferred value bounded by min and max. It is ideal for fluid typography and spacing that scales with viewport but never becomes too small or too large.",
+      "key_points": ["min/preferred/max", "fluid type", "bounded scaling"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "What is the difference between opacity and an alpha color?",
+      "answer": "opacity applies to the whole element including children and creates a stacking context. An alpha color (rgb(... / 0.5) or 8-digit hex) affects only that color, leaving children fully opaque.",
+      "key_points": ["whole element", "stacking context", "color-only alpha"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Write fluid section padding between 1rem and 3rem using 4vw, and cap the width with min().",
+      "starter_code": ".section { /* TODO */ }",
+      "answer": ".section {\n  padding: clamp(1rem, 4vw, 3rem);\n  max-width: min(70ch, 92vw);\n  margin-inline: auto;\n}",
+      "key_points": ["clamp bounds", "min width cap", "margin auto centering"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why does calc(100% -2rem) fail?",
+      "answer": "calc() requires whitespace around + and - operators so they are not parsed as part of a number/sign. Write calc(100% - 2rem).",
+      "key_points": ["space around operators", "parser rules", "calc syntax"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why is rem usually preferred over em for spacing?",
+      "answer": "em compounds through nesting, so padding and margins can grow unexpectedly inside components. rem is anchored to the root font size, making spacing predictable and easier to scale globally.",
+      "key_points": ["no compounding", "predictable spacing", "root scale"]
+    }
+  ]
+}

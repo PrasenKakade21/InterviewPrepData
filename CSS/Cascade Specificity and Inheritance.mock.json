@@ -1,0 +1,63 @@
+{
+  "topic": "Cascade, Specificity and Inheritance",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is the cascade order for normal and important declarations?",
+      "answer": "Normal: user-agent < author. Important reverses priority: author !important is strong, but user !important outranks it for accessibility. Within the same origin, layers/specificity/source order decide.",
+      "key_points": ["origin order", "important flips", "user important wins"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "How is specificity calculated and compared?",
+      "answer": "As a tuple of (ids, classes/attributes/pseudo-classes, elements/pseudo-elements). Compare left to right; a single id beats any number of classes. Inline styles and !important sit outside the tuple.",
+      "key_points": ["tuple", "left-to-right", "id beats classes"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "When is !important acceptable?",
+      "answer": "Only when you cannot change the competing rule: third-party/vendor CSS, email clients, or a deliberate utility escape hatch. If it is fighting your own code, fix specificity or use layers instead.",
+      "key_points": ["external CSS", "last resort", "not a strategy"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Explain inherit, initial, unset, and revert.",
+      "answer": "inherit takes the parent's computed value. initial uses the property's spec initial value. unset inherits if the property is inheritable, otherwise initial. revert rolls back to the previous origin/layer.",
+      "key_points": ["inherit parent", "initial spec", "unset conditional", "revert origin"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "How do cascade layers change the winner?",
+      "answer": "Later declared layers beat earlier layers regardless of specificity inside them. Declare the order once, then fill layers. Unlayered normal styles generally beat layered normal styles.",
+      "key_points": ["later layer wins", "order declaration", "unlayered beats layered"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Rewrite a specificity war with layers so utilities always win.",
+      "starter_code": ".card { padding: 1rem; }\n.p-0 { padding: 0; }",
+      "answer": "@layer reset, base, components, utilities;\n\n@layer base {\n  .card { padding: 1rem; }\n}\n\n@layer utilities {\n  .p-0 { padding: 0; }\n}",
+      "key_points": ["layer order", "utilities last", "no !important"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why can adding a class fail to override a style?",
+      "answer": "The existing rule may have higher specificity (id, more classes), be in a later layer, be inline, or use !important. Check the Styles pane to see the winning rule before adding more selectors.",
+      "key_points": ["specificity", "layer order", "inline/important"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why does margin not inherit to child elements?",
+      "answer": "Margin is not an inherited property; children start with their own initial margin (often 0 or UA default). Inheritance applies to properties like color, font, and line-height unless overridden.",
+      "key_points": ["non-inherited", "initial values", "inherited properties list"]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "topic": "Pseudo-classes and Pseudo-elements",
+  "level": "intermediate",
+  "questions": [
+    {
+      "id": 1,
+      "type": "theory",
+      "question": "What is the difference between a pseudo-class and a pseudo-element?",
+      "answer": "A pseudo-class selects an element in a state or position (:hover, :nth-child) and uses one colon. A pseudo-element selects a generated part of an element (::before, ::selection) and uses double colons.",
+      "key_points": ["state vs part", "single vs double colon", "generated boxes"]
+    },
+    {
+      "id": 2,
+      "type": "theory",
+      "question": "Why use :focus-visible instead of :focus for focus rings?",
+      "answer": ":focus-visible matches when the browser determines focus should be visible, typically keyboard navigation. It keeps focus rings for keyboard users while avoiding rings on mouse clicks, and never remove them without a replacement.",
+      "key_points": ["keyboard focus", "no mouse ring", "never hide without replacement"]
+    },
+    {
+      "id": 3,
+      "type": "theory",
+      "question": "Explain :nth-child vs :nth-of-type.",
+      "answer": ":nth-child counts all siblings regardless of type; :nth-of-type counts siblings of the same element type. With mixed siblings, the same index can match different elements.",
+      "key_points": ["all siblings", "same type", "mixed content"]
+    },
+    {
+      "id": 4,
+      "type": "theory",
+      "question": "Why can :invalid fire on page load?",
+      "answer": "An empty required field is invalid from the start, so :invalid matches before the user interacts. Use :user-invalid or combine with :not(:placeholder-shown) to wait until input/attempt.",
+      "key_points": ["empty required", "premature errors", "user-invalid"]
+    },
+    {
+      "id": 5,
+      "type": "theory",
+      "question": "What are the limits of ::before/::after content?",
+      "answer": "They require content, are not in the DOM, may be ignored by screen readers, cannot be selected/copied reliably, and cannot hold interactive content. Use them for decoration only.",
+      "key_points": ["content required", "decorative", "not accessible content"]
+    },
+    {
+      "id": 6,
+      "type": "coding",
+      "question": "Number Kakade's FAQ items automatically with CSS counters.",
+      "starter_code": ".faq { /* TODO */ }",
+      "answer": ".faq {\n  counter-reset: q;\n}\n\n.faq details {\n  counter-increment: q;\n}\n\n.faq summary::before {\n  content: counter(q) \". \";\n  font-weight: 700;\n  color: #0f172a;\n}",
+      "key_points": ["counter-reset", "counter-increment", "counter() content"]
+    },
+    {
+      "id": 7,
+      "type": "trap",
+      "question": "Why is removing outline:none on focus a serious accessibility bug?",
+      "answer": "Keyboard users lose all indication of where focus is, making navigation impossible. Replace it with a visible custom focus style, ideally using :focus-visible.",
+      "key_points": ["invisible focus", "keyboard navigation", "custom ring"]
+    },
+    {
+      "id": 8,
+      "type": "trap",
+      "question": "Why should an external-link arrow not be the only signal that a link opens a new tab?",
+      "answer": "Generated content may not be announced and is easy to miss visually. Put the information in the link text or an aria-label, and keep the arrow as decoration.",
+      "key_points": ["not announced", "text/aria-label", "decoration only"]
+    }
+  ]
+}
